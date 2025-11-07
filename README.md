@@ -39,14 +39,62 @@ A modern, professional loan management platform built with Next.js 14, TypeScrip
    cp .env.example .env.local
    ```
 
-   Edit `.env.local` with your database credentials (will be set up in TASK-002)
+   The default values in `.env.local` are configured for local development. You can use them as-is or customize if needed.
 
-4. **Start development server**
+4. **Start Docker Desktop**
+
+   Make sure Docker Desktop is running. The development server will automatically start the PostgreSQL database.
+
+5. **Start development server**
    ```bash
    npm run dev
    ```
 
+   This command will:
+   - Check if Docker is running
+   - Start the PostgreSQL database automatically
+   - Launch the Next.js development server
+
    Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Database Management
+
+The project includes convenient scripts for managing the local PostgreSQL database:
+
+```bash
+# Start database (automatically done by npm run dev)
+npm run db:up
+
+# Stop database
+npm run db:down
+
+# View database logs
+npm run db:logs
+
+# Check database status
+npm run db:status
+
+# Reset database (⚠️ WARNING: Deletes all data)
+npm run db:reset
+```
+
+### Optional: Enable pgAdmin
+
+To use pgAdmin (a web-based database GUI):
+
+1. Open `docker-compose.yml`
+2. Uncomment the `pgadmin` service
+3. Run `npm run db:up`
+4. Access pgAdmin at [http://localhost:5050](http://localhost:5050)
+   - Email: `admin@loanly.local`
+   - Password: `admin`
+
+Alternatively, you can use [Postico](https://eggerapps.at/postico/) or [TablePlus](https://tableplus.com/) to connect to:
+- Host: `localhost`
+- Port: `5432`
+- Database: `loanly_db`
+- User: `loanly`
+- Password: `loanly_dev_password_change_in_production`
 
 ## Project Status
 
@@ -72,10 +120,14 @@ loan-management-platform/
 │   └── ui/               # shadcn/ui components (will be added)
 ├── lib/                   # Utility functions
 │   └── utils.ts          # Class merging utilities
+├── scripts/               # Helper scripts
+│   └── ensure-docker.js  # Docker health check
 ├── .tasks/                # Task management system
 │   ├── MASTER_TASK_LIST.md
 │   ├── WORKFLOW.md
 │   └── [phase directories]
+├── docker-compose.yml     # Docker services configuration
+├── .dockerignore          # Docker ignore patterns
 ├── .env.local            # Local environment variables (git-ignored)
 ├── .env.example          # Environment template
 └── package.json          # Dependencies and scripts
@@ -83,10 +135,18 @@ loan-management-platform/
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
+### Development
+- `npm run dev` - Start development server (automatically starts database)
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+### Database
+- `npm run db:up` - Start PostgreSQL database
+- `npm run db:down` - Stop PostgreSQL database
+- `npm run db:logs` - View database logs
+- `npm run db:status` - Check database status
+- `npm run db:reset` - Reset database (⚠️ deletes all data)
 
 ## Development Workflow
 
@@ -99,6 +159,45 @@ This project uses a task-based development workflow with feature branches. See `
 ### Commit Messages
 - Format: `[TASK-XXX] Brief description`
 - Example: `[TASK-002] Add Docker Compose configuration`
+
+## Troubleshooting
+
+### Port 5432 Already in Use
+
+If you see an error like "Bind for 0.0.0.0:5432 failed: port is already allocated":
+
+1. **Check what's using the port:**
+   ```bash
+   lsof -i :5432
+   ```
+
+2. **If it's another PostgreSQL instance:**
+   ```bash
+   docker ps  # Check if it's a Docker container
+   docker stop <container_name>  # Stop the container
+   ```
+
+3. **Alternative:** Change the port in `.env.local`:
+   ```env
+   POSTGRES_PORT=5433  # Use a different port
+   DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5433/loanly_db?schema=public"
+   ```
+
+### Docker Not Running
+
+If you see "Docker is not running!":
+
+1. Start Docker Desktop
+2. Wait for Docker to fully start
+3. Run `npm run dev` again
+
+### Database Connection Refused
+
+If Next.js can't connect to the database:
+
+1. Check database is running: `npm run db:status`
+2. View logs: `npm run db:logs`
+3. Restart database: `npm run db:down && npm run db:up`
 
 ## Documentation
 
