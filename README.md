@@ -104,9 +104,10 @@ See `.tasks/MASTER_TASK_LIST.md` for complete task breakdown and progress.
 
 ### Completed Tasks
 - ✅ TASK-001: Next.js 14 project initialization
+- ✅ TASK-002: Docker + PostgreSQL setup
 
 ### In Progress
-- 🚧 TASK-002: Docker + PostgreSQL setup (Next)
+- 🚧 TASK-003: Prisma ORM setup (Next)
 
 ## Project Structure
 
