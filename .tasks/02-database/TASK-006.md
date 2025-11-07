@@ -175,7 +175,7 @@ model Loan {
   borrowerPhone String?
 
   // Loan Terms
-  principal            Float                      // Original loan amount
+  principal            Decimal                    // Original loan amount (precise monetary value)
   interestRate         Float                      // Annual interest rate (e.g., 5.5 for 5.5%)
   startDate            DateTime
   endDate              DateTime
@@ -187,11 +187,12 @@ model Loan {
 
   // Current State
   status               LoanStatus @default(ACTIVE)
-  balance              Float                      // Current outstanding balance
+  balance              Decimal                    // Current outstanding balance (precise monetary value)
 
   // Optional Fields
   notes                String?   @db.Text        // Use @db.Text for longer notes
   collateral           String?   @db.Text        // Description of collateral (if any)
+  deletedAt            DateTime?                  // Soft delete timestamp (null = not deleted)
 
   // Relationships
   payments             Payment[]
@@ -216,9 +217,10 @@ model Payment {
   id          String   @id @default(cuid())
 
   // Payment Details
-  amount      Float                               // Payment amount
+  amount      Decimal                             // Payment amount (precise monetary value)
   date        DateTime @default(now())            // Payment date
   notes       String?                             // Optional payment notes
+  deletedAt   DateTime?                           // Soft delete timestamp (null = not deleted)
 
   // Relationship to Loan
   loanId      String
