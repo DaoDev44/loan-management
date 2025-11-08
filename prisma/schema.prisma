@@ -10,5 +10,116 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be added in TASK-006
-// This file contains the basic Prisma configuration for now
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum LoanStatus {
+  ACTIVE // Loan is currently active with outstanding balance
+  COMPLETED // Loan fully paid off
+  OVERDUE // Loan has missed payments (future: can calculate from payment due dates)
+  DEFAULTED // Loan in default (future feature)
+}
+
+enum InterestCalculationType {
+  SIMPLE // Simple interest: I = P × r × t
+  AMORTIZED // Fixed payment with compound interest (like mortgages)
+  INTEREST_ONLY // Pay interest periodically, principal at end
+}
+
+enum PaymentFrequency {
+  MONTHLY // Payment due monthly
+  BI_WEEKLY // Payment due every 2 weeks
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model Loan {
+  // Primary Key
+  id String @id @default(cuid())
+
+  // Borrower Information (embedded for MVP)
+  borrowerName  String
+  borrowerEmail String
+  borrowerPhone String?
+
+  // Loan Terms
+  principal    Decimal // Original loan amount (precise monetary value)
+  interestRate Float // Annual interest rate (e.g., 5.5 for 5.5%)
+  startDate    DateTime
+  endDate      DateTime
+  termMonths   Int // Loan duration in months
+
+  // Interest Calculation
+  interestCalculationType InterestCalculationType @default(SIMPLE)
+  paymentFrequency        PaymentFrequency        @default(MONTHLY)
+
+  // Current State
+  status  LoanStatus @default(ACTIVE)
+  balance Decimal // Current outstanding balance (precise monetary value)
+
+  // Optional Fields
+  notes      String?   @db.Text // Use @db.Text for longer notes
+  collateral String?   @db.Text // Description of collateral (if any)
+  deletedAt  DateTime? // Soft delete timestamp (null = not deleted)
+
+  // Relationships
+  payments Payment[]
+
+  // Future: User relationship (null for MVP, add when auth is implemented)
+  // userId               String?
+  // user                 User?    @relation(fields: [userId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // @@index([userId])                           // Future: filter by user
+
+  // Indexes for performance
+  @@index([status]) // Filter by status frequently
+  @@index([borrowerEmail]) // Search by borrower email
+  @@index([createdAt]) // Sort by creation date
+}
+
+model Payment {
+  // Primary Key
+  id String @id @default(cuid())
+
+  // Payment Details
+  amount    Decimal // Payment amount (precise monetary value)
+  date      DateTime  @default(now()) // Payment date
+  notes     String? // Optional payment notes
+  deletedAt DateTime? // Soft delete timestamp (null = not deleted)
+
+  // Relationship to Loan
+  loanId String
+  loan   Loan   @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Indexes
+  @@index([loanId]) // Foreign key index
+  @@index([date]) // Sort by payment date
+}
+
+// ============================================================================
+// FUTURE: User model for authentication
+// ============================================================================
+// Uncomment when implementing auth (post-MVP)
+//
+// model User {
+//   id            String    @id @default(cuid())
+//   email         String    @unique
+//   name          String?
+//   emailVerified DateTime?
+//   image         String?
+//   createdAt     DateTime  @default(now())
+//   updatedAt     DateTime  @updatedAt
+//
+//   loans         Loan[]
+//
+//   // Add your auth provider fields here (e.g., NextAuth, Clerk, etc.)
+// }
