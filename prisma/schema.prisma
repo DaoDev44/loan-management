@@ -1,0 +1,14 @@
+// Prisma schema for Loan Management Platform
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Models will be added in TASK-006
+// This file contains the basic Prisma configuration for now

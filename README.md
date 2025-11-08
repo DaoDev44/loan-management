@@ -78,6 +78,26 @@ npm run db:status
 npm run db:reset
 ```
 
+### Prisma ORM
+
+The project uses Prisma as the database ORM. Here are the key commands:
+
+```bash
+# Generate Prisma Client (after schema changes)
+npm run db:generate
+
+# Push schema changes to database (dev only, no migrations)
+npm run db:push
+
+# Create and apply migrations (recommended for production)
+npm run db:migrate
+
+# Open Prisma Studio (visual database browser)
+npm run db:studio
+```
+
+**Prisma Studio** provides a web interface to view and edit database data at [http://localhost:5555](http://localhost:5555).
+
 ### Optional: Enable pgAdmin
 
 To use pgAdmin (a web-based database GUI):
@@ -120,7 +140,10 @@ loan-management-platform/
 ├── components/            # React components
 │   └── ui/               # shadcn/ui components (will be added)
 ├── lib/                   # Utility functions
+│   ├── db.ts             # Prisma Client singleton
 │   └── utils.ts          # Class merging utilities
+├── prisma/                # Prisma ORM
+│   └── schema.prisma     # Database schema
 ├── scripts/               # Helper scripts
 │   └── ensure-docker.js  # Docker health check
 ├── .tasks/                # Task management system
@@ -148,6 +171,13 @@ loan-management-platform/
 - `npm run db:logs` - View database logs
 - `npm run db:status` - Check database status
 - `npm run db:reset` - Reset database (⚠️ deletes all data)
+
+### Prisma
+- `npm run db:generate` - Generate Prisma Client
+- `npm run db:push` - Push schema to database (no migrations)
+- `npm run db:migrate` - Create and apply migrations
+- `npm run db:migrate:deploy` - Deploy migrations (production)
+- `npm run db:studio` - Open Prisma Studio
 
 ## Development Workflow
 
