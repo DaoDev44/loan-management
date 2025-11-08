@@ -16,7 +16,7 @@ export const PaymentSchema = z.object({
 export const CreatePaymentSchema = z.object({
   loanId: cuid,
   amount: currency,
-  date: z.date({ required_error: 'Payment date is required' }).default(() => new Date()),
+  date: z.coerce.date().default(() => new Date()),
   notes: z.string().max(1000, 'Notes are too long').optional().or(z.literal('')),
 })
 
