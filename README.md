@@ -119,7 +119,7 @@ Alternatively, you can use [Postico](https://eggerapps.at/postico/) or [TablePlu
 - Port: `5432`
 - Database: `loanly_db`
 - User: `loanly`
-- Password: `loanly_dev_password_change_in_production`
+- Password: See `.env.local` or `docker-compose.yml`
 
 ## Project Status
 
@@ -224,7 +224,7 @@ If you see an error like "Bind for 0.0.0.0:5432 failed: port is already allocate
 3. **Alternative:** Change the port in `.env.local`:
    ```env
    POSTGRES_PORT=5433  # Use a different port
-   DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5433/loanly_db?schema=public"
+   DATABASE_URL="postgresql://loanly:YOUR_PASSWORD@localhost:5433/loanly_db?schema=public"
    ```
 
 ### Docker Not Running

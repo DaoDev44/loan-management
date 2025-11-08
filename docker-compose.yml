@@ -1,3 +1,8 @@
+# Local Development Database Configuration
+# NOTE: Default password below is ONLY for local development.
+# Override by setting POSTGRES_PASSWORD in your .env.local file.
+# NEVER use default passwords in production!
+
 services:
   postgres:
     image: postgres:16-alpine
