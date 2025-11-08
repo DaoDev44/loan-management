@@ -1,54 +1,45 @@
 import { z } from 'zod'
-import { currency, email, percentage, phone, positiveInteger } from './common.schema'
+import {
+  LoanSchema as GeneratedLoanSchema,
+  LoanStatusSchema,
+  InterestCalculationTypeSchema,
+  PaymentFrequencySchema,
+} from './generated'
 
-// Enums matching Prisma schema
-export const LoanStatusSchema = z.enum(['ACTIVE', 'COMPLETED', 'OVERDUE', 'DEFAULTED'])
+// Re-export generated enums and base schema
+export { LoanStatusSchema, InterestCalculationTypeSchema, PaymentFrequencySchema }
+export const LoanSchema = GeneratedLoanSchema
 
-export const InterestCalculationTypeSchema = z.enum([
-  'SIMPLE',
-  'AMORTIZED',
-  'INTEREST_ONLY',
-])
-
-export const PaymentFrequencySchema = z.enum(['MONTHLY', 'BI_WEEKLY'])
-
-// Base loan schema with all fields
-export const LoanSchema = z.object({
-  id: z.string().cuid(),
-  borrowerName: z.string().min(1, 'Borrower name is required').max(255),
-  borrowerEmail: email,
-  borrowerPhone: phone,
-  principal: currency,
-  interestRate: percentage,
-  startDate: z.date(),
-  endDate: z.date(),
-  termMonths: positiveInteger,
-  interestCalculationType: InterestCalculationTypeSchema,
-  paymentFrequency: PaymentFrequencySchema,
-  status: LoanStatusSchema,
-  balance: currency,
-  notes: z.string().max(10000).optional().or(z.literal('')),
-  collateral: z.string().max(10000).optional().or(z.literal('')),
-  deletedAt: z.date().nullable().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
-// Create loan schema (for forms)
+// Create loan schema with custom validation rules
+// Based on generated schema but with form-specific validation
 export const CreateLoanSchema = z
   .object({
     borrowerName: z
       .string({ message: 'Borrower name is required' })
       .min(1, 'Borrower name is required')
       .max(255, 'Borrower name is too long'),
-    borrowerEmail: email,
-    borrowerPhone: phone,
+    borrowerEmail: z
+      .string({ message: 'Email is required' })
+      .email('Invalid email address')
+      .min(1, 'Email is required')
+      .toLowerCase(),
+    borrowerPhone: z
+      .string()
+      .regex(
+        /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
+        'Invalid phone number format'
+      )
+      .optional()
+      .or(z.literal('')),
     principal: z
       .number({ message: 'Loan amount must be a number' })
       .positive('Loan amount must be greater than zero')
       .multipleOf(0.01, 'Loan amount can have at most 2 decimal places')
       .max(100000000, 'Loan amount cannot exceed $100,000,000'),
-    interestRate: percentage,
+    interestRate: z
+      .number({ message: 'Interest rate must be a number' })
+      .min(0, 'Interest rate cannot be negative')
+      .max(100, 'Interest rate cannot exceed 100%'),
     startDate: z.coerce.date({ message: 'Start date is required' }),
     endDate: z.coerce.date({ message: 'End date is required' }),
     termMonths: z
@@ -65,6 +56,7 @@ export const CreateLoanSchema = z
       .optional()
       .or(z.literal('')),
   })
+  // Cross-field validation
   .refine((data) => data.endDate > data.startDate, {
     message: 'End date must be after start date',
     path: ['endDate'],
@@ -90,17 +82,34 @@ export const UpdateLoanSchema = z
   .object({
     id: z.string().cuid(),
     borrowerName: z.string().min(1).max(255).optional(),
-    borrowerEmail: email.optional(),
-    borrowerPhone: phone,
-    principal: currency.optional(),
-    interestRate: percentage.optional(),
-    startDate: z.date().optional(),
-    endDate: z.date().optional(),
-    termMonths: positiveInteger.max(360).optional(),
+    borrowerEmail: z
+      .string()
+      .email('Invalid email address')
+      .min(1)
+      .toLowerCase()
+      .optional(),
+    borrowerPhone: z
+      .string()
+      .regex(
+        /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
+        'Invalid phone number format'
+      )
+      .optional()
+      .or(z.literal('')),
+    principal: z
+      .number()
+      .positive()
+      .multipleOf(0.01)
+      .max(100000000)
+      .optional(),
+    interestRate: z.number().min(0).max(100).optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
+    termMonths: z.number().int().positive().max(360).optional(),
     interestCalculationType: InterestCalculationTypeSchema.optional(),
     paymentFrequency: PaymentFrequencySchema.optional(),
     status: LoanStatusSchema.optional(),
-    balance: currency.optional(),
+    balance: z.number().positive().multipleOf(0.01).optional(),
     notes: z.string().max(10000).optional().or(z.literal('')),
     collateral: z.string().max(10000).optional().or(z.literal('')),
   })
@@ -125,12 +134,12 @@ export const LoanFilterSchema = z.object({
   paymentFrequency: PaymentFrequencySchema.optional(),
   borrowerEmail: z.string().optional(),
   borrowerName: z.string().optional(),
-  minPrincipal: currency.optional(),
-  maxPrincipal: currency.optional(),
-  minBalance: currency.optional(),
-  maxBalance: currency.optional(),
-  startDateFrom: z.date().optional(),
-  startDateTo: z.date().optional(),
+  minPrincipal: z.number().positive().multipleOf(0.01).optional(),
+  maxPrincipal: z.number().positive().multipleOf(0.01).optional(),
+  minBalance: z.number().positive().multipleOf(0.01).optional(),
+  maxBalance: z.number().positive().multipleOf(0.01).optional(),
+  startDateFrom: z.coerce.date().optional(),
+  startDateTo: z.coerce.date().optional(),
 })
 
 // TypeScript types derived from schemas

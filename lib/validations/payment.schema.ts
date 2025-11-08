@@ -1,40 +1,36 @@
 import { z } from 'zod'
-import { currency, cuid } from './common.schema'
+import { PaymentSchema as GeneratedPaymentSchema } from './generated'
 
-// Base payment schema
-export const PaymentSchema = z.object({
-  id: cuid,
-  amount: currency,
-  date: z.date(),
-  notes: z.string().max(1000).optional().or(z.literal('')),
-  deletedAt: z.date().nullable().optional(),
-  loanId: cuid,
-  createdAt: z.date(),
-})
+// Re-export generated base schema
+export const PaymentSchema = GeneratedPaymentSchema
 
 // Create payment schema (for forms)
+// Based on generated schema with custom validation
 export const CreatePaymentSchema = z.object({
-  loanId: cuid,
-  amount: currency,
+  loanId: z.string().cuid('Invalid loan ID'),
+  amount: z
+    .number({ message: 'Payment amount must be a number' })
+    .positive('Payment amount must be greater than zero')
+    .multipleOf(0.01, 'Payment amount can have at most 2 decimal places'),
   date: z.coerce.date().default(() => new Date()),
   notes: z.string().max(1000, 'Notes are too long').optional().or(z.literal('')),
 })
 
 // Update payment schema
 export const UpdatePaymentSchema = z.object({
-  id: cuid,
-  amount: currency.optional(),
-  date: z.date().optional(),
+  id: z.string().cuid('Invalid payment ID'),
+  amount: z.number().positive().multipleOf(0.01).optional(),
+  date: z.coerce.date().optional(),
   notes: z.string().max(1000, 'Notes are too long').optional().or(z.literal('')),
 })
 
 // Payment filter schema
 export const PaymentFilterSchema = z.object({
-  loanId: cuid.optional(),
-  dateFrom: z.date().optional(),
-  dateTo: z.date().optional(),
-  minAmount: currency.optional(),
-  maxAmount: currency.optional(),
+  loanId: z.string().cuid().optional(),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
+  minAmount: z.number().positive().multipleOf(0.01).optional(),
+  maxAmount: z.number().positive().multipleOf(0.01).optional(),
 })
 
 // TypeScript types
