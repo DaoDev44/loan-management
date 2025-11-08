@@ -118,17 +118,22 @@ Alternatively, you can use [Postico](https://eggerapps.at/postico/) or [TablePlu
 
 ## Project Status
 
-**Current Phase:** Setup & Infrastructure
+**Current Phase:** Database & API Layer
 
 See `.tasks/MASTER_TASK_LIST.md` for complete task breakdown and progress.
 
 ### Completed Tasks
+
+**Phase 1: Setup & Infrastructure**
 - ✅ TASK-001: Next.js 14 project initialization
 - ✅ TASK-002: Docker + PostgreSQL setup
 - ✅ TASK-003: Prisma ORM setup
 
+**Phase 2: Database & API Layer**
+- ✅ TASK-006: Prisma schema design
+
 ### In Progress
-- 🚧 TASK-006: Prisma schema design (Next)
+- 🚧 TASK-007: Database seed data (Next)
 
 ## Project Structure
 
