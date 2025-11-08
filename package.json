@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/ensure-docker.js && npm run db:ensure && next dev",
     "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "db:ensure": "docker-compose up -d postgres",

@@ -251,15 +251,80 @@ If Next.js can't connect to the database:
 
 ## Deployment
 
-This project is configured for deployment on Vercel.
+This project is configured for deployment on **Vercel** with automatic deployments from Git.
 
-### Database Options (Production)
-- Vercel Postgres (recommended for Vercel deployments)
-- Neon (serverless PostgreSQL, generous free tier)
-- Supabase
-- Railway
+### Quick Start
 
-See TASK-002 and TASK-005 documentation for deployment setup details.
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Import Project to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New Project"
+   - Import your GitHub repository
+   - Vercel auto-detects Next.js configuration
+
+3. **Set Up Database**
+
+   Choose one of these options:
+
+   **Option A: Vercel Postgres (Recommended)**
+   - In Vercel dashboard → Storage → Create Database → Postgres
+   - Vercel automatically adds these environment variables:
+     - `POSTGRES_URL` → Set as `DATABASE_URL`
+     - `POSTGRES_URL_NON_POOLING` → Set as `DIRECT_URL`
+
+   **Option B: Neon (More Free Tier)**
+   - Create account at [neon.tech](https://neon.tech)
+   - Create database and copy connection strings
+   - Add to Vercel environment variables:
+     - `DATABASE_URL` = Pooled connection string
+     - `DIRECT_URL` = Direct connection string
+
+4. **Configure Environment Variables**
+
+   In Vercel Project Settings → Environment Variables, add:
+   ```
+   DATABASE_URL = [from database provider]
+   DIRECT_URL = [direct connection for migrations]
+   NEXT_PUBLIC_APP_URL = https://your-app.vercel.app
+   ```
+
+5. **Deploy**
+   - Vercel automatically deploys on push to main
+   - Migrations run automatically via `vercel-build` script
+   - View deployment at your Vercel URL
+
+### Deployment Workflow
+
+**For Production:**
+```bash
+git push origin main  # Auto-deploys to production
+```
+
+**For Preview:**
+```bash
+git push origin feature-branch  # Creates preview deployment
+```
+
+### Build Configuration
+
+The project uses a custom `vercel-build` script that:
+1. Generates Prisma Client
+2. Runs database migrations
+3. Builds Next.js application
+
+See `package.json` → `scripts.vercel-build` for details.
+
+### Database Connection Pooling
+
+The schema is configured to support connection pooling (required for serverless):
+- `DATABASE_URL`: Pooled connection for queries
+- `DIRECT_URL`: Direct connection for migrations
+
+See `.tasks/01-setup/TASK-005.md` for detailed deployment instructions.
 
 ## Features (Planned)
 

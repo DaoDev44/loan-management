@@ -1,0 +1,50 @@
+# Local environment files (sensitive data)
+.env
+.env.local
+.env*.local
+
+# Git
+.git
+.gitignore
+
+# Dependencies (Vercel installs fresh)
+node_modules
+
+# Next.js (rebuilt on Vercel)
+.next
+out
+
+# IDE
+.vscode
+.idea
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker (not needed in production)
+docker-compose.yml
+.dockerignore
+
+# Local development scripts
+scripts/ensure-docker.js
+scripts/test-schema.ts
+scripts/verify-seed.ts
+
+# Testing
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+coverage/
+
+# Documentation (optional - uncomment if you don't want to deploy docs)
+# .tasks/
+# *.md
