@@ -135,12 +135,16 @@ See `.tasks/MASTER_TASK_LIST.md` for complete task breakdown and progress.
 - ✅ TASK-003: Prisma ORM setup
 - ✅ TASK-005: Vercel deployment configuration
 
-**Phase 2: Database & API Layer (2/6 - 33%)**
+**Phase 2: Database & API Layer (5/6 - 83%)**
 - ✅ TASK-006: Prisma schema design
 - ✅ TASK-007: Database seed data
+- ✅ TASK-008: Zod validation schemas
+- ✅ TASK-009: Loan CRUD Server Actions
+- ✅ TASK-010: Payment Server Actions
 
-### In Progress
-- 🚧 TASK-008: Zod validation schemas (Next)
+### Next Up
+- 🎯 TASK-011: Interest calculation utilities
+- 🎯 TASK-012: Set up shadcn/ui components
 
 ## Project Structure
 
