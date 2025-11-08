@@ -92,9 +92,14 @@ npm run db:push
 # Create and apply migrations (recommended for production)
 npm run db:migrate
 
+# Seed the database with sample data
+npm run db:seed
+
 # Open Prisma Studio (visual database browser)
 npm run db:studio
 ```
+
+**Seed Data:** The database includes sample loans and payments for testing. Run `npm run db:seed` to populate the database with 8 loans (various statuses and types) and 50 payments.
 
 **Prisma Studio** provides a web interface to view and edit database data at [http://localhost:5555](http://localhost:5555).
 
@@ -131,9 +136,10 @@ See `.tasks/MASTER_TASK_LIST.md` for complete task breakdown and progress.
 
 **Phase 2: Database & API Layer**
 - ✅ TASK-006: Prisma schema design
+- ✅ TASK-007: Database seed data
 
 ### In Progress
-- 🚧 TASK-007: Database seed data (Next)
+- 🚧 TASK-008: Zod validation schemas (Next)
 
 ## Project Structure
 
