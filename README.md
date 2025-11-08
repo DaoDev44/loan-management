@@ -129,12 +129,13 @@ See `.tasks/MASTER_TASK_LIST.md` for complete task breakdown and progress.
 
 ### Completed Tasks
 
-**Phase 1: Setup & Infrastructure**
+**Phase 1: Setup & Infrastructure (4/5 - 80%)**
 - ✅ TASK-001: Next.js 14 project initialization
 - ✅ TASK-002: Docker + PostgreSQL setup
 - ✅ TASK-003: Prisma ORM setup
+- ✅ TASK-005: Vercel deployment configuration
 
-**Phase 2: Database & API Layer**
+**Phase 2: Database & API Layer (2/6 - 33%)**
 - ✅ TASK-006: Prisma schema design
 - ✅ TASK-007: Database seed data
 
