@@ -1,14 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import { execSync } from 'child_process'
+import { TEST_CONFIG, setupTestEnv } from './test-env'
 
-const TEST_DATABASE_URL =
-  process.env.TEST_DATABASE_URL ||
-  'postgresql://loanly:loanly_dev_password@localhost:5432/loanly_test_db?schema=public'
+// Ensure environment is configured
+setupTestEnv()
 
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
-      url: TEST_DATABASE_URL,
+      url: TEST_CONFIG.DATABASE_URL,
     },
   },
 })
@@ -17,11 +17,7 @@ export const testPrisma = new PrismaClient({
  * Set up test database (run migrations, seed if needed)
  */
 export async function setupTestDatabase() {
-  // Run migrations on test database
-  process.env.DATABASE_URL = TEST_DATABASE_URL
-  process.env.POSTGRES_URL = TEST_DATABASE_URL
-  process.env.PRISMA_DATABASE_URL = TEST_DATABASE_URL
-
+  // Environment is already set up by setupTestEnv()
   try {
     execSync('npx prisma migrate deploy', { stdio: 'inherit' })
   } catch (error) {
