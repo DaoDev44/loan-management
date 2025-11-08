@@ -3,7 +3,7 @@ import { execSync } from 'child_process'
 
 const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ||
-  'postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public'
+  'postgresql://loanly:loanly_dev_password@localhost:5432/loanly_test_db?schema=public'
 
 export const testPrisma = new PrismaClient({
   datasources: {

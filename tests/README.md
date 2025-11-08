@@ -61,9 +61,9 @@ Integration tests require a test database. To set up:
 
 3. **Run migrations on test database:**
    ```bash
-   DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public" \
-   POSTGRES_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public" \
-   PRISMA_DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public" \
+   DATABASE_URL="postgresql://loanly:loanly_dev_password@localhost:5432/loanly_test_db?schema=public" \
+   POSTGRES_URL="postgresql://loanly:loanly_dev_password@localhost:5432/loanly_test_db?schema=public" \
+   PRISMA_DATABASE_URL="postgresql://loanly:loanly_dev_password@localhost:5432/loanly_test_db?schema=public" \
    npx prisma migrate deploy
    ```
 
