@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loan, LoanStatus } from '@prisma/client'
+import { LoanStatus } from '@prisma/client'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import {
   Table,
@@ -17,12 +17,7 @@ import { LoadingState } from '@/components/shared/loading-state'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoanTableFilters } from './loan-table-filters'
 import { LoanTablePagination } from './loan-table-pagination'
-
-// Serialized loan type for client components (Decimal -> number)
-export type SerializedLoan = Omit<Loan, 'principal' | 'balance'> & {
-  principal: number
-  balance: number
-}
+import { type SerializedLoan } from '@/lib/utils/serialize'
 
 type SortColumn = 'borrowerName' | 'principal' | 'balance' | 'interestRate' | 'status' | 'startDate'
 type SortOrder = 'asc' | 'desc' | null

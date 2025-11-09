@@ -2,18 +2,15 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getLoans } from '@/app/actions/loan.actions'
-import { LoanTable, type SerializedLoan } from '@/components/loans/loan-table'
+import { LoanTable } from '@/components/loans/loan-table'
+import { serializeLoans } from '@/lib/utils/serialize'
 
 export default async function LoansPage() {
   const result = await getLoans()
   const rawLoans = result.success ? result.data : []
 
   // Serialize Prisma Decimal types to numbers for client component
-  const loans: SerializedLoan[] = rawLoans.map((loan) => ({
-    ...loan,
-    principal: loan.principal.toNumber(),
-    balance: loan.balance.toNumber(),
-  }))
+  const loans = serializeLoans(rawLoans)
 
   return (
     <div className="space-y-6">
