@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loan, LoanStatus, Prisma } from '@prisma/client'
+import { Loan, LoanStatus } from '@prisma/client'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import {
   Table,
@@ -18,11 +18,17 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { LoanTableFilters } from './loan-table-filters'
 import { LoanTablePagination } from './loan-table-pagination'
 
+// Serialized loan type for client components (Decimal -> number)
+export type SerializedLoan = Omit<Loan, 'principal' | 'balance'> & {
+  principal: number
+  balance: number
+}
+
 type SortColumn = 'borrowerName' | 'principal' | 'balance' | 'interestRate' | 'status' | 'startDate'
 type SortOrder = 'asc' | 'desc' | null
 
 interface LoanTableProps {
-  loans: Loan[]
+  loans: SerializedLoan[]
   isLoading?: boolean
 }
 
@@ -96,20 +102,6 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
         let aValue: any = a[sortColumn]
         let bValue: any = b[sortColumn]
 
-        // Handle Decimal types (may be Prisma.Decimal, number, or string when serialized)
-        if (sortColumn === 'principal' || sortColumn === 'balance') {
-          aValue = typeof aValue === 'object' && 'toNumber' in aValue
-            ? aValue.toNumber()
-            : typeof aValue === 'string'
-            ? parseFloat(aValue)
-            : aValue
-          bValue = typeof bValue === 'object' && 'toNumber' in bValue
-            ? bValue.toNumber()
-            : typeof bValue === 'string'
-            ? parseFloat(bValue)
-            : bValue
-        }
-
         // Handle Date types
         if (sortColumn === 'startDate') {
           aValue = new Date(a.startDate).getTime()
@@ -135,18 +127,11 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
   const totalPages = Math.ceil(filteredAndSortedLoans.length / itemsPerPage)
 
   // Format currency
-  const formatCurrency = (amount: Prisma.Decimal | number | string) => {
-    // Handle Prisma Decimal, number, or string (serialized from server)
-    const numericAmount = typeof amount === 'object' && 'toNumber' in amount
-      ? amount.toNumber()
-      : typeof amount === 'string'
-      ? parseFloat(amount)
-      : amount
-
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(numericAmount)
+    }).format(amount)
   }
 
   // Format percentage
