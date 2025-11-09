@@ -159,13 +159,8 @@ export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<Loan
     const loans = await prisma.loan.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: {
-        payments: {
-          where: { deletedAt: null },
-          orderBy: { date: 'desc' },
-          take: 5, // Only include latest 5 payments per loan
-        },
-      },
+      // Note: Payments are not included here for performance and serialization
+      // Use getLoan(id) to fetch a single loan with its payments
     })
 
     return successResponse(loans as unknown as Loan[])
