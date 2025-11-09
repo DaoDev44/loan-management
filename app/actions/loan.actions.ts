@@ -14,13 +14,18 @@ import {
   type Loan,
 } from '@/lib/validations'
 import { type ActionResponse, successResponse, errorResponse } from './types'
+import {
+  serializeLoan,
+  serializeLoans,
+  type SerializedLoan,
+} from '@/lib/utils/serialize'
 
 /**
  * Create a new loan
  * @param input - Loan creation data (validated against CreateLoanSchema)
- * @returns Created loan or error
+ * @returns Serialized created loan or error
  */
-export async function createLoan(input: CreateLoanInput): Promise<ActionResponse<Loan>> {
+export async function createLoan(input: CreateLoanInput): Promise<ActionResponse<SerializedLoan>> {
   try {
     // Validate input
     const validated = CreateLoanSchema.parse(input)
@@ -53,7 +58,8 @@ export async function createLoan(input: CreateLoanInput): Promise<ActionResponse
       // Ignore revalidation errors in test context
     }
 
-    return successResponse(loan as unknown as Loan)
+    // Serialize Decimal types for client components
+    return successResponse(serializeLoan(loan))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return errorResponse('Validation failed', error.issues)
@@ -66,9 +72,9 @@ export async function createLoan(input: CreateLoanInput): Promise<ActionResponse
 /**
  * Get a single loan by ID
  * @param id - Loan ID (CUID)
- * @returns Loan with payments or error
+ * @returns Serialized loan with payments or error
  */
-export async function getLoan(id: string): Promise<ActionResponse<Loan>> {
+export async function getLoan(id: string): Promise<ActionResponse<SerializedLoan>> {
   try {
     const loan = await prisma.loan.findUnique({
       where: { id, deletedAt: null },
@@ -84,7 +90,8 @@ export async function getLoan(id: string): Promise<ActionResponse<Loan>> {
       return errorResponse('Loan not found')
     }
 
-    return successResponse(loan as unknown as Loan)
+    // Serialize Decimal types for client components (includes payments)
+    return successResponse(serializeLoan(loan))
   } catch (error) {
     console.error('Error fetching loan:', error)
     return errorResponse('Failed to fetch loan')
@@ -94,9 +101,9 @@ export async function getLoan(id: string): Promise<ActionResponse<Loan>> {
 /**
  * Get all loans with optional filtering and sorting
  * @param filter - Optional filter criteria
- * @returns Array of loans or error
+ * @returns Array of serialized loans or error
  */
-export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<Loan[]>> {
+export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<SerializedLoan[]>> {
   try {
     const where: Prisma.LoanWhereInput = {
       deletedAt: null,
@@ -163,7 +170,8 @@ export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<Loan
       // Use getLoan(id) to fetch a single loan with its payments
     })
 
-    return successResponse(loans as unknown as Loan[])
+    // Serialize Decimal types for client components
+    return successResponse(serializeLoans(loans))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return errorResponse('Invalid filter criteria', error.issues)
@@ -176,9 +184,9 @@ export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<Loan
 /**
  * Update an existing loan
  * @param input - Partial loan data with ID
- * @returns Updated loan or error
+ * @returns Serialized updated loan or error
  */
-export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse<Loan>> {
+export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse<SerializedLoan>> {
   try {
     // Validate input
     const validated = UpdateLoanSchema.parse(input)
@@ -227,7 +235,8 @@ export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse
       // Ignore revalidation errors in test context
     }
 
-    return successResponse(loan as unknown as Loan)
+    // Serialize Decimal types for client components
+    return successResponse(serializeLoan(loan))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return errorResponse('Validation failed', error.issues)
