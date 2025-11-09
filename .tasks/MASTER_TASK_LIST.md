@@ -1,7 +1,7 @@
 # Master Task List - Loan Management Platform
 
 **Project:** Loan Management Platform (LMP) Migration to Next.js 14
-**Last Updated:** 2025-11-09 (TASK-030 completed)
+**Last Updated:** 2025-11-09 (TASK-012, 013, 014 completed)
 
 ## Overview
 Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma, following the PRD specifications.
@@ -41,15 +41,15 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 
 | ID | Task | Status | Priority | Effort | Branch |
 |----|------|--------|----------|--------|--------|
-| TASK-012 | Set up shadcn/ui in Next.js with theme config | NOT_STARTED | P0 | S | `task/012-shadcn-setup` |
-| TASK-013 | Build root layout with navigation | NOT_STARTED | P0 | M | `task/013-root-layout` |
-| TASK-014 | Create shared components (MetricsCard, StatusBadge) | NOT_STARTED | P1 | M | `task/014-shared-components` |
+| TASK-012 | Set up shadcn/ui in Next.js with theme config | COMPLETED | P0 | S | `task/012-shadcn-setup` |
+| TASK-013 | Build root layout with navigation | COMPLETED | P0 | M | `task/013-root-layout` |
+| TASK-014 | Create shared components (MetricsCard, StatusBadge) | COMPLETED | P1 | M | `task/014-shared-components` |
 | TASK-015 | Build LoanTable with sort/filter | NOT_STARTED | P0 | L | `task/015-loan-table` |
 | TASK-016 | Create loading and error boundary components | NOT_STARTED | P1 | S | `task/016-loading-error` |
-| TASK-017 | Build EmptyState component | NOT_STARTED | P2 | XS | `task/017-empty-state` |
-| TASK-018 | Set up toast notification system | NOT_STARTED | P1 | S | `task/018-toast-system` |
+| TASK-017 | Build EmptyState component | COMPLETED | P2 | XS | `task/017-empty-state` |
+| TASK-018 | Set up toast notification system | COMPLETED | P1 | S | `task/018-toast-system` |
 
-**Phase Completion:** 0/7 (0%)
+**Phase Completion:** 5/7 (71%)
 
 ---
 
@@ -89,12 +89,12 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 ## Overall Progress
 
 **Total Tasks:** 33
-**Completed:** 12 (TASK-001, 002, 003, 005, 006, 007, 008, 009, 010, 030, 031, 032)
+**Completed:** 17 (TASK-001, 002, 003, 005, 006, 007, 008, 009, 010, 012, 013, 014, 017, 018, 030, 031, 032)
 **In Progress:** 0
 **Blocked:** 0
-**Not Started:** 21
+**Not Started:** 16
 
-**Overall Completion:** 36%
+**Overall Completion:** 52%
 
 ---
 
