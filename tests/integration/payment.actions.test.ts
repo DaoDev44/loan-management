@@ -262,7 +262,7 @@ describe('Payment Actions', () => {
         date: new Date('2024-02-15')
       })
 
-      // Filter by amount range (400-600) and specific loan ID  
+      // Filter by amount range (400-600) and specific loan ID
       const amountRangeResult = await getPayments({
         loanId: testLoanId,
         minAmount: 400,
@@ -272,11 +272,11 @@ describe('Payment Actions', () => {
       expect(amountRangeResult.success).toBe(true)
       if (amountRangeResult.success) {
         // Should include the $500 payment
-        const has500Payment = amountRangeResult.data.some((payment: any) => 
+        const has500Payment = amountRangeResult.data.some((payment: any) =>
           payment.amount.toString() === '500'
         )
         expect(has500Payment).toBe(true)
-        
+
         // All returned payments should be in range
         amountRangeResult.data.forEach((payment: any) => {
           const amount = payment.amount.toNumber()
@@ -284,6 +284,178 @@ describe('Payment Actions', () => {
           expect(amount).toBeLessThanOrEqual(600)
         })
       }
+    })
+  })
+
+  describe('Balance Update Business Logic', () => {
+    it('should reduce loan balance when payment is created', async () => {
+      // Get initial loan balance
+      const loanBefore = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+
+      expect(loanBefore).not.toBeNull()
+      const initialBalance = loanBefore!.balance.toNumber()
+
+      // Create a payment
+      const paymentResult = await createPayment({
+        loanId: testLoanId,
+        amount: 1500,
+        date: new Date('2024-01-15')
+      })
+
+      expect(paymentResult.success).toBe(true)
+
+      // Check loan balance was reduced
+      const loanAfter = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+
+      expect(loanAfter).not.toBeNull()
+      const newBalance = loanAfter!.balance.toNumber()
+      expect(newBalance).toBe(initialBalance - 1500)
+    })
+
+    it('should adjust loan balance when payment amount is updated', async () => {
+      // Create initial payment of $500
+      const createResult = await createPayment({
+        loanId: testLoanId,
+        amount: 500,
+        date: new Date('2024-01-15')
+      })
+
+      expect(createResult.success).toBe(true)
+      if (!createResult.success) return
+
+      const paymentId = createResult.data.id
+
+      // Get balance after first payment
+      const loanAfterCreate = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+      const balanceAfterCreate = loanAfterCreate!.balance.toNumber()
+
+      // Update payment to $800 (increase by $300)
+      const updateResult = await updatePayment({
+        id: paymentId,
+        amount: 800
+      })
+
+      expect(updateResult.success).toBe(true)
+
+      // Balance should decrease by additional $300
+      const loanAfterUpdate = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+      const balanceAfterUpdate = loanAfterUpdate!.balance.toNumber()
+      expect(balanceAfterUpdate).toBe(balanceAfterCreate - 300)
+    })
+
+    it('should restore loan balance when payment is deleted', async () => {
+      // Create a payment
+      const createResult = await createPayment({
+        loanId: testLoanId,
+        amount: 1000,
+        date: new Date('2024-01-15')
+      })
+
+      expect(createResult.success).toBe(true)
+      if (!createResult.success) return
+
+      const paymentId = createResult.data.id
+
+      // Get balance after payment
+      const loanAfterPayment = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+      const balanceAfterPayment = loanAfterPayment!.balance.toNumber()
+
+      // Delete payment
+      const deleteResult = await deletePayment(paymentId)
+      expect(deleteResult.success).toBe(true)
+
+      // Balance should increase by payment amount
+      const loanAfterDelete = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+      const balanceAfterDelete = loanAfterDelete!.balance.toNumber()
+      expect(balanceAfterDelete).toBe(balanceAfterPayment + 1000)
+    })
+
+    it('should mark loan as COMPLETED when balance reaches zero', async () => {
+      // Get current balance
+      const loan = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true, status: true }
+      })
+
+      expect(loan).not.toBeNull()
+      const currentBalance = loan!.balance.toNumber()
+
+      // Create payment equal to remaining balance
+      const paymentResult = await createPayment({
+        loanId: testLoanId,
+        amount: currentBalance,
+        date: new Date('2024-01-15')
+      })
+
+      expect(paymentResult.success).toBe(true)
+
+      // Verify loan status is COMPLETED
+      const loanAfter = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true, status: true }
+      })
+
+      expect(loanAfter).not.toBeNull()
+      expect(loanAfter!.balance.toNumber()).toBeLessThanOrEqual(0)
+      expect(loanAfter!.status).toBe('COMPLETED')
+    })
+
+    it('should reactivate loan to ACTIVE when payment deleted from completed loan', async () => {
+      // Get current balance and pay it all
+      const loan = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { balance: true }
+      })
+      const currentBalance = loan!.balance.toNumber()
+
+      // Make payment to complete the loan
+      const paymentResult = await createPayment({
+        loanId: testLoanId,
+        amount: currentBalance,
+        date: new Date('2024-01-15')
+      })
+
+      expect(paymentResult.success).toBe(true)
+      if (!paymentResult.success) return
+
+      const paymentId = paymentResult.data.id
+
+      // Verify loan is completed
+      const loanCompleted = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { status: true }
+      })
+      expect(loanCompleted!.status).toBe('COMPLETED')
+
+      // Delete the payment
+      const deleteResult = await deletePayment(paymentId)
+      expect(deleteResult.success).toBe(true)
+
+      // Verify loan is reactivated
+      const loanReactivated = await prisma.loan.findUnique({
+        where: { id: testLoanId },
+        select: { status: true, balance: true }
+      })
+      expect(loanReactivated!.status).toBe('ACTIVE')
+      expect(loanReactivated!.balance.toNumber()).toBeGreaterThan(0)
     })
   })
 })
