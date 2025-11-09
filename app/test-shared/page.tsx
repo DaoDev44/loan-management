@@ -102,7 +102,7 @@ export default function TestSharedComponentsPage() {
               <StatusBadge status="ACTIVE" />
               <StatusBadge status="COMPLETED" />
               <StatusBadge status="DEFAULTED" />
-              <StatusBadge status="PENDING" />
+              <StatusBadge status="OVERDUE" />
             </div>
           </div>
 
@@ -116,21 +116,21 @@ export default function TestSharedComponentsPage() {
                 <StatusBadge status="ACTIVE" size="sm" />
                 <StatusBadge status="COMPLETED" size="sm" />
                 <StatusBadge status="DEFAULTED" size="sm" />
-                <StatusBadge status="PENDING" size="sm" />
+                <StatusBadge status="OVERDUE" size="sm" />
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground w-16">Medium:</span>
                 <StatusBadge status="ACTIVE" size="md" />
                 <StatusBadge status="COMPLETED" size="md" />
                 <StatusBadge status="DEFAULTED" size="md" />
-                <StatusBadge status="PENDING" size="md" />
+                <StatusBadge status="OVERDUE" size="md" />
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground w-16">Large:</span>
                 <StatusBadge status="ACTIVE" size="lg" />
                 <StatusBadge status="COMPLETED" size="lg" />
                 <StatusBadge status="DEFAULTED" size="lg" />
-                <StatusBadge status="PENDING" size="lg" />
+                <StatusBadge status="OVERDUE" size="lg" />
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
-type Status = 'ACTIVE' | 'COMPLETED' | 'DEFAULTED' | 'PENDING'
+type Status = 'ACTIVE' | 'COMPLETED' | 'OVERDUE' | 'DEFAULTED'
 type Size = 'sm' | 'md' | 'lg'
 
 interface StatusBadgeProps {
@@ -25,13 +25,13 @@ const statusConfig: Record<
     label: 'Completed',
     className: 'bg-accent text-accent-foreground hover:bg-accent/80',
   },
+  OVERDUE: {
+    label: 'Overdue',
+    className: 'bg-orange-500 text-white hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700',
+  },
   DEFAULTED: {
     label: 'Defaulted',
     className: 'bg-destructive text-destructive-foreground hover:bg-destructive/80',
-  },
-  PENDING: {
-    label: 'Pending',
-    className: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   },
 }
 
