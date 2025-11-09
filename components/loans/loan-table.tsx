@@ -96,10 +96,18 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
         let aValue: any = a[sortColumn]
         let bValue: any = b[sortColumn]
 
-        // Handle Decimal types
+        // Handle Decimal types (may be Prisma.Decimal, number, or string when serialized)
         if (sortColumn === 'principal' || sortColumn === 'balance') {
-          aValue = a[sortColumn].toNumber()
-          bValue = b[sortColumn].toNumber()
+          aValue = typeof aValue === 'object' && 'toNumber' in aValue
+            ? aValue.toNumber()
+            : typeof aValue === 'string'
+            ? parseFloat(aValue)
+            : aValue
+          bValue = typeof bValue === 'object' && 'toNumber' in bValue
+            ? bValue.toNumber()
+            : typeof bValue === 'string'
+            ? parseFloat(bValue)
+            : bValue
         }
 
         // Handle Date types
@@ -127,11 +135,18 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
   const totalPages = Math.ceil(filteredAndSortedLoans.length / itemsPerPage)
 
   // Format currency
-  const formatCurrency = (amount: Prisma.Decimal) => {
+  const formatCurrency = (amount: Prisma.Decimal | number | string) => {
+    // Handle Prisma Decimal, number, or string (serialized from server)
+    const numericAmount = typeof amount === 'object' && 'toNumber' in amount
+      ? amount.toNumber()
+      : typeof amount === 'string'
+      ? parseFloat(amount)
+      : amount
+
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount.toNumber())
+    }).format(numericAmount)
   }
 
   // Format percentage
