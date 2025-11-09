@@ -6,7 +6,14 @@ import { LoanTable } from '@/components/loans/loan-table'
 
 export default async function LoansPage() {
   const result = await getLoans()
-  const loans = result.success ? result.data : []
+  const rawLoans = result.success ? result.data : []
+
+  // Serialize Prisma Decimal types to numbers for client component
+  const loans = rawLoans.map((loan) => ({
+    ...loan,
+    principal: loan.principal.toNumber(),
+    balance: loan.balance.toNumber(),
+  }))
 
   return (
     <div className="space-y-6">
@@ -25,7 +32,7 @@ export default async function LoansPage() {
         </Button>
       </div>
 
-      <LoanTable loans={loans} />
+      <LoanTable loans={loans as any} />
     </div>
   )
 }
