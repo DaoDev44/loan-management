@@ -52,7 +52,7 @@ export default function TestComponentsPage() {
           shadcn/ui Component Test Page
         </h1>
         <p className="text-muted-foreground">
-          Testing all installed components with our custom Indigo + Emerald theme
+          Testing all installed components with our custom Cerulean Blue + Emerald theme
         </p>
       </div>
 
@@ -334,14 +334,14 @@ export default function TestComponentsPage() {
         <CardHeader>
           <CardTitle>Custom Color Scheme</CardTitle>
           <CardDescription>
-            Our Indigo (Primary) + Emerald (Accent) theme
+            Our Cerulean Blue (Primary) + Emerald (Accent) theme
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <div className="h-20 bg-primary rounded-md" />
-              <p className="text-xs font-medium">Primary (Indigo)</p>
+              <p className="text-xs font-medium">Primary (Cerulean Blue)</p>
             </div>
             <div className="space-y-2">
               <div className="h-20 bg-secondary rounded-md" />
