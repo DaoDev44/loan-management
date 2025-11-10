@@ -4,6 +4,24 @@
 
 This project uses a structured task-based workflow to ensure quality, enable code review, and maintain clear progress tracking.
 
+## For AI Assistants
+
+**IMPORTANT:** This workflow is designed to be comprehensive and self-contained. Any AI assistant working on this project should:
+
+1. **Follow this workflow exactly** - Every step is required for maintaining project quality
+2. **Read the complete workflow** - Don't skip sections; each has critical information
+3. **Use context efficiently** - This document contains all necessary procedures to reduce token usage
+4. **Be autonomous but thorough** - Make decisions within the defined framework
+5. **Update documentation** - Keep README.md and this workflow current as the project evolves
+
+**Context Management:** If you need to reduce token usage, prioritize reading:
+1. This WORKFLOW.md file (complete understanding of process)
+2. MASTER_TASK_LIST.md (current project state)
+3. The specific task markdown file being worked on
+4. Project README.md (current project documentation)
+
+This workflow enables any AI assistant to work effectively without requiring extensive context about previous conversations.
+
 ## Workflow Steps
 
 ### 1. Task Selection
@@ -12,10 +30,33 @@ This project uses a structured task-based workflow to ensure quality, enable cod
 - Ensure all dependent tasks are completed
 
 ### 2. Pre-Implementation Discussion
-- Review detailed task file in appropriate phase directory
-- Discuss approach, tradeoffs, and alternatives
-- Agree on implementation details
-- Clarify any ambiguities
+**CRITICAL:** Always conduct thorough pre-implementation discussion. Any AI assistant should follow this checklist:
+
+#### High-Level Overview
+- Read and summarize the task markdown file
+- Provide clear overview of what will be built
+- Explain the purpose and value of the feature
+
+#### Tradeoffs Analysis
+- Identify and discuss technical tradeoffs being made
+- Consider alternative approaches and their pros/cons
+- Highlight any architectural decisions and their implications
+- Discuss performance, maintainability, and scalability considerations
+
+#### Implementation Plan
+Present bullet points covering:
+- **Components/files to be created or modified**
+- **Key functionality to implement**
+- **Dependencies and integrations required**
+- **Data flow and state management approach**
+- **UI/UX considerations**
+- **Error handling and edge cases**
+
+#### Questions and Concerns
+- Address any ambiguities in requirements
+- Clarify acceptance criteria if needed
+- Identify potential blocking issues
+- Confirm approach alignment before proceeding
 
 ### 3. Create Feature Branch
 ```bash
@@ -112,9 +153,65 @@ git branch -d task/001-nextjs-setup
 # - .tasks/MASTER_TASK_LIST.md
 ```
 
-### 10. Move to Next Task
-- Update `MASTER_TASK_LIST.md` progress
-- Select next task based on dependencies and priority
+### 10. Post-Completion Housekeeping
+**REQUIRED:** After every task completion, perform comprehensive housekeeping:
+
+#### Master Task List Review
+Review `MASTER_TASK_LIST.md` and update:
+- [ ] **Task completion status** - Mark current task as COMPLETED
+- [ ] **Dependency satisfaction** - Check if completion enables new tasks
+- [ ] **Priority changes** - Assess if priorities need adjustment based on learnings
+- [ ] **New dependencies discovered** - Add any dependencies found during implementation
+- [ ] **Phase progress percentages** - Update completion tracking
+
+#### Testing Recommendations
+Determine and document:
+- [ ] **Does this feature need tests?** (Usually yes for core functionality)
+- [ ] **What type of tests are recommended?**
+  - Unit tests for business logic
+  - Integration tests for API endpoints
+  - Component tests for UI elements
+  - E2E tests for critical user flows
+- [ ] **Testing priority level** (P0-Critical, P1-High, P2-Medium, P3-Low)
+
+#### README Updates
+- [ ] **Update project README.md** with any new features, setup steps, or documentation links
+- [ ] **Update component documentation** if new reusable components were created
+- [ ] **Update API documentation** if new endpoints were added
+
+#### Next Task Selection
+**Automatically present top 3 priority tasks that are ready to start:**
+
+Analyze all available tasks and present options using these criteria:
+- ✅ **Dependencies satisfied** - All prerequisite tasks completed
+- 📊 **Priority level** - P0 (Critical) > P1 (High) > P2 (Medium) > P3 (Low)
+- ⚡ **Estimated effort** - Consider current development momentum
+- 🔄 **Logical sequence** - Tasks that build naturally on completed work
+- 🛠️ **Technical readiness** - Required tools, data, and components available
+
+**Present format:**
+```
+## Ready to Start - Top 3 Priority Tasks
+
+### Option 1: [TASK-XXX] Task Title [Priority] [Effort]
+- **Why this task:** [Brief explanation of readiness and value]
+- **Dependencies:** All satisfied ✅
+- **Estimated effort:** [S/M/L/XL]
+
+### Option 2: [TASK-XXX] Task Title [Priority] [Effort]
+- **Why this task:** [Brief explanation]
+- **Dependencies:** All satisfied ✅
+- **Estimated effort:** [S/M/L/XL]
+
+### Option 3: [TASK-XXX] Task Title [Priority] [Effort]
+- **Why this task:** [Brief explanation]
+- **Dependencies:** All satisfied ✅
+- **Estimated effort:** [S/M/L/XL]
+```
+
+### 11. Move to Next Task
+- Select one of the presented priority tasks
+- Begin with pre-implementation discussion (Step 2)
 - Repeat process
 
 ## Branch Naming Convention
@@ -185,18 +282,25 @@ After each task completion, update:
 
 ### Do
 - ✅ Read entire task file before starting
-- ✅ Discuss tradeoffs before implementing
+- ✅ Conduct thorough pre-implementation discussion with tradeoffs analysis
 - ✅ Commit frequently with clear messages
 - ✅ Test thoroughly before PR
 - ✅ Keep PRs focused on single task
+- ✅ **Perform complete post-completion housekeeping** (Step 10)
+- ✅ **Update README.md** with new features and documentation
+- ✅ **Review and update MASTER_TASK_LIST.md** after each task
+- ✅ **Present top 3 priority tasks** for next selection
 - ✅ Update documentation as you go
 
 ### Don't
-- ❌ Skip pre-implementation discussion
+- ❌ Skip pre-implementation discussion or tradeoffs analysis
+- ❌ **Skip post-completion housekeeping** (Step 10 is mandatory)
 - ❌ Work on multiple tasks in one branch
 - ❌ Make unrelated changes in task branch
 - ❌ Merge without review
 - ❌ Leave tasks partially complete
+- ❌ **Forget to update MASTER_TASK_LIST.md and README.md**
+- ❌ **Start next task without presenting priority options**
 - ❌ Forget to update task status
 
 ## Emergency Procedures
