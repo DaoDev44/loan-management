@@ -166,11 +166,8 @@ export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<Seri
     const loans = await prisma.loan.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      // Note: Payments are not included here for performance and serialization
-      // Use getLoan(id) to fetch a single loan with its payments
     })
 
-    // Serialize Decimal types for client components
     return successResponse(serializeLoans(loans))
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -1,13 +1,18 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getLoans } from '@/app/actions/loan.actions'
 import { LoanTable } from '@/components/loans/loan-table'
+import { LoadingState } from '@/components/shared/loading-state'
 
-export default async function LoansPage() {
+async function LoanTableWrapper() {
   const result = await getLoans()
   const loans = result.success ? result.data : []
+  return <LoanTable loans={loans} />
+}
 
+export default function LoansPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -25,7 +30,15 @@ export default async function LoansPage() {
         </Button>
       </div>
 
-      <LoanTable loans={loans} />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[400px] items-center justify-center">
+            <LoadingState text="Loading loans..." size="lg" />
+          </div>
+        }
+      >
+        <LoanTableWrapper />
+      </Suspense>
     </div>
   )
 }
