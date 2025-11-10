@@ -6,13 +6,14 @@ import { LoanActions } from '@/components/loans/loan-actions'
 import { PaymentHistoryCard } from '@/components/loans/payment-history-card'
 
 interface LoanDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function LoanDetailPage({ params }: LoanDetailPageProps) {
-  const result = await getLoan(params.id)
+  const { id } = await params
+  const result = await getLoan(id)
 
   if (!result.success) {
     notFound()
@@ -30,9 +31,10 @@ export default async function LoanDetailPage({ params }: LoanDetailPageProps) {
   )
 }
 
-export function generateMetadata({ params }: LoanDetailPageProps) {
+export async function generateMetadata({ params }: LoanDetailPageProps) {
+  const { id } = await params
   return {
-    title: `Loan Details - ${params.id}`,
+    title: `Loan Details - ${id}`,
     description: 'View detailed information about a specific loan including payment history and actions.',
   }
 }
