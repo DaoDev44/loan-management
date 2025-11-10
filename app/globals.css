@@ -32,7 +32,7 @@
   }
 
   .dark {
-    --background: 0 0% 96%;              /* Light gray main content (#f5f5f5) */
+    --background: 0 0% 98%;              /* Very light gray main content (#fafafa) */
     --foreground: 222.2 84% 4.9%;        /* Dark navy text */
     --card: 0 0% 100%;                   /* White cards */
     --card-foreground: 222.2 84% 4.9%;   /* Dark navy text on cards */
@@ -49,7 +49,7 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;         /* Light border */
-    --input: 214.3 31.8% 91.4%;
+    --input: 210 20% 98%;                /* Light gray like sidebar */
     --ring: 217.2 91.2% 69.8%;           /* Blue ring to match primary */
     --chart-1: 217.2 91.2% 69.8%;        /* Lighter blue */
     --chart-2: 160 60% 45%;              /* Emerald */

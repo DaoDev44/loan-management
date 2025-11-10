@@ -183,7 +183,7 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
         />
       ) : (
         <>
-          <div className="rounded-md border">
+          <div className="rounded-md border bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
