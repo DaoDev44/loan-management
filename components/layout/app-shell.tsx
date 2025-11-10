@@ -25,7 +25,7 @@ export function AppShell({ children }: AppShellProps) {
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
+        <main className="flex-1 overflow-y-auto bg-background p-6">
           {children}
         </main>
       </div>

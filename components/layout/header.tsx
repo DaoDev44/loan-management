@@ -39,13 +39,13 @@ export function Header({ onMenuClick }: HeaderProps) {
   const breadcrumbs = generateBreadcrumbs()
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
+    <header className="sticky top-0 z-40 border-b bg-[#0f172a] border-[#1e293b]">
       <div className="flex h-16 items-center gap-4 px-6">
         {/* Mobile menu button */}
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden"
+          className="lg:hidden text-white hover:bg-white/10"
           onClick={onMenuClick}
           aria-label="Toggle navigation menu"
         >
@@ -57,16 +57,16 @@ export function Header({ onMenuClick }: HeaderProps) {
           {breadcrumbs.map((crumb, index) => (
             <div key={crumb.href} className="flex items-center gap-2">
               {index > 0 && (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <ChevronRight className="h-4 w-4 text-gray-400" aria-hidden="true" />
               )}
               {index === breadcrumbs.length - 1 ? (
-                <span className="font-medium text-foreground" aria-current="page">
+                <span className="font-medium text-white" aria-current="page">
                   {crumb.label}
                 </span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-gray-400 transition-colors hover:text-white"
                 >
                   {crumb.label}
                 </Link>
