@@ -30,12 +30,12 @@ export function ErrorDisplay({
 
         {/* Show error message in development */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="rounded-md bg-muted p-3">
-            <p className="text-xs font-mono text-muted-foreground break-words">
+          <div className="rounded-md bg-gray-100 p-3">
+            <p className="text-xs font-mono text-gray-600 break-words">
               {error.message}
             </p>
             {error.digest && (
-              <p className="text-xs font-mono text-muted-foreground mt-2">
+              <p className="text-xs font-mono text-gray-600 mt-2">
                 Digest: {error.digest}
               </p>
             )}

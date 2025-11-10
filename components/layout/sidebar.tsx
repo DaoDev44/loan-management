@@ -11,7 +11,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center border-b px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold text-foreground transition-colors hover:text-primary"
+          className="flex items-center gap-2 font-semibold text-card-foreground transition-colors hover:text-primary"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <DollarSign className="h-5 w-5" />

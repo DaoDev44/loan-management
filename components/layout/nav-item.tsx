@@ -24,8 +24,8 @@ export function NavItem({ title, href, icon: Icon, onClick }: NavItemProps) {
         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         isActive
-          ? 'bg-accent text-accent-foreground'
-          : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground'
+          ? 'bg-primary/10 text-primary'
+          : 'text-card-foreground/60 hover:bg-primary/5 hover:text-card-foreground'
       )}
       aria-current={isActive ? 'page' : undefined}
     >

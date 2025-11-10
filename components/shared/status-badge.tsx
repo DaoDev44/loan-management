@@ -19,19 +19,19 @@ const statusConfig: Record<
 > = {
   ACTIVE: {
     label: 'Active',
-    className: 'bg-primary text-primary-foreground hover:bg-primary/80',
+    className: 'bg-green-500 text-white hover:bg-green-600',
   },
   COMPLETED: {
     label: 'Completed',
-    className: 'bg-accent text-accent-foreground hover:bg-accent/80',
+    className: 'bg-blue-500 text-white hover:bg-blue-600',
   },
   OVERDUE: {
     label: 'Overdue',
-    className: 'bg-orange-500 text-white hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700',
+    className: 'bg-orange-500 text-white hover:bg-orange-600',
   },
   DEFAULTED: {
     label: 'Defaulted',
-    className: 'bg-destructive text-destructive-foreground hover:bg-destructive/80',
+    className: 'bg-red-500 text-white hover:bg-red-600',
   },
 }
 

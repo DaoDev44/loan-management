@@ -32,30 +32,30 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 196 80% 50%;              /* Cerulean Blue */
-    --primary-foreground: 210 40% 98%;
+    --background: 222.2 84% 4.9%;        /* Deep navy background */
+    --foreground: 210 40% 98%;           /* Light text on dark bg */
+    --card: 0 0% 100%;                   /* White cards */
+    --card-foreground: 222.2 47.4% 11.2%; /* Dark text on white cards */
+    --popover: 0 0% 100%;                /* White popovers */
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 217.2 91.2% 69.8%;        /* Lighter blue accent */
+    --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 160 60% 45%;               /* Emerald */
-    --accent-foreground: 0 0% 100%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 196 80% 50%;
-    --chart-1: 196 80% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 221.2 83.2% 53.3%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 24.6 95% 53.1%;
+    --ring: 217.2 91.2% 69.8%;           /* Blue ring to match primary */
+    --chart-1: 217.2 91.2% 69.8%;        /* Lighter blue */
+    --chart-2: 160 60% 45%;              /* Emerald */
+    --chart-3: 221.2 83.2% 53.3%;        /* Blue */
+    --chart-4: 280 65% 60%;              /* Purple */
+    --chart-5: 24.6 95% 53.1%;           /* Orange */
   }
 }
 
