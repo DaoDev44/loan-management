@@ -1,7 +1,7 @@
 # Master Task List - Loan Management Platform
 
 **Project:** Loan Management Platform (LMP) Migration to Next.js 14
-**Last Updated:** 2025-11-09 (TASK-012, 013, 014 completed)
+**Last Updated:** 2025-11-10 (TASK-015, 016, 017, 020, 021, 022 completed)
 
 ## Overview
 Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma, following the PRD specifications.
@@ -44,12 +44,12 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 | TASK-012 | Set up shadcn/ui in Next.js with theme config | COMPLETED | P0 | S | `task/012-shadcn-setup` |
 | TASK-013 | Build root layout with navigation | COMPLETED | P0 | M | `task/013-root-layout` |
 | TASK-014 | Create shared components (MetricsCard, StatusBadge) | COMPLETED | P1 | M | `task/014-shared-components` |
-| TASK-015 | Build LoanTable with sort/filter | NOT_STARTED | P0 | L | `task/015-loan-table` |
-| TASK-016 | Create loading and error boundary components | NOT_STARTED | P1 | S | `task/016-loading-error` |
-| TASK-017 | Build EmptyState component | COMPLETED | P2 | XS | `task/017-empty-state` |
+| TASK-015 | Build LoanTable with search, sort, and pagination | COMPLETED | P0 | L | `task/015-loan-table` |
+| TASK-016 | Create loading and error boundary components | COMPLETED | P1 | S | `task/016-loading-error-boundaries` |
+| TASK-017 | Implement dark theme and refined styling | COMPLETED | P2 | M | `task/017-dark-theme` |
 | TASK-018 | Set up toast notification system | COMPLETED | P1 | S | `task/018-toast-system` |
 
-**Phase Completion:** 5/7 (71%)
+**Phase Completion:** 7/7 (100%)
 
 ---
 
@@ -58,15 +58,15 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 | ID | Task | Status | Priority | Effort | Branch |
 |----|------|--------|----------|--------|--------|
 | TASK-019 | Build Dashboard page with metrics | NOT_STARTED | P0 | L | `task/019-dashboard` |
-| TASK-020 | Implement search and filter functionality | NOT_STARTED | P0 | M | `task/020-search-filter` |
-| TASK-021 | Build Loan Detail page | NOT_STARTED | P0 | L | `task/021-loan-detail` |
-| TASK-022 | Create Payment History component | NOT_STARTED | P0 | M | `task/022-payment-history` |
+| TASK-020 | Implement search and filter functionality | COMPLETED | P0 | M | (integrated with TASK-015) |
+| TASK-021 | Build comprehensive Loan Detail page | COMPLETED | P0 | L | `task/021-loan-detail` |
+| TASK-022 | Create Payment History component | COMPLETED | P0 | M | (integrated with TASK-021) |
 | TASK-023 | Build Create Loan form with validation | NOT_STARTED | P0 | XL | `task/023-create-loan-form` |
 | TASK-024 | Implement Edit Loan functionality | NOT_STARTED | P0 | M | `task/024-edit-loan` |
 | TASK-025 | Build Add Payment dialog and logic | NOT_STARTED | P0 | M | `task/025-add-payment` |
 | TASK-026 | Add activity timeline to Loan Detail | NOT_STARTED | P2 | M | `task/026-activity-timeline` |
 
-**Phase Completion:** 0/8 (0%)
+**Phase Completion:** 3/8 (38%)
 
 ---
 
@@ -89,12 +89,12 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 ## Overall Progress
 
 **Total Tasks:** 33
-**Completed:** 17 (TASK-001, 002, 003, 005, 006, 007, 008, 009, 010, 012, 013, 014, 017, 018, 030, 031, 032)
+**Completed:** 23 (TASK-001, 002, 003, 005, 006, 007, 008, 009, 010, 012, 013, 014, 015, 016, 017, 018, 020, 021, 022, 030, 031, 032)
 **In Progress:** 0
 **Blocked:** 0
-**Not Started:** 16
+**Not Started:** 10
 
-**Overall Completion:** 52%
+**Overall Completion:** 70%
 
 ---
 
