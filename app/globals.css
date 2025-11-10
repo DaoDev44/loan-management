@@ -32,24 +32,24 @@
   }
 
   .dark {
-    --background: 215 25% 40%;           /* Lighter blue-gray for main content (#5a6b7f) */
-    --foreground: 210 40% 98%;           /* Light text on dark bg */
-    --card: 210 20% 98%;                 /* Light gray cards (#f8fafc) */
-    --card-foreground: 222.2 47.4% 11.2%; /* Dark text on light cards */
-    --popover: 210 20% 98%;              /* Light gray popovers */
-    --popover-foreground: 222.2 47.4% 11.2%;
+    --background: 0 0% 96%;              /* Light gray main content (#f5f5f5) */
+    --foreground: 222.2 84% 4.9%;        /* Dark navy text */
+    --card: 0 0% 100%;                   /* White cards */
+    --card-foreground: 222.2 84% 4.9%;   /* Dark navy text on cards */
+    --popover: 0 0% 100%;                /* White popovers */
+    --popover-foreground: 222.2 84% 4.9%;
     --primary: 217.2 91.2% 69.8%;        /* Lighter blue accent (#60a5fa) */
     --primary-foreground: 210 40% 98%;   /* White text on primary buttons */
-    --secondary: 210 20% 98%;            /* Light gray secondary */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 215 25% 45%;                /* Muted background */
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --secondary: 210 40% 96.1%;          /* Light gray secondary */
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96.1%;              /* Muted light gray */
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 20% 85%;               /* Light border on cards */
-    --input: 215 20% 85%;
+    --border: 214.3 31.8% 91.4%;         /* Light border */
+    --input: 214.3 31.8% 91.4%;
     --ring: 217.2 91.2% 69.8%;           /* Blue ring to match primary */
     --chart-1: 217.2 91.2% 69.8%;        /* Lighter blue */
     --chart-2: 160 60% 45%;              /* Emerald */
