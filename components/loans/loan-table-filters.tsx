@@ -76,7 +76,7 @@ export function LoanTableFilters({
             placeholder="Search by borrower name or email..."
             value={localSearch}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-9 pr-9"
+            className="pl-9 pr-9 bg-card"
           />
           {searchQuery && (
             <button
