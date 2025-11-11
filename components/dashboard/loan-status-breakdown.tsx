@@ -97,11 +97,17 @@ export function LoanStatusBreakdown({
               <Legend
                 verticalAlign="bottom"
                 height={36}
-                formatter={(value, entry: { color: string }) => (
-                  <span style={{ color: entry.color }}>
-                    {value} ({entry.payload.count})
-                  </span>
-                )}
+                formatter={(
+                  value: string,
+                  entry: any /* Recharts LegendPayload type is complex */
+                ) => {
+                  const dataPoint = statusData.find((d) => d.name === value)
+                  return (
+                    <span style={{ color: dataPoint?.color || entry.color || '#6b7280' }}>
+                      {value} ({dataPoint?.count || 0})
+                    </span>
+                  )
+                }}
               />
             </PieChart>
           </ResponsiveContainer>
