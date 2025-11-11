@@ -53,3 +53,6 @@ pnpm-lock.yaml
 # Auto-generated files
 *.tsbuildinfo
 .eslintcache
+
+# Generated validation files (zod-prisma-types)
+lib/validations/generated
