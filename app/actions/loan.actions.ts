@@ -249,6 +249,32 @@ export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse
 }
 
 /**
+ * Get all loans with payments for dashboard analytics
+ * @returns Array of serialized loans with payments or error
+ */
+export async function getLoansWithPayments(): Promise<ActionResponse<SerializedLoan[]>> {
+  try {
+    const loans = await prisma.loan.findMany({
+      where: {
+        deletedAt: null,
+      },
+      include: {
+        payments: {
+          where: { deletedAt: null },
+          orderBy: { date: 'desc' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return successResponse(serializeLoans(loans))
+  } catch (error) {
+    console.error('Error fetching loans with payments:', error)
+    return errorResponse('Failed to fetch loans with payments')
+  }
+}
+
+/**
  * Soft delete a loan (sets deletedAt timestamp)
  * @param id - Loan ID to delete
  * @returns Success status or error
