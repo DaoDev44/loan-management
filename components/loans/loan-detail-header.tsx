@@ -54,7 +54,7 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
             variant: 'destructive',
           })
         }
-      } catch (error) {
+      } catch {
         toast({
           title: 'Error',
           description: 'An unexpected error occurred while deleting the loan.',

@@ -3,14 +3,14 @@ import { Badge } from '@/components/ui/badge'
 import { type SerializedLoan } from '@/lib/utils/serialize'
 import { type ActivityItem } from '@/lib/dashboard-calculations'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { DollarSign, Plus, CheckCircle2, AlertCircle } from 'lucide-react'
+import { DollarSign, Plus, CheckCircle2 } from 'lucide-react'
 
 interface RecentActivityProps {
   loans: SerializedLoan[]
   recentActivity: ActivityItem[]
 }
 
-export function RecentActivity({ loans, recentActivity }: RecentActivityProps) {
+export function RecentActivity({ loans: _loans, recentActivity }: RecentActivityProps) {
   // Use pre-calculated activity data from hook instead of generating it here
   const activities = recentActivity
 

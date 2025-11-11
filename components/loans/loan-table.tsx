@@ -94,8 +94,8 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
     // Apply sorting
     if (sortColumn && sortOrder) {
       result.sort((a, b) => {
-        let aValue: any = a[sortColumn]
-        let bValue: any = b[sortColumn]
+        let aValue: string | number | Date = a[sortColumn]
+        let bValue: string | number | Date = b[sortColumn]
 
         // Handle Date types
         if (sortColumn === 'startDate') {

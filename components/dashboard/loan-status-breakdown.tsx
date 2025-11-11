@@ -19,8 +19,28 @@ const statusColors: Record<string, string> = {
   Defaulted: '#dc2626', // red-600
 }
 
+interface StatusTooltipProps {
+  active?: boolean
+  payload?: Array<{ payload: { name: string; count: number; percentage: string } }>
+}
+
+const StatusCustomTooltip = ({ active, payload }: StatusTooltipProps) => {
+  if (active && payload && payload[0]) {
+    const data = payload[0].payload
+    return (
+      <div className="bg-background border border-border p-2 rounded-md shadow-lg">
+        <p className="font-medium">{data.name}</p>
+        <p className="text-sm text-muted-foreground">
+          {data.count} loans ({data.percentage}%)
+        </p>
+      </div>
+    )
+  }
+  return null
+}
+
 export function LoanStatusBreakdown({
-  loans,
+  loans: _loans,
   statusBreakdown,
   totalLoans,
 }: LoanStatusBreakdownProps) {
@@ -29,21 +49,6 @@ export function LoanStatusBreakdown({
     ...status,
     color: statusColors[status.name] || '#6b7280',
   }))
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload[0]) {
-      const data = payload[0].payload
-      return (
-        <div className="bg-background border border-border p-2 rounded-md shadow-lg">
-          <p className="font-medium">{data.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {data.count} loans ({data.percentage}%)
-          </p>
-        </div>
-      )
-    }
-    return null
-  }
 
   if (totalLoans === 0) {
     return (
@@ -88,11 +93,11 @@ export function LoanStatusBreakdown({
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<StatusCustomTooltip />} />
               <Legend
                 verticalAlign="bottom"
                 height={36}
-                formatter={(value, entry: any) => (
+                formatter={(value, entry: { color: string }) => (
                   <span style={{ color: entry.color }}>
                     {value} ({entry.payload.count})
                   </span>

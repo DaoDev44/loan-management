@@ -25,15 +25,14 @@ export function DashboardClient({ loans }: DashboardClientProps) {
     statusBreakdown,
     recentActivity,
     hasPaymentData,
-    hasLoans,
     monthlyTrend,
     portfolioSummary,
     alertCounts,
     loans: loansByStatus,
   } = useDashboardData(loans)
 
-  // Simulate trend for demo purposes (in real app, use actual historical data)
-  const simulateTrend = (base: number) => Math.floor(Math.random() * 21) - 10 // -10% to +10%
+  // Simulate trend for demo purposes with stable values (in real app, use actual historical data)
+  const simulateTrend = (_base: number) => 5 // Mock +5% trend for demo
 
   return (
     <div className="space-y-8">

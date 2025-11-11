@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { DollarSign } from 'lucide-react'
 import { NavItem } from './nav-item'
 import { navItems } from '@/lib/navigation'
-import { Separator } from '@/components/ui/separator'
 
 export function Sidebar() {
   return (

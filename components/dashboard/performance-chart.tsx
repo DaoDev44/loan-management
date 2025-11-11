@@ -20,24 +20,34 @@ interface PerformanceChartProps {
   hasPaymentData: boolean
 }
 
-export function PerformanceChart({ loans, paymentTrends, hasPaymentData }: PerformanceChartProps) {
-  // Use pre-calculated payment data from hook instead of generating it here
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: Array<{ payload: PaymentData }>
+  label?: string
+}
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload[0]) {
-      const data = payload[0].payload
-      return (
-        <div className="bg-background border border-border p-3 rounded-md shadow-lg">
-          <p className="font-medium">{label}</p>
-          <p className="text-sm text-green-600">Amount: {formatCurrency(data.amount)}</p>
-          <p className="text-sm text-muted-foreground">
-            {data.count} payment{data.count !== 1 ? 's' : ''}
-          </p>
-        </div>
-      )
-    }
-    return null
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload[0]) {
+    const data = payload[0].payload
+    return (
+      <div className="bg-background border border-border p-3 rounded-md shadow-lg">
+        <p className="font-medium">{label}</p>
+        <p className="text-sm text-green-600">Amount: {formatCurrency(data.amount)}</p>
+        <p className="text-sm text-muted-foreground">
+          {data.count} payment{data.count !== 1 ? 's' : ''}
+        </p>
+      </div>
+    )
   }
+  return null
+}
+
+export function PerformanceChart({
+  loans: _loans,
+  paymentTrends,
+  hasPaymentData,
+}: PerformanceChartProps) {
+  // Use pre-calculated payment data from hook instead of generating it here
 
   if (!hasPaymentData) {
     return (

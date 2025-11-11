@@ -72,7 +72,7 @@ export async function createPayment(input: CreatePaymentInput): Promise<
       revalidatePath('/loans')
       revalidatePath(`/loans/${validatedInput.loanId}`)
       revalidatePath('/payments')
-    } catch (error) {
+    } catch {
       // Silently ignore revalidation errors in test environment
     }
 
@@ -367,7 +367,7 @@ export async function updatePayment(input: UpdatePaymentInput): Promise<
       revalidatePath('/payments')
       revalidatePath(`/loans/${existingPayment.loanId}`)
       revalidatePath('/loans')
-    } catch (error) {
+    } catch {
       // Silently ignore revalidation errors in test environment
     }
 
@@ -451,7 +451,7 @@ export async function deletePayment(id: string): Promise<ActionResult<{ message:
       revalidatePath('/payments')
       revalidatePath(`/loans/${payment.loanId}`)
       revalidatePath('/loans')
-    } catch (error) {
+    } catch {
       // Silently ignore revalidation errors in test environment
     }
 

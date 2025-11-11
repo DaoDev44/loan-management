@@ -11,7 +11,6 @@ import {
   type CreateLoanInput,
   type UpdateLoanInput,
   type LoanFilter,
-  type Loan,
 } from '@/lib/validations'
 import { type ActionResponse, successResponse, errorResponse } from './types'
 import { serializeLoan, serializeLoans, type SerializedLoan } from '@/lib/utils/serialize'
@@ -50,7 +49,7 @@ export async function createLoan(input: CreateLoanInput): Promise<ActionResponse
     try {
       revalidatePath('/dashboard')
       revalidatePath('/loans')
-    } catch (e) {
+    } catch {
       // Ignore revalidation errors in test context
     }
 
@@ -224,7 +223,7 @@ export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse
       revalidatePath('/dashboard')
       revalidatePath('/loans')
       revalidatePath(`/loans/${id}`)
-    } catch (e) {
+    } catch {
       // Ignore revalidation errors in test context
     }
 
@@ -286,7 +285,7 @@ export async function deleteLoan(id: string): Promise<ActionResponse<void>> {
     try {
       revalidatePath('/dashboard')
       revalidatePath('/loans')
-    } catch (e) {
+    } catch {
       // Ignore revalidation errors in test context
     }
 
