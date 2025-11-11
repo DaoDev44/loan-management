@@ -82,12 +82,7 @@ export const UpdateLoanSchema = z
   .object({
     id: z.string().cuid(),
     borrowerName: z.string().min(1).max(255).optional(),
-    borrowerEmail: z
-      .string()
-      .email('Invalid email address')
-      .min(1)
-      .toLowerCase()
-      .optional(),
+    borrowerEmail: z.string().email('Invalid email address').min(1).toLowerCase().optional(),
     borrowerPhone: z
       .string()
       .regex(
@@ -96,12 +91,7 @@ export const UpdateLoanSchema = z
       )
       .optional()
       .or(z.literal('')),
-    principal: z
-      .number()
-      .positive()
-      .multipleOf(0.01)
-      .max(100000000)
-      .optional(),
+    principal: z.number().positive().multipleOf(0.01).max(100000000).optional(),
     interestRate: z.number().min(0).max(100).optional(),
     startDate: z.coerce.date().optional(),
     endDate: z.coerce.date().optional(),

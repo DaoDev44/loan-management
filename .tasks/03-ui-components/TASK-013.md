@@ -7,13 +7,16 @@
 **Branch:** `task/013-root-layout`
 
 ## Dependencies
+
 - TASK-012 (shadcn/ui setup completed)
 - TASK-001 (Next.js 14 initialized)
 
 ## Description
+
 Build the application's root layout including sidebar navigation, header with breadcrumbs, and responsive mobile menu. This provides the foundation for all pages in the application.
 
 ## Acceptance Criteria
+
 - [x] Sidebar navigation with all main routes
 - [x] Active route highlighting
 - [x] Logo and branding in sidebar
@@ -51,6 +54,7 @@ Settings (Future - Phase 4)
 ## Design Approach
 
 ### Layout Structure
+
 ```tsx
 ┌─────────────────────────────────────────┐
 │  Sidebar  │      Main Content           │
@@ -66,6 +70,7 @@ Settings (Future - Phase 4)
 ```
 
 ### Responsive Behavior
+
 - **Desktop** (>1024px): Fixed sidebar, always visible
 - **Tablet** (768-1024px): Collapsible sidebar
 - **Mobile** (<768px): Hidden sidebar with hamburger menu
@@ -75,6 +80,7 @@ Settings (Future - Phase 4)
 ### 1. Create Navigation Components
 
 #### Sidebar Component (`components/layout/sidebar.tsx`)
+
 - Logo/branding at top
 - Navigation items with icons
 - Active state highlighting
@@ -82,11 +88,13 @@ Settings (Future - Phase 4)
 - Smooth transitions
 
 #### Header Component (`components/layout/header.tsx`)
+
 - Breadcrumb navigation
 - Mobile menu toggle button
 - Optional user menu (future)
 
 #### Navigation Items
+
 ```tsx
 const navItems = [
   {
@@ -113,11 +121,13 @@ Modify `app/layout.tsx` to include the sidebar and header structure.
 ### 3. Styling Approach
 
 Use Tailwind classes with shadcn/ui components:
+
 - Sidebar: `bg-card border-r`
 - Active link: `bg-accent text-accent-foreground`
 - Transitions: `transition-colors duration-200`
 
 ### 4. Icons from lucide-react
+
 - LayoutDashboard
 - DollarSign
 - Menu (hamburger)
@@ -149,6 +159,7 @@ app/
 ## Mobile UX
 
 For mobile devices:
+
 1. Hamburger menu button in header
 2. Slide-in navigation drawer
 3. Overlay/backdrop when open
@@ -168,6 +179,7 @@ For mobile devices:
 ## Example Component Code
 
 ### Sidebar Navigation Item
+
 ```tsx
 interface NavItemProps {
   title: string
@@ -181,10 +193,8 @@ function NavItem({ title, href, icon: Icon, isActive }: NavItemProps) {
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
-        isActive
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/50"
+        'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors',
+        isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent/50'
       )}
     >
       <Icon className="h-5 w-5" />
@@ -204,6 +214,7 @@ function NavItem({ title, href, icon: Icon, isActive }: NavItemProps) {
 - Keyboard shortcuts overlay
 
 ## References
+
 - Next.js App Router layouts: https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts
 - shadcn/ui Sheet component (for mobile nav): https://ui.shadcn.com/docs/components/sheet
 - lucide-react icons: https://lucide.dev/

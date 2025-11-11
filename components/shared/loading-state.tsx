@@ -34,9 +34,7 @@ export function LoadingState({ text, size = 'md', className }: LoadingStateProps
       aria-live="polite"
     >
       <Loader2 className={cn(classes.spinner, 'animate-spin text-primary')} aria-hidden="true" />
-      {text && (
-        <p className={cn(classes.text, 'text-muted-foreground')}>{text}</p>
-      )}
+      {text && <p className={cn(classes.text, 'text-muted-foreground')}>{text}</p>}
       <span className="sr-only">{text || 'Loading...'}</span>
     </div>
   )

@@ -17,9 +17,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const generateBreadcrumbs = () => {
     const paths = pathname?.split('/').filter(Boolean) || []
 
-    const breadcrumbs = [
-      { label: 'Dashboard', href: '/' },
-    ]
+    const breadcrumbs = [{ label: 'Dashboard', href: '/' }]
 
     if (paths.length > 0) {
       paths.forEach((path, index) => {

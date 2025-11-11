@@ -41,9 +41,7 @@ export function DashboardClient({ loans }: DashboardClientProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome to your loan management platform
-          </p>
+          <p className="text-muted-foreground">Welcome to your loan management platform</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" asChild>
@@ -68,7 +66,7 @@ export function DashboardClient({ loans }: DashboardClientProps) {
           trend={{
             value: simulateTrend(metrics.totalLoans),
             isPositive: true,
-            label: 'vs last month'
+            label: 'vs last month',
           }}
         />
         <MetricCard
@@ -80,7 +78,7 @@ export function DashboardClient({ loans }: DashboardClientProps) {
           trend={{
             value: simulateTrend(portfolioSummary.totalValue),
             isPositive: true,
-            label: 'vs last month'
+            label: 'vs last month',
           }}
         />
         <MetricCard
@@ -96,11 +94,15 @@ export function DashboardClient({ loans }: DashboardClientProps) {
           description="This month's payments"
           icon={TrendingUp}
           variant={metrics.monthlyPayments > 10000 ? 'success' : 'default'}
-          trend={monthlyTrend ? {
-            value: monthlyTrend.value,
-            isPositive: monthlyTrend.isPositive,
-            label: 'vs last month'
-          } : undefined}
+          trend={
+            monthlyTrend
+              ? {
+                  value: monthlyTrend.value,
+                  isPositive: monthlyTrend.isPositive,
+                  label: 'vs last month',
+                }
+              : undefined
+          }
         />
       </div>
 
@@ -161,7 +163,8 @@ export function DashboardClient({ loans }: DashboardClientProps) {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Overdue Loans Alert</AlertTitle>
                 <AlertDescription>
-                  {alertCounts.overdue} loan{alertCounts.overdue > 1 ? 's are' : ' is'} currently overdue.
+                  {alertCounts.overdue} loan{alertCounts.overdue > 1 ? 's are' : ' is'} currently
+                  overdue.
                   <Link href="/loans?status=OVERDUE" className="ml-1 underline font-medium">
                     Review overdue loans
                   </Link>
@@ -173,7 +176,8 @@ export function DashboardClient({ loans }: DashboardClientProps) {
                 <Clock className="h-4 w-4" />
                 <AlertTitle>Upcoming Due Dates</AlertTitle>
                 <AlertDescription>
-                  {alertCounts.upcoming} loan{alertCounts.upcoming > 1 ? 's are' : ' is'} due in the next 30 days.
+                  {alertCounts.upcoming} loan{alertCounts.upcoming > 1 ? 's are' : ' is'} due in the
+                  next 30 days.
                   <Link href="/loans?status=ACTIVE" className="ml-1 underline font-medium">
                     View upcoming loans
                   </Link>
@@ -185,10 +189,7 @@ export function DashboardClient({ loans }: DashboardClientProps) {
       )}
 
       {/* Recent Activity */}
-      <RecentActivity
-        loans={loans}
-        recentActivity={recentActivity}
-      />
+      <RecentActivity loans={loans} recentActivity={recentActivity} />
     </div>
   )
 }

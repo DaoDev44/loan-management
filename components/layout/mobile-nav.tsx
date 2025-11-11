@@ -2,12 +2,7 @@
 
 import { DollarSign } from 'lucide-react'
 import Link from 'next/link'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { NavItem } from './nav-item'
 import { navItems } from '@/lib/navigation'
 

@@ -43,7 +43,7 @@ export function useDashboardData(loans: SerializedLoan[]) {
 
   // Additional computed values for convenience
   const hasPaymentData = useMemo(() => {
-    return paymentTrends.some(data => data.amount > 0)
+    return paymentTrends.some((data) => data.amount > 0)
   }, [paymentTrends])
 
   const hasLoans = useMemo(() => {

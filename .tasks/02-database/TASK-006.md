@@ -7,12 +7,15 @@
 **Branch:** `task/006-prisma-schema`
 
 ## Dependencies
+
 - TASK-003 (Prisma ORM set up)
 
 ## Description
+
 Design and implement the complete database schema supporting loans, payments, and flexible interest calculation methods. This is the foundation of the entire application's data model and must support current requirements plus future extensibility (especially for auth).
 
 ## Acceptance Criteria
+
 - [ ] Complete Prisma schema defined
 - [ ] Loan model with all required fields
 - [ ] Payment model with loan relationship
@@ -33,6 +36,7 @@ Design and implement the complete database schema supporting loans, payments, an
 Based on PRD requirements plus flexible interest calculation support:
 
 **Core Entities:**
+
 1. **Loan** - Primary entity tracking loan details
 2. **Payment** - Individual payment records linked to loans
 3. **Borrower** - Separate entity or embedded? (Discussion point)
@@ -40,7 +44,9 @@ Based on PRD requirements plus flexible interest calculation support:
 **Key Design Decisions:**
 
 ### Decision 1: Borrower as Separate Entity vs Embedded Fields
+
 **Option A: Embedded Fields (RECOMMENDED for MVP)**
+
 ```prisma
 model Loan {
   borrowerName  String
@@ -51,16 +57,19 @@ model Loan {
 ```
 
 **Pros:**
+
 - Simpler queries
 - Fewer joins
 - Easier to understand
 - Faster for MVP
 
 **Cons:**
+
 - Duplicate borrower data if same person has multiple loans
 - Harder to update borrower info across loans
 
 **Option B: Separate Borrower Entity**
+
 ```prisma
 model Borrower {
   id     String @id @default(cuid())
@@ -78,11 +87,13 @@ model Loan {
 ```
 
 **Pros:**
+
 - No data duplication
 - Better for multiple loans per borrower
 - Easier to add borrower-level features later
 
 **Cons:**
+
 - More complex queries (always need joins)
 - Slightly slower queries
 - Overkill for MVP?
@@ -92,11 +103,13 @@ model Loan {
 ### Decision 2: Interest Calculation Flexibility
 
 Three calculation methods to support:
+
 1. **Simple Interest:** `Interest = Principal × Rate × Time`
 2. **Amortized (Compound):** Fixed monthly payments with compound interest
 3. **Interest-Only:** Pay interest periodically, principal due at end
 
 **Schema Approach:**
+
 ```prisma
 enum InterestCalculationType {
   SIMPLE
@@ -115,6 +128,7 @@ model Loan {
 ### Decision 3: Payment Frequency
 
 **Chosen:** Enum with Monthly and Bi-weekly
+
 ```prisma
 enum PaymentFrequency {
   MONTHLY
@@ -127,6 +141,7 @@ enum PaymentFrequency {
 ## Complete Prisma Schema
 
 ### prisma/schema.prisma
+
 ```prisma
 // Prisma schema for Loan Management Platform
 
@@ -258,16 +273,17 @@ model Payment {
 
 ### Field Choices
 
-| Field | Type | Rationale |
-|-------|------|-----------|
-| `id` | `cuid()` | Collision-resistant IDs, better than auto-increment, URL-safe |
-| `principal`, `balance`, `amount` | `Float` | PostgreSQL `DOUBLE PRECISION`, suitable for monetary values* |
-| `interestRate` | `Float` | Store as percentage (e.g., 5.5 = 5.5%) |
-| `termMonths` | `Int` | Duration in months, easier than date math |
-| `notes`, `collateral` | `@db.Text` | Unlimited length text fields |
-| `createdAt`, `updatedAt` | `DateTime` | Audit trail, auto-managed by Prisma |
+| Field                            | Type       | Rationale                                                     |
+| -------------------------------- | ---------- | ------------------------------------------------------------- |
+| `id`                             | `cuid()`   | Collision-resistant IDs, better than auto-increment, URL-safe |
+| `principal`, `balance`, `amount` | `Float`    | PostgreSQL `DOUBLE PRECISION`, suitable for monetary values\* |
+| `interestRate`                   | `Float`    | Store as percentage (e.g., 5.5 = 5.5%)                        |
+| `termMonths`                     | `Int`      | Duration in months, easier than date math                     |
+| `notes`, `collateral`            | `@db.Text` | Unlimited length text fields                                  |
+| `createdAt`, `updatedAt`         | `DateTime` | Audit trail, auto-managed by Prisma                           |
 
 **Note on Monetary Values:**
+
 - Using `Float` (PostgreSQL DOUBLE PRECISION) is acceptable for this use case
 - For high-precision financial systems, consider `Decimal` type
 - **Tradeoff:** `Decimal` requires additional library (`decimal.js`), more complex
@@ -276,6 +292,7 @@ model Payment {
 ### Relationships
 
 **Loan ↔ Payment (One-to-Many)**
+
 - One loan has many payments
 - `onDelete: Cascade` means deleting a loan deletes its payments
 - **Tradeoff:** Cascade delete vs soft delete (keep payment history)
@@ -284,6 +301,7 @@ model Payment {
 ### Indexes
 
 Indexes added for common query patterns:
+
 - `@@index([status])` - Dashboard filters loans by status
 - `@@index([borrowerEmail])` - Search functionality
 - `@@index([createdAt])` - Sorting by date
@@ -304,6 +322,7 @@ Indexes added for common query patterns:
 ```
 
 **Migration Path:**
+
 1. MVP: No auth, userId is null
 2. Post-MVP: Uncomment User model, run migration
 3. Existing loans remain (userId = null), assign to user later
@@ -312,31 +331,34 @@ Indexes added for common query patterns:
 ## Testing Requirements
 
 ### Schema Validation
+
 - [ ] `npx prisma validate` passes
 - [ ] `npx prisma format` formats correctly
 - [ ] TypeScript types generated: `npx prisma generate`
 
 ### Migration
+
 - [ ] `npx prisma migrate dev --name init` creates migration
 - [ ] Migration applies successfully
 - [ ] Database schema matches Prisma schema
 
 ### Sample Queries (in Prisma Studio or code)
+
 ```typescript
 // Create a loan
 const loan = await prisma.loan.create({
   data: {
-    borrowerName: "Test Borrower",
-    borrowerEmail: "test@example.com",
-    borrowerPhone: "+1-555-1234",
+    borrowerName: 'Test Borrower',
+    borrowerEmail: 'test@example.com',
+    borrowerPhone: '+1-555-1234',
     principal: 10000,
     interestRate: 5.5,
     startDate: new Date(),
     endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
     termMonths: 12,
     balance: 10000,
-    interestCalculationType: "SIMPLE",
-    paymentFrequency: "MONTHLY",
+    interestCalculationType: 'SIMPLE',
+    paymentFrequency: 'MONTHLY',
   },
 })
 
@@ -345,13 +367,13 @@ const payment = await prisma.payment.create({
   data: {
     amount: 1000,
     loanId: loan.id,
-    notes: "First payment",
+    notes: 'First payment',
   },
 })
 
 // Query loans with payments
 const loans = await prisma.loan.findMany({
-  where: { status: "ACTIVE" },
+  where: { status: 'ACTIVE' },
   include: { payments: true },
 })
 ```
@@ -363,6 +385,7 @@ const loans = await prisma.loan.findMany({
 ## Deployment Considerations
 
 ### Local Development
+
 ```bash
 # Apply migration
 npm run db:migrate
@@ -371,6 +394,7 @@ npm run db:migrate
 ```
 
 ### Production (Vercel)
+
 ```bash
 # In CI/CD or manual before deploy
 npx prisma migrate deploy
@@ -417,6 +441,7 @@ npx prisma migrate deploy
 ## Alternatives Considered
 
 ### Alternative 1: JSON field for flexible loan terms
+
 ```prisma
 model Loan {
   // ... standard fields
@@ -425,11 +450,13 @@ model Loan {
 ```
 
 **Rejected because:**
+
 - Loses type safety
 - Harder to query
 - Migration nightmare
 
 ### Alternative 2: Polymorphic loans (table per type)
+
 ```prisma
 model SimpleLoan { ... }
 model AmortizedLoan { ... }
@@ -437,17 +464,20 @@ model InterestOnlyLoan { ... }
 ```
 
 **Rejected because:**
+
 - Over-engineered
 - Query complexity
 - Difficult to manage
 
 ### Chosen Approach: Single Loan model with enum
+
 - Type-safe
 - Simple to query
 - Easy to extend
 - Business logic in application layer, not database
 
 ## References
+
 - [Prisma Schema Reference](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference)
 - [Prisma Relations Guide](https://www.prisma.io/docs/concepts/components/prisma-schema/relations)
 - [PostgreSQL Data Types](https://www.postgresql.org/docs/current/datatype.html)

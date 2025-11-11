@@ -13,15 +13,19 @@ interface LoanStatusBreakdownProps {
 
 // Colors for status visualization
 const statusColors: Record<string, string> = {
-  'Active': '#3b82f6', // blue-500
-  'Completed': '#10b981', // emerald-500
-  'Overdue': '#ef4444', // red-500
-  'Defaulted': '#dc2626', // red-600
+  Active: '#3b82f6', // blue-500
+  Completed: '#10b981', // emerald-500
+  Overdue: '#ef4444', // red-500
+  Defaulted: '#dc2626', // red-600
 }
 
-export function LoanStatusBreakdown({ loans, statusBreakdown, totalLoans }: LoanStatusBreakdownProps) {
+export function LoanStatusBreakdown({
+  loans,
+  statusBreakdown,
+  totalLoans,
+}: LoanStatusBreakdownProps) {
   // Use pre-calculated status data from hook and add colors
-  const statusData = statusBreakdown.map(status => ({
+  const statusData = statusBreakdown.map((status) => ({
     ...status,
     color: statusColors[status.name] || '#6b7280',
   }))
@@ -102,13 +106,13 @@ export function LoanStatusBreakdown({ loans, statusBreakdown, totalLoans }: Loan
         <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
           <div className="text-center">
             <p className="text-2xl font-bold text-green-600">
-              {statusData.find(s => s.name === 'Completed')?.count || 0}
+              {statusData.find((s) => s.name === 'Completed')?.count || 0}
             </p>
             <p className="text-sm text-muted-foreground">Completed</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-blue-600">
-              {statusData.find(s => s.name === 'Active')?.count || 0}
+              {statusData.find((s) => s.name === 'Active')?.count || 0}
             </p>
             <p className="text-sm text-muted-foreground">Active</p>
           </div>

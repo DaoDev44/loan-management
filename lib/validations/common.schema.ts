@@ -46,8 +46,8 @@ export const phone = z
 /**
  * Future date validator
  */
-export const futureDate = z
-  .coerce.date({ message: 'Date is required' })
+export const futureDate = z.coerce
+  .date({ message: 'Date is required' })
   .min(new Date(), 'Date must be in the future')
 
 /**

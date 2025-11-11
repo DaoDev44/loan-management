@@ -7,13 +7,16 @@
 **Branch:** `task/009-loan-crud`
 
 ## Dependencies
+
 - TASK-008 (Zod validation schemas created)
 - TASK-006 (Prisma schema designed)
 
 ## Description
+
 Implement Server Actions for all Loan CRUD operations. These actions will handle data validation, database operations, and error handling. Server Actions in Next.js 14 run on the server and can be called directly from Client Components, providing a seamless API layer without separate endpoints.
 
 ## Acceptance Criteria
+
 - [ ] `createLoan()` - Create new loan with validation
 - [ ] `getLoan()` - Retrieve single loan by ID
 - [ ] `getLoans()` - Retrieve all loans with filtering/sorting
@@ -32,6 +35,7 @@ Implement Server Actions for all Loan CRUD operations. These actions will handle
 **Chosen:** Next.js Server Actions over API Routes
 
 **Pros:**
+
 - ✅ Type-safe client-server communication
 - ✅ No separate API layer needed
 - ✅ Built-in form integration
@@ -40,6 +44,7 @@ Implement Server Actions for all Loan CRUD operations. These actions will handle
 - ✅ Simpler error handling
 
 **Alternatives:**
+
 - API Routes: More familiar, but requires separate typing
 - tRPC: Excellent DX, but additional dependency
 - GraphQL: Overkill for this use case
@@ -102,9 +107,7 @@ import { Prisma } from '@prisma/client'
  * @param input - Loan creation data (validated against CreateLoanSchema)
  * @returns Created loan or error
  */
-export async function createLoan(
-  input: CreateLoanInput
-): Promise<ActionResponse<Loan>> {
+export async function createLoan(input: CreateLoanInput): Promise<ActionResponse<Loan>> {
   try {
     // Validate input
     const validated = CreateLoanSchema.parse(input)
@@ -168,9 +171,7 @@ export async function getLoan(id: string): Promise<ActionResponse<Loan>> {
  * @param filter - Optional filter criteria
  * @returns Array of loans or error
  */
-export async function getLoans(
-  filter?: LoanFilter
-): Promise<ActionResponse<Loan[]>> {
+export async function getLoans(filter?: LoanFilter): Promise<ActionResponse<Loan[]>> {
   try {
     const where: Prisma.LoanWhereInput = {
       deletedAt: null,
@@ -183,8 +184,7 @@ export async function getLoans(
       if (validated.status) where.status = validated.status
       if (validated.interestCalculationType)
         where.interestCalculationType = validated.interestCalculationType
-      if (validated.paymentFrequency)
-        where.paymentFrequency = validated.paymentFrequency
+      if (validated.paymentFrequency) where.paymentFrequency = validated.paymentFrequency
       if (validated.borrowerEmail)
         where.borrowerEmail = { contains: validated.borrowerEmail, mode: 'insensitive' }
       if (validated.borrowerName)
@@ -193,12 +193,10 @@ export async function getLoans(
         where.principal = { gte: new Prisma.Decimal(validated.minPrincipal) }
       if (validated.maxPrincipal)
         where.principal = { ...where.principal, lte: new Prisma.Decimal(validated.maxPrincipal) }
-      if (validated.minBalance)
-        where.balance = { gte: new Prisma.Decimal(validated.minBalance) }
+      if (validated.minBalance) where.balance = { gte: new Prisma.Decimal(validated.minBalance) }
       if (validated.maxBalance)
         where.balance = { ...where.balance, lte: new Prisma.Decimal(validated.maxBalance) }
-      if (validated.startDateFrom)
-        where.startDate = { gte: validated.startDateFrom }
+      if (validated.startDateFrom) where.startDate = { gte: validated.startDateFrom }
       if (validated.startDateTo)
         where.startDate = { ...where.startDate, lte: validated.startDateTo }
     }
@@ -227,9 +225,7 @@ export async function getLoans(
  * @param input - Partial loan data with ID
  * @returns Updated loan or error
  */
-export async function updateLoan(
-  input: UpdateLoanInput
-): Promise<ActionResponse<Loan>> {
+export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse<Loan>> {
   try {
     // Validate input
     const validated = UpdateLoanSchema.parse(input)
@@ -329,12 +325,14 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 **Decision:** Use soft delete (set `deletedAt` timestamp)
 
 **Why:**
+
 - Data preservation for audit trails
 - Allows "undo" functionality
 - Maintains referential integrity with payments
 - Compliance requirements (loan history)
 
 **Alternative:** Hard delete
+
 - Simpler, but loses data permanently
 - Breaks payment history
 
@@ -343,6 +341,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 **Decision:** Set `balance = principal` on loan creation
 
 **Why:**
+
 - Simplifies loan creation
 - Balance decreases as payments are recorded
 - Easy to track remaining amount
@@ -352,6 +351,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 **Decision:** Convert numbers to Prisma Decimals in Server Actions
 
 **Why:**
+
 - Forms work with JavaScript numbers
 - Database requires Decimal for precision
 - Conversion happens at API boundary
@@ -361,6 +361,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 **Decision:** Standardized `ActionResponse<T>` type
 
 **Why:**
+
 - Consistent error handling across all actions
 - Type-safe error checking in UI
 - Zod validation errors passed to forms
@@ -370,6 +371,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 **Decision:** Revalidate specific paths after mutations
 
 **Why:**
+
 - Updates UI without full page reload
 - Better UX with Next.js App Router
 - Automatic cache invalidation
@@ -440,12 +442,14 @@ export function CreateLoanForm() {
 ## Next Steps
 
 After completion:
+
 - TASK-030: Set up testing infrastructure (Vitest)
 - TASK-009A: Write integration tests for Loan Server Actions
 - TASK-010: Implement Payment Server Actions
 - TASK-023: Build Create Loan form using these actions
 
 ## References
+
 - [Next.js Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
 - [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client)
 - [Zod Validation](https://zod.dev/)

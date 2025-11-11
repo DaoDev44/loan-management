@@ -326,7 +326,12 @@ async function main() {
       { loanId: loan11.id, amount: 2850, date: getRecentDate(3), notes: 'Monthly payment' },
       { loanId: loan14.id, amount: 1200, date: getRecentDate(4), notes: 'Vehicle loan payment' },
       { loanId: loan9.id, amount: 1050, date: getRecentDate(5), notes: 'Equipment loan payment' },
-      { loanId: loan12.id, amount: 1275, date: getRecentDate(6), notes: 'Final payment - loan completed' },
+      {
+        loanId: loan12.id,
+        amount: 1275,
+        date: getRecentDate(6),
+        notes: 'Final payment - loan completed',
+      },
       { loanId: loan3.id, amount: 500, date: getRecentDate(7), notes: 'Interest-only payment' },
 
       // MONTHLY PAYMENTS across last 6 months for Performance Chart

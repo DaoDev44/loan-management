@@ -18,9 +18,7 @@ export default function LoansPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Loans</h1>
-          <p className="text-muted-foreground">
-            Manage your loan portfolio
-          </p>
+          <p className="text-muted-foreground">Manage your loan portfolio</p>
         </div>
         <Button asChild>
           <Link href="/loans/new" className="gap-2">

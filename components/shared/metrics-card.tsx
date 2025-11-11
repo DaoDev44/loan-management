@@ -57,20 +57,18 @@ export function MetricsCard({
             <div
               className={cn(
                 'flex items-center gap-1 text-xs font-medium',
-                trend.isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                trend.isPositive
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-red-600 dark:text-red-400'
               )}
             >
               <TrendIcon className="h-3 w-3" aria-hidden="true" />
               <span>{Math.abs(trend.value)}%</span>
-              <span className="sr-only">
-                {trend.isPositive ? 'increase' : 'decrease'}
-              </span>
+              <span className="sr-only">{trend.isPositive ? 'increase' : 'decrease'}</span>
             </div>
           )}
         </div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        )}
+        {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
       </CardContent>
     </Card>
   )

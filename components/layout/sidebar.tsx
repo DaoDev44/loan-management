@@ -23,20 +23,13 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Main navigation">
         {navItems.map((item) => (
-          <NavItem
-            key={item.href}
-            title={item.title}
-            href={item.href}
-            icon={item.icon}
-          />
+          <NavItem key={item.href} title={item.title} href={item.href} icon={item.icon} />
         ))}
       </nav>
 
       {/* Footer */}
       <div className="border-t p-4">
-        <p className="text-xs text-muted-foreground">
-          © 2024 Loanly
-        </p>
+        <p className="text-xs text-muted-foreground">© 2024 Loanly</p>
       </div>
     </div>
   )

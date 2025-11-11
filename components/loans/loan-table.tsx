@@ -256,9 +256,7 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
                       {loan.borrowerEmail}
                     </TableCell>
                     <TableCell>{formatCurrency(loan.principal)}</TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(loan.balance)}
-                    </TableCell>
+                    <TableCell className="font-medium">{formatCurrency(loan.balance)}</TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {formatPercentage(loan.interestRate)}
                     </TableCell>

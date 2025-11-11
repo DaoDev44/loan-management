@@ -3,7 +3,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { type SerializedLoan } from '@/lib/utils/serialize'
 import { formatCurrency } from '@/lib/utils'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { type PaymentData } from '@/lib/dashboard-calculations'
 
 interface PerformanceChartProps {
@@ -21,9 +29,7 @@ export function PerformanceChart({ loans, paymentTrends, hasPaymentData }: Perfo
       return (
         <div className="bg-background border border-border p-3 rounded-md shadow-lg">
           <p className="font-medium">{label}</p>
-          <p className="text-sm text-green-600">
-            Amount: {formatCurrency(data.amount)}
-          </p>
+          <p className="text-sm text-green-600">Amount: {formatCurrency(data.amount)}</p>
           <p className="text-sm text-muted-foreground">
             {data.count} payment{data.count !== 1 ? 's' : ''}
           </p>
@@ -58,9 +64,8 @@ export function PerformanceChart({ loans, paymentTrends, hasPaymentData }: Perfo
   const avgMonthlyPayments = totalPayments / paymentTrends.length
   const currentMonth = paymentTrends[paymentTrends.length - 1]?.amount || 0
   const previousMonth = paymentTrends[paymentTrends.length - 2]?.amount || 0
-  const monthOverMonthChange = previousMonth > 0
-    ? Math.round(((currentMonth - previousMonth) / previousMonth) * 100)
-    : 0
+  const monthOverMonthChange =
+    previousMonth > 0 ? Math.round(((currentMonth - previousMonth) / previousMonth) * 100) : 0
 
   return (
     <Card>
@@ -81,11 +86,7 @@ export function PerformanceChart({ loans, paymentTrends, hasPaymentData }: Perfo
               }}
             >
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="month"
-                className="text-sm"
-                tick={{ fontSize: 12 }}
-              />
+              <XAxis dataKey="month" className="text-sm" tick={{ fontSize: 12 }} />
               <YAxis
                 className="text-sm"
                 tick={{ fontSize: 12 }}
@@ -107,20 +108,19 @@ export function PerformanceChart({ loans, paymentTrends, hasPaymentData }: Perfo
         {/* Performance metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
           <div className="text-center">
-            <p className="text-lg font-bold text-primary">
-              {formatCurrency(currentMonth)}
-            </p>
+            <p className="text-lg font-bold text-primary">{formatCurrency(currentMonth)}</p>
             <p className="text-sm text-muted-foreground">This Month</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-bold text-primary">
-              {formatCurrency(avgMonthlyPayments)}
-            </p>
+            <p className="text-lg font-bold text-primary">{formatCurrency(avgMonthlyPayments)}</p>
             <p className="text-sm text-muted-foreground">Monthly Average</p>
           </div>
           <div className="text-center">
-            <p className={`text-lg font-bold ${monthOverMonthChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {monthOverMonthChange > 0 ? '+' : ''}{monthOverMonthChange}%
+            <p
+              className={`text-lg font-bold ${monthOverMonthChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+            >
+              {monthOverMonthChange > 0 ? '+' : ''}
+              {monthOverMonthChange}%
             </p>
             <p className="text-sm text-muted-foreground">vs Last Month</p>
           </div>

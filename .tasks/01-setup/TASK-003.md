@@ -7,13 +7,16 @@
 **Branch:** `task/003-prisma-setup`
 
 ## Dependencies
+
 - TASK-001 (Next.js project initialized)
 - TASK-002 (PostgreSQL running in Docker)
 
 ## Description
+
 Install and configure Prisma ORM as the database access layer. Set up basic infrastructure for migrations, schema management, and database client instantiation. This task focuses on **tooling setup only** - the actual schema design happens in TASK-006.
 
 ## Acceptance Criteria
+
 - [ ] Prisma CLI installed as dev dependency
 - [ ] Prisma Client installed as dependency
 - [ ] Prisma initialized with PostgreSQL provider
@@ -30,15 +33,18 @@ Install and configure Prisma ORM as the database access layer. Set up basic infr
 ### Installation Steps
 
 1. **Install Prisma dependencies**
+
    ```bash
    npm install @prisma/client
    npm install -D prisma
    ```
 
 2. **Initialize Prisma**
+
    ```bash
    npx prisma init
    ```
+
    This creates:
    - `prisma/schema.prisma` - Schema definition file
    - `.env` update - Adds DATABASE_URL
@@ -58,6 +64,7 @@ Install and configure Prisma ORM as the database access layer. Set up basic infr
 ## Tradeoffs & Alternatives
 
 ### ORM Choice: Prisma vs Alternatives
+
 - **Chosen:** Prisma
 - **Why:**
   - Type-safe queries
@@ -72,18 +79,21 @@ Install and configure Prisma ORM as the database access layer. Set up basic infr
 - **Tradeoff:** Prisma is heavier but provides best type safety and DX
 
 ### Prisma Client Instantiation
+
 - **Chosen:** Singleton pattern with global augmentation
 - **Why:** Prevents multiple instances during Next.js hot reload
 - **Alternative:** Direct instantiation (causes connection pool issues in dev)
 - **Tradeoff:** Slightly more boilerplate, but required for Next.js
 
 ### Migration Strategy
+
 - **Chosen:** Prisma Migrate (not db push for production)
 - **Why:** Version-controlled migrations, safe for production
 - **Alternative:** `prisma db push` (good for prototyping, not production)
 - **Tradeoff:** Migrations require more discipline but provide safety
 
 ## Project Structure Updates
+
 ```
 loanly-love-nextjs/
 ├── prisma/
@@ -99,6 +109,7 @@ loanly-love-nextjs/
 ## Configuration Files
 
 ### prisma/schema.prisma (initial setup)
+
 ```prisma
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
@@ -117,6 +128,7 @@ datasource db {
 ```
 
 ### lib/db.ts (Prisma Client Singleton)
+
 ```typescript
 import { PrismaClient } from '@prisma/client'
 
@@ -136,12 +148,14 @@ export default prisma
 ```
 
 **Why this pattern?**
+
 - In development, Next.js hot reload would create new PrismaClient instances
 - This causes connection pool exhaustion
 - Global singleton prevents this issue
 - In production, this pattern is harmless (only one instance anyway)
 
 ### package.json scripts
+
 ```json
 {
   "scripts": {
@@ -168,6 +182,7 @@ export default prisma
 ```
 
 ### .env.local updates
+
 ```env
 # Database URL (already set in TASK-002)
 DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_db?schema=public"
@@ -179,6 +194,7 @@ DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@local
 ## Prisma Workflows
 
 ### Development Workflow
+
 ```bash
 # 1. Start database
 npm run db:up
@@ -196,6 +212,7 @@ npm run db:migrate
 ```
 
 ### Prototyping Workflow (faster, no migrations)
+
 ```bash
 # Push schema directly (no migration files)
 npm run db:push
@@ -204,6 +221,7 @@ npm run db:push
 ```
 
 ### Viewing Data
+
 ```bash
 # Open Prisma Studio (visual database browser)
 npm run db:studio
@@ -212,6 +230,7 @@ npm run db:studio
 ```
 
 ## Testing Requirements
+
 - [ ] Prisma CLI installed: `npx prisma --version`
 - [ ] Database connection successful: `npx prisma db pull`
 - [ ] Prisma Client generated: `npx prisma generate`
@@ -223,11 +242,13 @@ npm run db:studio
 ## Deployment Considerations
 
 ### Local Development
+
 - Use `prisma migrate dev` for schema changes
 - Prisma Studio for debugging
 - Hot reload works without connection issues
 
 ### CI/CD (GitHub Actions, etc.)
+
 ```yaml
 # In CI, generate Prisma Client before build
 - name: Generate Prisma Client
@@ -238,6 +259,7 @@ npm run db:studio
 ```
 
 ### Production (Vercel)
+
 1. **DATABASE_URL** set in Vercel environment variables
 2. **Build command:** Prisma Client generated automatically via `postinstall` script
 3. **Migrations:** Run `prisma migrate deploy` in build step or manually
@@ -245,6 +267,7 @@ npm run db:studio
    - Need to run before deploy or use deployment script
 
 **Recommended Approach for Vercel:**
+
 ```json
 // package.json
 {
@@ -259,26 +282,34 @@ npm run db:studio
 ## Documentation
 
 ### docs/PRISMA_GUIDE.md
+
 ```markdown
 # Prisma Development Guide
 
 ## Quick Reference
 
 ### Common Commands
+
 \`\`\`bash
+
 # Generate Prisma Client (after schema changes)
+
 npm run db:generate
 
 # Create and apply migration
+
 npm run db:migrate
 
 # Push schema without migration (dev only)
+
 npm run db:push
 
 # Open Prisma Studio
+
 npm run db:studio
 
 # Reset database (WARNING: deletes all data)
+
 npm run db:reset
 \`\`\`
 
@@ -296,23 +327,27 @@ import { prisma } from '@/lib/db'
 
 // Example query
 const loans = await prisma.loan.findMany({
-  where: { status: 'ACTIVE' },
-  include: { payments: true }
+where: { status: 'ACTIVE' },
+include: { payments: true }
 })
 \`\`\`
 
 ## Troubleshooting
 
 ### "Prisma Client is not generated"
+
 Run: `npm run db:generate`
 
 ### "Can't reach database"
+
 Ensure Docker container is running: `npm run db:up`
 
 ### Too many database connections
+
 Restart Next.js dev server
 
 ### Migration conflicts
+
 Reset database: `npm run db:reset` (dev only!)
 ```
 
@@ -343,12 +378,15 @@ Reset database: `npm run db:reset` (dev only!)
    - **Recommendation:** Yes, Prisma works best with strict mode
 
 ## Next Steps
+
 After this task:
+
 - TASK-006: Design complete Prisma schema
 - TASK-007: Create seed data
 - TASK-009: Implement Server Actions using Prisma Client
 
 ## References
+
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Prisma with Next.js Guide](https://www.prisma.io/docs/guides/deployment/deployment-guides/deploying-to-vercel)
 - [Prisma Best Practices](https://www.prisma.io/docs/guides/performance-and-optimization/connection-management)

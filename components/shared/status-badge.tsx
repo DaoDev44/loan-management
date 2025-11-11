@@ -45,14 +45,7 @@ export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps
   const config = statusConfig[status]
 
   return (
-    <Badge
-      className={cn(
-        config.className,
-        sizeClasses[size],
-        'font-medium',
-        className
-      )}
-    >
+    <Badge className={cn(config.className, sizeClasses[size], 'font-medium', className)}>
       {config.label}
     </Badge>
   )

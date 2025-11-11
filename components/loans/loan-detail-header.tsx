@@ -20,41 +20,45 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
   const handleEdit = () => {
     // For now, just show a toast since we haven't built the edit form yet
     toast({
-      title: "Edit Loan",
-      description: "Edit loan feature coming soon!",
+      title: 'Edit Loan',
+      description: 'Edit loan feature coming soon!',
     })
   }
 
   const handleAddPayment = () => {
     // For now, just show a toast since we haven't built the add payment dialog yet
     toast({
-      title: "Add Payment",
-      description: "Add payment feature coming soon!",
+      title: 'Add Payment',
+      description: 'Add payment feature coming soon!',
     })
   }
 
   const handleDelete = async () => {
-    if (confirm(`Are you sure you want to delete the loan for ${loan.borrowerName}? This action cannot be undone.`)) {
+    if (
+      confirm(
+        `Are you sure you want to delete the loan for ${loan.borrowerName}? This action cannot be undone.`
+      )
+    ) {
       try {
         const result = await deleteLoan(loan.id)
         if (result.success) {
           toast({
-            title: "Loan deleted",
-            description: "The loan has been successfully deleted.",
+            title: 'Loan deleted',
+            description: 'The loan has been successfully deleted.',
           })
           router.push('/loans')
         } else {
           toast({
-            title: "Error",
-            description: "Failed to delete the loan. Please try again.",
-            variant: "destructive",
+            title: 'Error',
+            description: 'Failed to delete the loan. Please try again.',
+            variant: 'destructive',
           })
         }
       } catch (error) {
         toast({
-          title: "Error",
-          description: "An unexpected error occurred while deleting the loan.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'An unexpected error occurred while deleting the loan.',
+          variant: 'destructive',
         })
       }
     }
@@ -71,12 +75,8 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
 
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Loan Details
-          </h1>
-          <p className="text-muted-foreground">
-            Loan for {loan.borrowerName}
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Loan Details</h1>
+          <p className="text-muted-foreground">Loan for {loan.borrowerName}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -99,12 +99,7 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
               Add Payment
             </Button>
 
-            <Button
-              onClick={handleDelete}
-              variant="destructive"
-              size="sm"
-              className="gap-1"
-            >
+            <Button onClick={handleDelete} variant="destructive" size="sm" className="gap-1">
               <Trash2 className="h-3 w-3" />
               Delete
             </Button>

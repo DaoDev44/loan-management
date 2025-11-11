@@ -7,12 +7,15 @@
 **Branch:** `task/008-zod-schemas`
 
 ## Dependencies
+
 - TASK-006 (Prisma schema designed)
 
 ## Description
+
 Create type-safe validation schemas using Zod for all data inputs (forms, API requests). These schemas ensure data validity before it reaches the database and provide excellent TypeScript integration with React Hook Form.
 
 ## Acceptance Criteria
+
 - [x] Zod schemas created for all data models (Loan, Payment)
 - [x] Validation rules match business requirements
 - [x] Schemas export TypeScript types
@@ -29,6 +32,7 @@ Create type-safe validation schemas using Zod for all data inputs (forms, API re
 **Chosen:** Zod over other validation libraries
 
 **Pros:**
+
 - ✅ TypeScript-first with excellent type inference
 - ✅ Zero dependencies
 - ✅ Perfect integration with React Hook Form
@@ -37,6 +41,7 @@ Create type-safe validation schemas using Zod for all data inputs (forms, API re
 - ✅ Great error messages out of the box
 
 **Alternatives:**
+
 - Yup: More established, but weaker TypeScript support
 - Joi: More features, but heavier and not TypeScript-first
 - Class Validator: Requires decorators, less flexible
@@ -72,10 +77,7 @@ export const percentage = z
   .min(0, 'Interest rate cannot be negative')
   .max(100, 'Interest rate cannot exceed 100%')
 
-export const email = z
-  .string()
-  .email('Invalid email address')
-  .min(1, 'Email is required')
+export const email = z.string().email('Invalid email address').min(1, 'Email is required')
 
 export const phone = z
   .string()
@@ -108,11 +110,7 @@ import { currency, email, percentage, phone, positiveInteger } from './common.sc
 // Enums matching Prisma schema
 export const LoanStatusSchema = z.enum(['ACTIVE', 'COMPLETED', 'OVERDUE', 'DEFAULTED'])
 
-export const InterestCalculationTypeSchema = z.enum([
-  'SIMPLE',
-  'AMORTIZED',
-  'INTEREST_ONLY',
-])
+export const InterestCalculationTypeSchema = z.enum(['SIMPLE', 'AMORTIZED', 'INTEREST_ONLY'])
 
 export const PaymentFrequencySchema = z.enum(['MONTHLY', 'BI_WEEKLY'])
 
@@ -329,7 +327,7 @@ export async function createLoan(formData: FormData) {
   if (!result.success) {
     return {
       error: 'Validation failed',
-      issues: result.error.issues
+      issues: result.error.issues,
     }
   }
 
@@ -418,11 +416,13 @@ export const CreateLoanSchema = z.object({
 **Decision:** Use `number` type in Zod, convert to Prisma Decimal in Server Actions
 
 **Why:**
+
 - Forms work with JavaScript numbers
 - Prisma handles Decimal conversion
 - Simpler type handling in frontend
 
 **Alternative:** Use string for precise decimal handling
+
 - More complex
 - Requires custom parsing
 
@@ -431,6 +431,7 @@ export const CreateLoanSchema = z.object({
 **Decision:** Use `Date` objects in Zod schemas
 
 **Why:**
+
 - React Hook Form works with Date objects
 - Simpler than string dates
 - Type-safe
@@ -442,6 +443,7 @@ export const CreateLoanSchema = z.object({
 **Decision:** Use `.optional()` for form fields, `.nullable()` for database fields
 
 **Why:**
+
 - Forms: Fields may be undefined (not filled)
 - Database: Fields may be explicitly null (deletedAt)
 
@@ -450,6 +452,7 @@ export const CreateLoanSchema = z.object({
 **Decision:** Use Zod enums that match Prisma enums exactly
 
 **Why:**
+
 - Type safety between database and forms
 - Single source of truth
 - Compile-time errors if mismatch
@@ -469,11 +472,13 @@ lib/validations/
 ## Next Steps
 
 After schemas are created:
+
 - TASK-009: Use these schemas in Loan CRUD Server Actions
 - TASK-010: Use these schemas in Payment Server Actions
 - TASK-023: Use these schemas in Create Loan form
 
 ## References
+
 - [Zod Documentation](https://zod.dev/)
 - [React Hook Form + Zod](https://react-hook-form.com/get-started#SchemaValidation)
 - [Prisma Schema](../../../prisma/schema.prisma)

@@ -24,7 +24,7 @@ export function MetricCard({
   icon: Icon,
   trend,
   variant = 'default',
-  className
+  className,
 }: MetricCardProps) {
   const variantStyles = {
     default: 'border-border',
@@ -50,37 +50,27 @@ export function MetricCard({
   return (
     <Card className={cn(variantStyles[variant], className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
         {Icon && (
-          <Icon className={cn(
-            "h-4 w-4",
-            variant === 'default' ? 'text-muted-foreground' : 'text-current'
-          )} />
+          <Icon
+            className={cn(
+              'h-4 w-4',
+              variant === 'default' ? 'text-muted-foreground' : 'text-current'
+            )}
+          />
         )}
       </CardHeader>
       <CardContent className="space-y-1">
-        <div className="text-2xl font-bold tracking-tight text-card-foreground">
-          {value}
-        </div>
+        <div className="text-2xl font-bold tracking-tight text-card-foreground">{value}</div>
 
         <div className="flex items-center justify-between">
-          {description && (
-            <p className="text-xs text-muted-foreground">
-              {description}
-            </p>
-          )}
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
 
           {trend && (
-            <div className={cn("flex items-center gap-1 text-xs font-medium", getTrendColor())}>
+            <div className={cn('flex items-center gap-1 text-xs font-medium', getTrendColor())}>
               {getTrendIcon()}
               <span>{formatPercentage(Math.abs(trend.value))}</span>
-              {trend.label && (
-                <span className="text-muted-foreground ml-1">
-                  {trend.label}
-                </span>
-              )}
+              {trend.label && <span className="text-muted-foreground ml-1">{trend.label}</span>}
             </div>
           )}
         </div>

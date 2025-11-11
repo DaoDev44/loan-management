@@ -7,14 +7,17 @@
 **Branch:** `task/005-vercel-config`
 
 ## Dependencies
+
 - TASK-001 (Next.js project initialized)
 - TASK-003 (Prisma ORM set up)
 - TASK-006 (Prisma schema designed)
 
 ## Description
+
 Configure the project for deployment on Vercel with a production PostgreSQL database. Set up environment variables, build scripts, and migration strategy to ensure smooth deployments. This enables continuous deployment and validates that the stack works in production.
 
 ## Acceptance Criteria
+
 - [ ] Vercel project created and configured
 - [ ] Production database selected and provisioned (Vercel Postgres or Neon)
 - [ ] Environment variables configured in Vercel
@@ -30,6 +33,7 @@ Configure the project for deployment on Vercel with a production PostgreSQL data
 ### Production Database Options
 
 **Option A: Vercel Postgres (RECOMMENDED)**
+
 - **Pros:**
   - Seamless integration with Vercel
   - Automatic connection pooling
@@ -42,6 +46,7 @@ Configure the project for deployment on Vercel with a production PostgreSQL data
   - Not available in all regions
 
 **Option B: Neon (Alternative)**
+
 - **Pros:**
   - Generous free tier (3 GB storage, unlimited projects)
   - Serverless PostgreSQL (pay for compute only)
@@ -54,6 +59,7 @@ Configure the project for deployment on Vercel with a production PostgreSQL data
   - Need to configure connection pooling separately
 
 **Option C: Supabase**
+
 - **Pros:**
   - Very generous free tier (500 MB database, 2 GB bandwidth)
   - Additional features (auth, storage, real-time)
@@ -99,12 +105,14 @@ node_modules
 ### Environment Variables Strategy
 
 **Local Development (.env.local):**
+
 ```env
 DATABASE_URL="postgresql://loanly:loanly_dev_password@localhost:5432/loanly_db?schema=public"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 **Production (Vercel Environment Variables):**
+
 ```env
 DATABASE_URL="[Vercel Postgres or Neon connection string]"
 NEXT_PUBLIC_APP_URL="https://your-app.vercel.app"
@@ -112,6 +120,7 @@ DIRECT_URL="[Direct connection string if using connection pooling]"
 ```
 
 **Important:** Vercel Postgres provides two connection strings:
+
 - `POSTGRES_URL`: Pooled connection (use for Prisma in serverless)
 - `POSTGRES_URL_NON_POOLING`: Direct connection (use for migrations)
 
@@ -129,27 +138,32 @@ Update `package.json` build script:
 ```
 
 **Why two build scripts?**
+
 - `build`: For local builds (no migrations)
 - `vercel-build`: Vercel uses this automatically, includes migrations
 
 ### Migration Strategy
 
 **Approach 1: Run migrations in build step (RECOMMENDED for MVP)**
+
 ```json
 "vercel-build": "prisma generate && prisma migrate deploy && next build"
 ```
 
 **Pros:**
+
 - Automatic migrations on every deploy
 - Simple setup
 - No manual intervention
 
 **Cons:**
+
 - Builds fail if migrations fail
 - No rollback strategy
 - Can't test migrations before traffic hits them
 
 **Approach 2: Manual migrations before deploy**
+
 ```bash
 # Run migrations manually before deploying
 npx prisma migrate deploy
@@ -159,11 +173,13 @@ npm run build
 ```
 
 **Pros:**
+
 - More control
 - Can verify migrations before deploy
 - Safer for complex migrations
 
 **Cons:**
+
 - Manual step required
 - Easy to forget
 
@@ -182,11 +198,13 @@ datasource db {
 ```
 
 **When to use connection pooling:**
+
 - Serverless environments (like Vercel)
 - High number of concurrent requests
 - Limited database connections
 
 **Vercel Postgres automatically provides both URLs:**
+
 - `POSTGRES_URL` → `DATABASE_URL`
 - `POSTGRES_URL_NON_POOLING` → `DIRECT_URL`
 
@@ -206,6 +224,7 @@ vercel link
 ```
 
 Alternatively, connect via Vercel dashboard:
+
 1. Go to https://vercel.com
 2. Click "Add New Project"
 3. Import your GitHub repository
@@ -291,7 +310,7 @@ datasource db {
     "build": "prisma generate && next build",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint"
     // ... rest of scripts
   }
 }
@@ -419,6 +438,7 @@ npx prisma migrate deploy
 **Cause:** DATABASE_URL not set or incorrect in Vercel environment variables
 
 **Solution:**
+
 1. Check Vercel dashboard → Environment Variables
 2. Verify DATABASE_URL is set for Production environment
 3. Redeploy
@@ -428,6 +448,7 @@ npx prisma migrate deploy
 **Cause:** Vercel can't connect to database
 
 **Solution:**
+
 - If using Vercel Postgres: Check database is running in Vercel dashboard
 - If using Neon: Verify connection string is correct and IP allowlist is configured (Neon allows all IPs by default)
 - Check if you need connection pooling (use `POSTGRES_URL` not `POSTGRES_URL_NON_POOLING` for queries)
@@ -437,6 +458,7 @@ npx prisma migrate deploy
 **Cause:** Using pooled connection for migrations
 
 **Solution:**
+
 1. Add `directUrl = env("DIRECT_URL")` to schema.prisma
 2. Set `DIRECT_URL` environment variable to non-pooled connection
 3. Redeploy
@@ -446,6 +468,7 @@ npx prisma migrate deploy
 **Cause:** Migrations running during build taking too long
 
 **Solution:**
+
 - Run complex migrations manually before deploying
 - Use `vercel-build` script without migrations for deploy
 - Consider using database backup/restore for large data migrations
@@ -455,24 +478,28 @@ npx prisma migrate deploy
 ### For Future Deployments
 
 1. **Make changes locally**
+
    ```bash
    # Work on feature branch
    git checkout -b feature/my-feature
    ```
 
 2. **Test locally**
+
    ```bash
    npm run dev
    npm run build
    ```
 
 3. **Create migration if database changed**
+
    ```bash
    npm run db:migrate
    # Name migration descriptively
    ```
 
 4. **Commit and push**
+
    ```bash
    git add .
    git commit -m "[TASK-XXX] Feature description"
@@ -505,10 +532,12 @@ npx prisma migrate deploy
 ### Database Backups
 
 **Vercel Postgres:**
+
 - Automatic daily backups on paid plans
 - Point-in-time recovery available
 
 **Neon:**
+
 - Automatic backups
 - Branch databases for testing
 
@@ -534,10 +563,13 @@ This project is deployed on [Vercel](https://vercel.com).
 ### Manual Deployment
 
 \`\`\`bash
+
 # Install Vercel CLI
+
 npm install -g vercel
 
 # Deploy to production
+
 vercel --prod
 \`\`\`
 ```
@@ -567,11 +599,13 @@ vercel --prod
 ## Next Steps
 
 After deployment is configured:
+
 - TASK-008: Build Zod validation schemas
 - TASK-009: Implement Loan CRUD Server Actions
 - Continue with Phase 2: Database & API Layer tasks
 
 ## References
+
 - [Vercel Deployment Documentation](https://vercel.com/docs)
 - [Next.js Deployment Guide](https://nextjs.org/docs/deployment)
 - [Prisma with Vercel](https://www.prisma.io/docs/guides/deployment/deployment-guides/deploying-to-vercel)

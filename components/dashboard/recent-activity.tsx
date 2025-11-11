@@ -71,19 +71,13 @@ export function RecentActivity({ loans, recentActivity }: RecentActivityProps) {
               key={activity.id}
               className="flex items-start space-x-3 p-3 rounded-lg border bg-card/50 hover:bg-card/80 transition-colors"
             >
-              <div className="flex-shrink-0 mt-0.5">
-                {getActivityIcon(activity.type)}
-              </div>
+              <div className="flex-shrink-0 mt-0.5">{getActivityIcon(activity.type)}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-card-foreground">
-                      {activity.title}
-                    </p>
+                    <p className="text-sm font-medium text-card-foreground">{activity.title}</p>
                     {activity.subtitle && (
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {activity.subtitle}
-                      </p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{activity.subtitle}</p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
                       {formatDate(activity.date)}

@@ -6,7 +6,7 @@ import {
   getPayments,
   getPaymentsByLoan,
   updatePayment,
-  deletePayment
+  deletePayment,
 } from '@/app/actions/payment.actions'
 import { createLoan } from '@/app/actions/loan.actions'
 import { prisma } from '@/lib/prisma'
@@ -21,18 +21,18 @@ describe('Payment Actions', () => {
         loan: {
           OR: [
             { borrowerName: { startsWith: 'Test Borrower' } },
-            { borrowerName: { startsWith: 'Payment Test' } }
-          ]
-        }
-      }
+            { borrowerName: { startsWith: 'Payment Test' } },
+          ],
+        },
+      },
     })
     await prisma.loan.deleteMany({
       where: {
         OR: [
           { borrowerName: { startsWith: 'Test Borrower' } },
-          { borrowerName: { startsWith: 'Payment Test' } }
-        ]
-      }
+          { borrowerName: { startsWith: 'Payment Test' } },
+        ],
+      },
     })
 
     // Create a test loan for payment tests
@@ -47,7 +47,7 @@ describe('Payment Actions', () => {
       termMonths: 24,
       interestCalculationType: 'SIMPLE',
       paymentFrequency: 'MONTHLY',
-      notes: 'Test loan for payment testing'
+      notes: 'Test loan for payment testing',
     })
 
     if (loanResult.success) {
@@ -62,7 +62,7 @@ describe('Payment Actions', () => {
       const paymentData = {
         loanId: testLoanId,
         amount: 500,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       }
 
       const result = await createPayment(paymentData)
@@ -79,7 +79,7 @@ describe('Payment Actions', () => {
       const paymentData = {
         loanId: 'cm3xample123456789', // Valid CUID format but doesn't exist
         amount: 500,
-        date: new Date()
+        date: new Date(),
       }
 
       const result = await createPayment(paymentData)
@@ -98,7 +98,7 @@ describe('Payment Actions', () => {
         loanId: testLoanId,
         amount: 750,
         date: new Date('2024-02-15'),
-        notes: 'Extra payment'
+        notes: 'Extra payment',
       })
 
       expect(createResult.success).toBe(true)
@@ -133,14 +133,14 @@ describe('Payment Actions', () => {
       await createPayment({
         loanId: testLoanId,
         amount: 400,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       await createPayment({
         loanId: testLoanId,
         amount: 200,
         date: new Date('2024-02-15'),
-        notes: 'Extra payment'
+        notes: 'Extra payment',
       })
 
       const result = await getPaymentsByLoan(testLoanId)
@@ -170,7 +170,7 @@ describe('Payment Actions', () => {
       const createResult = await createPayment({
         loanId: testLoanId,
         amount: 600,
-        date: new Date('2024-03-15')
+        date: new Date('2024-03-15'),
       })
 
       expect(createResult.success).toBe(true)
@@ -182,7 +182,7 @@ describe('Payment Actions', () => {
       const result = await updatePayment({
         id: paymentId,
         amount: 800,
-        notes: 'Updated payment amount'
+        notes: 'Updated payment amount',
       })
 
       expect(result.success).toBe(true)
@@ -199,7 +199,7 @@ describe('Payment Actions', () => {
       const createResult = await createPayment({
         loanId: testLoanId,
         amount: 300,
-        date: new Date('2024-04-15')
+        date: new Date('2024-04-15'),
       })
 
       expect(createResult.success).toBe(true)
@@ -223,25 +223,25 @@ describe('Payment Actions', () => {
       await createPayment({
         loanId: testLoanId,
         amount: 500,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       await createPayment({
         loanId: testLoanId,
         amount: 200,
-        date: new Date('2024-02-15')
+        date: new Date('2024-02-15'),
       })
 
       await createPayment({
         loanId: testLoanId,
         amount: 300,
-        date: new Date('2024-03-15')
+        date: new Date('2024-03-15'),
       })
 
       // Filter by date range
       const dateRangeResult = await getPayments({
         dateFrom: new Date('2024-02-01'),
-        dateTo: new Date('2024-03-31')
+        dateTo: new Date('2024-03-31'),
       })
 
       expect(dateRangeResult.success).toBe(true)
@@ -259,21 +259,21 @@ describe('Payment Actions', () => {
       await createPayment({
         loanId: testLoanId,
         amount: 500,
-        date: new Date('2024-02-15')
+        date: new Date('2024-02-15'),
       })
 
       // Filter by amount range (400-600) and specific loan ID
       const amountRangeResult = await getPayments({
         loanId: testLoanId,
         minAmount: 400,
-        maxAmount: 600
+        maxAmount: 600,
       })
 
       expect(amountRangeResult.success).toBe(true)
       if (amountRangeResult.success) {
         // Should include the $500 payment
-        const has500Payment = amountRangeResult.data.some((payment: any) =>
-          payment.amount.toString() === '500'
+        const has500Payment = amountRangeResult.data.some(
+          (payment: any) => payment.amount.toString() === '500'
         )
         expect(has500Payment).toBe(true)
 
@@ -292,7 +292,7 @@ describe('Payment Actions', () => {
       // Get initial loan balance
       const loanBefore = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
 
       expect(loanBefore).not.toBeNull()
@@ -302,7 +302,7 @@ describe('Payment Actions', () => {
       const paymentResult = await createPayment({
         loanId: testLoanId,
         amount: 1500,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       expect(paymentResult.success).toBe(true)
@@ -310,7 +310,7 @@ describe('Payment Actions', () => {
       // Check loan balance was reduced
       const loanAfter = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
 
       expect(loanAfter).not.toBeNull()
@@ -323,7 +323,7 @@ describe('Payment Actions', () => {
       const createResult = await createPayment({
         loanId: testLoanId,
         amount: 500,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       expect(createResult.success).toBe(true)
@@ -334,14 +334,14 @@ describe('Payment Actions', () => {
       // Get balance after first payment
       const loanAfterCreate = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
       const balanceAfterCreate = loanAfterCreate!.balance.toNumber()
 
       // Update payment to $800 (increase by $300)
       const updateResult = await updatePayment({
         id: paymentId,
-        amount: 800
+        amount: 800,
       })
 
       expect(updateResult.success).toBe(true)
@@ -349,7 +349,7 @@ describe('Payment Actions', () => {
       // Balance should decrease by additional $300
       const loanAfterUpdate = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
       const balanceAfterUpdate = loanAfterUpdate!.balance.toNumber()
       expect(balanceAfterUpdate).toBe(balanceAfterCreate - 300)
@@ -360,7 +360,7 @@ describe('Payment Actions', () => {
       const createResult = await createPayment({
         loanId: testLoanId,
         amount: 1000,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       expect(createResult.success).toBe(true)
@@ -371,7 +371,7 @@ describe('Payment Actions', () => {
       // Get balance after payment
       const loanAfterPayment = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
       const balanceAfterPayment = loanAfterPayment!.balance.toNumber()
 
@@ -382,7 +382,7 @@ describe('Payment Actions', () => {
       // Balance should increase by payment amount
       const loanAfterDelete = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
       const balanceAfterDelete = loanAfterDelete!.balance.toNumber()
       expect(balanceAfterDelete).toBe(balanceAfterPayment + 1000)
@@ -392,7 +392,7 @@ describe('Payment Actions', () => {
       // Get current balance
       const loan = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true, status: true }
+        select: { balance: true, status: true },
       })
 
       expect(loan).not.toBeNull()
@@ -402,7 +402,7 @@ describe('Payment Actions', () => {
       const paymentResult = await createPayment({
         loanId: testLoanId,
         amount: currentBalance,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       expect(paymentResult.success).toBe(true)
@@ -410,7 +410,7 @@ describe('Payment Actions', () => {
       // Verify loan status is COMPLETED
       const loanAfter = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true, status: true }
+        select: { balance: true, status: true },
       })
 
       expect(loanAfter).not.toBeNull()
@@ -422,7 +422,7 @@ describe('Payment Actions', () => {
       // Get current balance and pay it all
       const loan = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { balance: true }
+        select: { balance: true },
       })
       const currentBalance = loan!.balance.toNumber()
 
@@ -430,7 +430,7 @@ describe('Payment Actions', () => {
       const paymentResult = await createPayment({
         loanId: testLoanId,
         amount: currentBalance,
-        date: new Date('2024-01-15')
+        date: new Date('2024-01-15'),
       })
 
       expect(paymentResult.success).toBe(true)
@@ -441,7 +441,7 @@ describe('Payment Actions', () => {
       // Verify loan is completed
       const loanCompleted = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { status: true }
+        select: { status: true },
       })
       expect(loanCompleted!.status).toBe('COMPLETED')
 
@@ -452,7 +452,7 @@ describe('Payment Actions', () => {
       // Verify loan is reactivated
       const loanReactivated = await prisma.loan.findUnique({
         where: { id: testLoanId },
-        select: { status: true, balance: true }
+        select: { status: true, balance: true },
       })
       expect(loanReactivated!.status).toBe('ACTIVE')
       expect(loanReactivated!.balance.toNumber()).toBeGreaterThan(0)

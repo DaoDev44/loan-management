@@ -9,18 +9,21 @@
 ## Quick Start for New Developers
 
 ### 1. **One-Command Setup (RECOMMENDED)**
+
 ```bash
 # This sets up everything you need for testing
 npm run test:setup
 ```
 
 This command will:
+
 - ✅ Start Docker PostgreSQL container
-- ✅ Create test database 
+- ✅ Create test database
 - ✅ Run migrations on test database
 - ✅ Configure environment variables
 
 ### 2. **Run Tests**
+
 ```bash
 # Run all tests in watch mode (recommended during development)
 npm test
@@ -37,27 +40,31 @@ npm run test:coverage
 If you need to set up the test environment manually:
 
 ### Prerequisites
+
 - Docker and Docker Compose installed
 - PostgreSQL container running (`npm run db:up`)
 
 ### Step-by-Step Setup
 
 1. **Ensure main development database is running:**
+
    ```bash
    npm run db:up
    ```
 
 2. **Create test database:**
+
    ```bash
    docker exec loanly-postgres psql -U loanly -d loanly_db -c "CREATE DATABASE loanly_test_db;"
    ```
 
 3. **Run migrations on test database:**
+
    ```bash
    # Option 1: Use environment variables (RECOMMENDED)
    TEST_DATABASE_URL="postgresql://loanly:${POSTGRES_PASSWORD}@localhost:5432/loanly_test_db?schema=public" \
    npx prisma migrate deploy
-   
+
    # Option 2: Use explicit connection (if needed for debugging)
    DATABASE_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public" \
    POSTGRES_URL="postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public" \
@@ -117,6 +124,7 @@ tests/
 ### Common Issues
 
 **❌ "Can't reach database server" Error**
+
 ```bash
 # Check if PostgreSQL container is running
 npm run db:status
@@ -129,6 +137,7 @@ npm run db:logs
 ```
 
 **❌ "Database 'loanly_test_db' does not exist"**
+
 ```bash
 # Run the automated setup
 npm run test:setup
@@ -138,6 +147,7 @@ docker exec loanly-postgres psql -U loanly -d loanly_db -c "CREATE DATABASE loan
 ```
 
 **❌ "Migration failed" Error**
+
 ```bash
 # Reset and recreate test database
 docker exec loanly-postgres psql -U loanly -d loanly_db -c "DROP DATABASE IF EXISTS loanly_test_db; CREATE DATABASE loanly_test_db;"
@@ -147,6 +157,7 @@ npm run test:setup
 ```
 
 **❌ Password Authentication Failed**
+
 - Make sure your `.env.local` file has the correct `POSTGRES_PASSWORD`
 - The test setup automatically reads from your environment
 - Default password: `loanly_dev_password_change_in_production`
@@ -154,11 +165,13 @@ npm run test:setup
 ### Environment Variables
 
 The test environment automatically reads from:
+
 1. `TEST_DATABASE_URL` (if set)
 2. Your `.env.local` file for the development password
 3. Falls back to default configuration
 
 You can override by setting:
+
 ```bash
 export TEST_DATABASE_URL="postgresql://loanly:your_password@localhost:5432/loanly_test_db?schema=public"
 ```
@@ -166,11 +179,13 @@ export TEST_DATABASE_URL="postgresql://loanly:your_password@localhost:5432/loanl
 ## Test Coverage
 
 Current unit test coverage:
+
 - ✅ Validation schemas (currency, percentage, loan creation)
 - ✅ Cross-field validation (dates, term matching)
 - ✅ Error handling
 
 Integration test coverage (once DB is set up):
+
 - ✅ createLoan() with valid/invalid data
 - ✅ getLoans() with filtering
 - ✅ Balance calculations
@@ -217,11 +232,13 @@ describe('MyIntegrationTest', () => {
 ## Test Coverage
 
 Current unit test coverage:
+
 - ✅ Validation schemas (currency, percentage, loan creation)
 - ✅ Cross-field validation (dates, term matching)
 - ✅ Error handling
 
 Integration test coverage (once DB is set up):
+
 - ✅ createLoan() with valid/invalid data
 - ✅ getLoans() with filtering
 - ✅ Balance calculations

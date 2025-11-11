@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: LoanDetailPageProps) {
   const { id } = await params
   return {
     title: `Loan Details - ${id}`,
-    description: 'View detailed information about a specific loan including payment history and actions.',
+    description:
+      'View detailed information about a specific loan including payment history and actions.',
   }
 }

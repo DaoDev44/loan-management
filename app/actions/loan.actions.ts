@@ -14,11 +14,7 @@ import {
   type Loan,
 } from '@/lib/validations'
 import { type ActionResponse, successResponse, errorResponse } from './types'
-import {
-  serializeLoan,
-  serializeLoans,
-  type SerializedLoan,
-} from '@/lib/utils/serialize'
+import { serializeLoan, serializeLoans, type SerializedLoan } from '@/lib/utils/serialize'
 
 /**
  * Create a new loan

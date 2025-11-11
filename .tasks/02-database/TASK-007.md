@@ -7,12 +7,15 @@
 **Branch:** `task/007-db-seeds`
 
 ## Dependencies
+
 - TASK-006 (Prisma schema designed and migrated)
 
 ## Description
+
 Create seed data script to populate the database with realistic sample loans and payments for development and testing. This enables developers to test features with realistic data without manually creating records.
 
 ## Acceptance Criteria
+
 - [ ] Seed script created using Prisma Client
 - [ ] Sample data includes diverse loan scenarios:
   - [ ] Multiple interest calculation types (SIMPLE, AMORTIZED, INTEREST_ONLY)
@@ -30,12 +33,14 @@ Create seed data script to populate the database with realistic sample loans and
 ### Seed Data Strategy
 
 **Goals:**
+
 1. Provide realistic test data for development
 2. Cover all enum variations (status, calculation type, frequency)
 3. Include edge cases (completed loans, overdue loans, loans with many payments)
 4. Be repeatable and safe to run multiple times
 
 **Data to Create:**
+
 - 8-10 loans covering different scenarios
 - 15-20 payments across various loans
 - Mix of borrowers to test search/filter functionality
@@ -85,6 +90,7 @@ Create seed data script to populate the database with realistic sample loans and
 ### Idempotency Strategy
 
 **Option A: Delete and Recreate (RECOMMENDED for dev)**
+
 ```typescript
 async function seed() {
   // Clear existing data
@@ -97,27 +103,34 @@ async function seed() {
 ```
 
 **Pros:**
+
 - Simple and predictable
 - Always starts from known state
 - Good for development/testing
 
 **Cons:**
+
 - Deletes all data (not suitable for production)
 
 **Option B: Upsert (Production-safe)**
+
 ```typescript
 await prisma.loan.upsert({
   where: { id: 'seed-loan-1' },
   update: {},
-  create: { /* loan data */ }
+  create: {
+    /* loan data */
+  },
 })
 ```
 
 **Pros:**
+
 - Safe for production
 - Preserves existing data
 
 **Cons:**
+
 - More complex
 - Requires stable IDs
 
@@ -421,13 +434,17 @@ Create `docs/SEED_DATA.md`:
 ## Running Seed Script
 
 \`\`\`bash
+
 # Seed the database
+
 npm run db:seed
 
 # Or use Prisma CLI
+
 npx prisma db seed
 
 # Reset database and seed
+
 npm run db:reset
 \`\`\`
 
@@ -453,15 +470,17 @@ The seed script creates 8 loans and ~50 payments covering various scenarios:
 - **Testing calculations:** Each interest type represented
 - **Testing payment history:** Loan 7 has 24 payments
 - **Testing edge cases:** New loan (no payments), completed loan, defaulted loan
-\`\`\`
+  \`\`\`
 
 ## Deployment Considerations
 
 ### Development
+
 - Run seed script after initial migration
 - Safe to run multiple times (clears and recreates)
 
 ### Production
+
 - **DO NOT run seed script in production**
 - Script includes environment check to prevent this
 - Use migrations only for schema changes
@@ -488,6 +507,8 @@ The seed script creates 8 loans and ~50 payments covering various scenarios:
    - **Recommendation:** Manual for now, add calculation utilities in TASK-011
 
 ## References
+
 - [Prisma Seeding Guide](https://www.prisma.io/docs/guides/migrate/seed-database)
 - PRD Section 4: Core Features
 - TASK-006: Prisma Schema
+```

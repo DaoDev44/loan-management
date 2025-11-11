@@ -149,10 +149,7 @@ export function LoanTableFilters({
               {statusFilter.map((status) => (
                 <Badge key={status} variant="secondary" className="gap-1">
                   {STATUS_OPTIONS.find((opt) => opt.value === status)?.label}
-                  <button
-                    onClick={() => toggleStatus(status)}
-                    className="hover:text-destructive"
-                  >
+                  <button onClick={() => toggleStatus(status)} className="hover:text-destructive">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>

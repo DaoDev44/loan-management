@@ -29,31 +29,39 @@ Each task is a markdown file following this structure:
 **Branch:** `task/xxx-brief-description`
 
 ## Dependencies
+
 - TASK-001
 - TASK-002
 
 ## Description
+
 [Detailed description of what needs to be done]
 
 ## Acceptance Criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 
 ## Implementation Approach
+
 [Technical approach, architecture decisions]
 
 ## Tradeoffs & Alternatives
+
 [Discussion of different approaches and why we chose this one]
 
 ## Testing Requirements
+
 - [ ] Unit tests
 - [ ] Integration tests
 - [ ] Manual testing steps
 
 ## Deployment Considerations
+
 [Any deployment-specific notes]
 
 ## References
+
 - [Link to PRD section]
 - [Link to docs]
 ```
@@ -61,6 +69,7 @@ Each task is a markdown file following this structure:
 ## Workflow
 
 ### 1. Starting a Task
+
 ```bash
 # Create feature branch from main
 git checkout main
@@ -72,12 +81,14 @@ git checkout -b task/001-setup-nextjs
 ```
 
 ### 2. During Development
+
 - Follow the implementation approach outlined in the task
 - Check off acceptance criteria as you complete them
 - Commit frequently with clear messages
 - Reference task ID in commits: `[TASK-001] Add Next.js configuration`
 
 ### 3. Completing a Task
+
 ```bash
 # Push branch
 git push origin task/001-setup-nextjs
@@ -88,6 +99,7 @@ git push origin task/001-setup-nextjs
 ```
 
 ### 4. Review Process
+
 - Each PR should reference the task file
 - Reviewer checks acceptance criteria
 - Tests must pass

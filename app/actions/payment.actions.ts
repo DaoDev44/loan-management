@@ -14,21 +14,21 @@ import {
 } from '@/lib/validations/payment.schema'
 
 // Action Result Types
-type ActionResult<T> = 
-  | { success: true; data: T }
-  | { success: false; error: string }
+type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
 
 /**
  * Create a new payment
  */
-export async function createPayment(input: CreatePaymentInput): Promise<ActionResult<{
-  id: string
-  amount: Prisma.Decimal
-  date: Date
-  notes: string | null
-  loanId: string
-  createdAt: Date
-}>> {
+export async function createPayment(input: CreatePaymentInput): Promise<
+  ActionResult<{
+    id: string
+    amount: Prisma.Decimal
+    date: Date
+    notes: string | null
+    loanId: string
+    createdAt: Date
+  }>
+> {
   try {
     // Validate input
     const validatedInput = CreatePaymentSchema.parse(input)
@@ -36,7 +36,7 @@ export async function createPayment(input: CreatePaymentInput): Promise<ActionRe
     // Check if loan exists
     const loan = await prisma.loan.findUnique({
       where: { id: validatedInput.loanId },
-      select: { id: true, status: true, balance: true }
+      select: { id: true, status: true, balance: true },
     })
 
     if (!loan) {
@@ -54,7 +54,7 @@ export async function createPayment(input: CreatePaymentInput): Promise<ActionRe
         date: validatedInput.date,
         notes: validatedInput.notes || null,
         loanId: validatedInput.loanId,
-      }
+      },
     })
 
     // Update loan balance
@@ -63,8 +63,8 @@ export async function createPayment(input: CreatePaymentInput): Promise<ActionRe
       where: { id: validatedInput.loanId },
       data: {
         balance: newBalance,
-        status: newBalance.lte(0) ? 'COMPLETED' : 'ACTIVE'
-      }
+        status: newBalance.lte(0) ? 'COMPLETED' : 'ACTIVE',
+      },
     })
 
     // Revalidate paths (skip in test environment)
@@ -84,14 +84,16 @@ export async function createPayment(input: CreatePaymentInput): Promise<ActionRe
         date: payment.date,
         notes: payment.notes,
         loanId: payment.loanId,
-        createdAt: payment.createdAt
-      }
+        createdAt: payment.createdAt,
+      },
     }
   } catch (error) {
     console.error('Error creating payment:', error)
-    
+
     if (error instanceof z.ZodError) {
-      const errors = error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(', ')
+      const errors = error.issues
+        .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+        .join(', ')
       return { success: false, error: `Validation error: ${errors}` }
     }
 
@@ -115,32 +117,34 @@ export async function createPayment(input: CreatePaymentInput): Promise<ActionRe
 /**
  * Get a payment by ID
  */
-export async function getPayment(id: string): Promise<ActionResult<{
-  id: string
-  amount: Prisma.Decimal
-  date: Date
-  notes: string | null
-  loanId: string
-  createdAt: Date
-  loan: {
-    borrowerName: string
-    principal: Prisma.Decimal
-  }
-}>> {
+export async function getPayment(id: string): Promise<
+  ActionResult<{
+    id: string
+    amount: Prisma.Decimal
+    date: Date
+    notes: string | null
+    loanId: string
+    createdAt: Date
+    loan: {
+      borrowerName: string
+      principal: Prisma.Decimal
+    }
+  }>
+> {
   try {
     const payment = await prisma.payment.findFirst({
       where: {
         id,
-        deletedAt: null
+        deletedAt: null,
       },
       include: {
         loan: {
           select: {
             borrowerName: true,
-            principal: true
-          }
-        }
-      }
+            principal: true,
+          },
+        },
+      },
     })
 
     if (!payment) {
@@ -158,9 +162,9 @@ export async function getPayment(id: string): Promise<ActionResult<{
         createdAt: payment.createdAt,
         loan: {
           borrowerName: payment.loan.borrowerName,
-          principal: payment.loan.principal
-        }
-      }
+          principal: payment.loan.principal,
+        },
+      },
     }
   } catch (error) {
     console.error('Error fetching payment:', error)
@@ -171,33 +175,41 @@ export async function getPayment(id: string): Promise<ActionResult<{
 /**
  * Get all payments with optional filters
  */
-export async function getPayments(filter?: PaymentFilter): Promise<ActionResult<Array<{
-  id: string
-  amount: Prisma.Decimal
-  date: Date
-  notes: string | null
-  loanId: string
-  createdAt: Date
-  loan: {
-    borrowerName: string
-    borrowerEmail: string
-    principal: Prisma.Decimal
-  }
-}>>> {
+export async function getPayments(filter?: PaymentFilter): Promise<
+  ActionResult<
+    Array<{
+      id: string
+      amount: Prisma.Decimal
+      date: Date
+      notes: string | null
+      loanId: string
+      createdAt: Date
+      loan: {
+        borrowerName: string
+        borrowerEmail: string
+        principal: Prisma.Decimal
+      }
+    }>
+  >
+> {
   try {
     const validatedFilter = filter ? PaymentFilterSchema.parse(filter) : {}
 
     const whereClause: Prisma.PaymentWhereInput = {
       deletedAt: null,
       ...(validatedFilter.loanId && { loanId: validatedFilter.loanId }),
-      ...(validatedFilter.minAmount && { amount: { gte: new Prisma.Decimal(validatedFilter.minAmount) } }),
-      ...(validatedFilter.maxAmount && { amount: { lte: new Prisma.Decimal(validatedFilter.maxAmount) } }),
-      ...(validatedFilter.dateFrom || validatedFilter.dateTo) && {
+      ...(validatedFilter.minAmount && {
+        amount: { gte: new Prisma.Decimal(validatedFilter.minAmount) },
+      }),
+      ...(validatedFilter.maxAmount && {
+        amount: { lte: new Prisma.Decimal(validatedFilter.maxAmount) },
+      }),
+      ...((validatedFilter.dateFrom || validatedFilter.dateTo) && {
         date: {
           ...(validatedFilter.dateFrom && { gte: validatedFilter.dateFrom }),
-          ...(validatedFilter.dateTo && { lte: validatedFilter.dateTo })
-        }
-      }
+          ...(validatedFilter.dateTo && { lte: validatedFilter.dateTo }),
+        },
+      }),
     }
 
     const payments = await prisma.payment.findMany({
@@ -207,18 +219,18 @@ export async function getPayments(filter?: PaymentFilter): Promise<ActionResult<
           select: {
             borrowerName: true,
             borrowerEmail: true,
-            principal: true
-          }
-        }
+            principal: true,
+          },
+        },
       },
       orderBy: {
-        date: 'desc'
-      }
+        date: 'desc',
+      },
     })
 
     return {
       success: true,
-      data: payments.map(payment => ({
+      data: payments.map((payment) => ({
         id: payment.id,
         amount: payment.amount,
         date: payment.date,
@@ -228,15 +240,17 @@ export async function getPayments(filter?: PaymentFilter): Promise<ActionResult<
         loan: {
           borrowerName: payment.loan.borrowerName,
           borrowerEmail: payment.loan.borrowerEmail,
-          principal: payment.loan.principal
-        }
-      }))
+          principal: payment.loan.principal,
+        },
+      })),
     }
   } catch (error) {
     console.error('Error fetching payments:', error)
-    
+
     if (error instanceof z.ZodError) {
-      const errors = error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(', ')
+      const errors = error.issues
+        .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+        .join(', ')
       return { success: false, error: `Invalid filter: ${errors}` }
     }
 
@@ -247,33 +261,37 @@ export async function getPayments(filter?: PaymentFilter): Promise<ActionResult<
 /**
  * Get payments by loan ID
  */
-export async function getPaymentsByLoan(loanId: string): Promise<ActionResult<Array<{
-  id: string
-  amount: Prisma.Decimal
-  date: Date
-  notes: string | null
-  createdAt: Date
-}>>> {
+export async function getPaymentsByLoan(loanId: string): Promise<
+  ActionResult<
+    Array<{
+      id: string
+      amount: Prisma.Decimal
+      date: Date
+      notes: string | null
+      createdAt: Date
+    }>
+  >
+> {
   try {
     const payments = await prisma.payment.findMany({
       where: {
         loanId,
-        deletedAt: null
+        deletedAt: null,
       },
       orderBy: {
-        date: 'desc'
-      }
+        date: 'desc',
+      },
     })
 
     return {
       success: true,
-      data: payments.map(payment => ({
+      data: payments.map((payment) => ({
         id: payment.id,
         amount: payment.amount,
         date: payment.date,
         notes: payment.notes,
-        createdAt: payment.createdAt
-      }))
+        createdAt: payment.createdAt,
+      })),
     }
   } catch (error) {
     console.error('Error fetching payments by loan:', error)
@@ -284,13 +302,15 @@ export async function getPaymentsByLoan(loanId: string): Promise<ActionResult<Ar
 /**
  * Update a payment
  */
-export async function updatePayment(input: UpdatePaymentInput): Promise<ActionResult<{
-  id: string
-  amount: Prisma.Decimal
-  date: Date
-  notes: string | null
-  loanId: string
-}>> {
+export async function updatePayment(input: UpdatePaymentInput): Promise<
+  ActionResult<{
+    id: string
+    amount: Prisma.Decimal
+    date: Date
+    notes: string | null
+    loanId: string
+  }>
+> {
   try {
     const validatedInput = UpdatePaymentSchema.parse(input)
 
@@ -298,16 +318,16 @@ export async function updatePayment(input: UpdatePaymentInput): Promise<ActionRe
     const existingPayment = await prisma.payment.findFirst({
       where: {
         id: validatedInput.id,
-        deletedAt: null
+        deletedAt: null,
       },
       include: {
         loan: {
           select: {
             balance: true,
-            status: true
-          }
-        }
-      }
+            status: true,
+          },
+        },
+      },
     })
 
     if (!existingPayment) {
@@ -323,10 +343,12 @@ export async function updatePayment(input: UpdatePaymentInput): Promise<ActionRe
     const updatedPayment = await prisma.payment.update({
       where: { id: validatedInput.id },
       data: {
-        ...(validatedInput.amount !== undefined && { amount: new Prisma.Decimal(validatedInput.amount) }),
+        ...(validatedInput.amount !== undefined && {
+          amount: new Prisma.Decimal(validatedInput.amount),
+        }),
         ...(validatedInput.date !== undefined && { date: validatedInput.date }),
         ...(validatedInput.notes !== undefined && { notes: validatedInput.notes || null }),
-      }
+      },
     })
 
     // Update loan balance if amount changed
@@ -336,8 +358,8 @@ export async function updatePayment(input: UpdatePaymentInput): Promise<ActionRe
         where: { id: existingPayment.loanId },
         data: {
           balance: newBalance,
-          status: newBalance.lte(0) ? 'COMPLETED' : 'ACTIVE'
-        }
+          status: newBalance.lte(0) ? 'COMPLETED' : 'ACTIVE',
+        },
       })
     }
 
@@ -356,14 +378,16 @@ export async function updatePayment(input: UpdatePaymentInput): Promise<ActionRe
         amount: updatedPayment.amount,
         date: updatedPayment.date,
         notes: updatedPayment.notes,
-        loanId: updatedPayment.loanId
-      }
+        loanId: updatedPayment.loanId,
+      },
     }
   } catch (error) {
     console.error('Error updating payment:', error)
-    
+
     if (error instanceof z.ZodError) {
-      const errors = error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join(', ')
+      const errors = error.issues
+        .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+        .join(', ')
       return { success: false, error: `Validation error: ${errors}` }
     }
 
@@ -389,16 +413,16 @@ export async function deletePayment(id: string): Promise<ActionResult<{ message:
     const payment = await prisma.payment.findFirst({
       where: {
         id,
-        deletedAt: null
+        deletedAt: null,
       },
       include: {
         loan: {
           select: {
             id: true,
-            balance: true
-          }
-        }
-      }
+            balance: true,
+          },
+        },
+      },
     })
 
     if (!payment) {
@@ -409,8 +433,8 @@ export async function deletePayment(id: string): Promise<ActionResult<{ message:
     await prisma.payment.update({
       where: { id },
       data: {
-        deletedAt: new Date()
-      }
+        deletedAt: new Date(),
+      },
     })
 
     // Adjust loan balance (add payment amount back)
@@ -419,8 +443,8 @@ export async function deletePayment(id: string): Promise<ActionResult<{ message:
       where: { id: payment.loan.id },
       data: {
         balance: newBalance,
-        status: 'ACTIVE' // Reactivate if was completed
-      }
+        status: 'ACTIVE', // Reactivate if was completed
+      },
     })
 
     try {
@@ -433,11 +457,11 @@ export async function deletePayment(id: string): Promise<ActionResult<{ message:
 
     return {
       success: true,
-      data: { message: 'Payment deleted successfully' }
+      data: { message: 'Payment deleted successfully' },
     }
   } catch (error) {
     console.error('Error deleting payment:', error)
-    
+
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2025':

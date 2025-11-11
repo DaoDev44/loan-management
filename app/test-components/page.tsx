@@ -48,9 +48,7 @@ export default function TestComponentsPage() {
     <div className="container mx-auto p-8 space-y-8 max-w-7xl">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">
-          shadcn/ui Component Test Page
-        </h1>
+        <h1 className="text-4xl font-bold tracking-tight">shadcn/ui Component Test Page</h1>
         <p className="text-muted-foreground">
           Testing all installed components with our custom Cerulean Blue + Emerald theme
         </p>
@@ -94,9 +92,7 @@ export default function TestComponentsPage() {
           <Badge variant="secondary">Secondary</Badge>
           <Badge variant="outline">Outline</Badge>
           <Badge variant="destructive">Destructive</Badge>
-          <Badge className="bg-accent text-accent-foreground">
-            Custom Accent
-          </Badge>
+          <Badge className="bg-accent text-accent-foreground">Custom Accent</Badge>
         </CardContent>
       </Card>
 
@@ -109,27 +105,15 @@ export default function TestComponentsPage() {
         <CardContent className="space-y-4 max-w-md">
           <div className="space-y-2">
             <Label htmlFor="test-input-1">Email</Label>
-            <Input
-              id="test-input-1"
-              type="email"
-              placeholder="Enter your email..."
-            />
+            <Input id="test-input-1" type="email" placeholder="Enter your email..." />
           </div>
           <div className="space-y-2">
             <Label htmlFor="test-input-2">Password</Label>
-            <Input
-              id="test-input-2"
-              type="password"
-              placeholder="Enter password..."
-            />
+            <Input id="test-input-2" type="password" placeholder="Enter password..." />
           </div>
           <div className="space-y-2">
             <Label htmlFor="test-input-3">Disabled</Label>
-            <Input
-              id="test-input-3"
-              placeholder="Disabled input"
-              disabled
-            />
+            <Input id="test-input-3" placeholder="Disabled input" disabled />
           </div>
         </CardContent>
         <CardFooter>
@@ -157,8 +141,8 @@ export default function TestComponentsPage() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <p className="text-sm text-muted-foreground">
-                  Dialog content goes here. You can put forms, text, or any
-                  other components inside dialogs.
+                  Dialog content goes here. You can put forms, text, or any other components inside
+                  dialogs.
                 </p>
                 <div className="space-y-2">
                   <Label htmlFor="dialog-input">Name</Label>
@@ -192,9 +176,7 @@ export default function TestComponentsPage() {
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Team</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
-                Logout
-              </DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive">Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </CardContent>
@@ -238,9 +220,7 @@ export default function TestComponentsPage() {
                 <TableCell className="font-medium">Bob Johnson</TableCell>
                 <TableCell>$5,000.00</TableCell>
                 <TableCell>
-                  <Badge className="bg-accent text-accent-foreground">
-                    Completed
-                  </Badge>
+                  <Badge className="bg-accent text-accent-foreground">Completed</Badge>
                 </TableCell>
                 <TableCell className="text-right">$0.00</TableCell>
               </TableRow>
@@ -264,20 +244,17 @@ export default function TestComponentsPage() {
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                This is the overview tab. It contains general information and
-                summaries.
+                This is the overview tab. It contains general information and summaries.
               </p>
             </TabsContent>
             <TabsContent value="details" className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                This is the details tab. It contains detailed information and
-                specifications.
+                This is the details tab. It contains detailed information and specifications.
               </p>
             </TabsContent>
             <TabsContent value="history" className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                This is the history tab. It contains historical data and
-                timelines.
+                This is the history tab. It contains historical data and timelines.
               </p>
             </TabsContent>
           </Tabs>
@@ -288,9 +265,7 @@ export default function TestComponentsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Toast Notifications</CardTitle>
-          <CardDescription>
-            Temporary notifications and alerts
-          </CardDescription>
+          <CardDescription>Temporary notifications and alerts</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           <Button
@@ -333,9 +308,7 @@ export default function TestComponentsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Custom Color Scheme</CardTitle>
-          <CardDescription>
-            Our Cerulean Blue (Primary) + Emerald (Accent) theme
-          </CardDescription>
+          <CardDescription>Our Cerulean Blue (Primary) + Emerald (Accent) theme</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

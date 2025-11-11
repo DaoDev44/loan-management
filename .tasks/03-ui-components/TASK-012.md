@@ -7,13 +7,16 @@
 **Branch:** `task/012-shadcn-setup`
 
 ## Dependencies
+
 - TASK-001 (Next.js 14 initialized)
 - TASK-003 (Tailwind CSS configured)
 
 ## Description
+
 Set up shadcn/ui component library in the Next.js project with custom theme configuration. This provides a foundation of accessible, customizable components that follow our design system.
 
 ## Acceptance Criteria
+
 - [x] shadcn/ui CLI installed and configured
 - [x] `components.json` created with proper configuration
 - [x] Tailwind config updated with shadcn theme variables
@@ -29,6 +32,7 @@ Set up shadcn/ui component library in the Next.js project with custom theme conf
 ### What is shadcn/ui?
 
 shadcn/ui is NOT a traditional component library. Instead:
+
 - Components are copied directly into your codebase
 - Full control and customization
 - Built on Radix UI primitives (accessible)
@@ -38,6 +42,7 @@ shadcn/ui is NOT a traditional component library. Instead:
 ### Installation Steps
 
 1. **Initialize shadcn/ui**
+
    ```bash
    npx shadcn@latest init
    ```
@@ -69,6 +74,7 @@ shadcn/ui is NOT a traditional component library. Instead:
 ### Theme Configuration
 
 We'll use a professional color scheme with subtle accents:
+
 - Primary: Indigo/Purple (professional, trustworthy)
 - Secondary: Slate (neutral)
 - Accent: Emerald (success, growth)
@@ -94,6 +100,7 @@ app/
 ## Testing the Setup
 
 Create a simple test page to verify:
+
 ```tsx
 // app/test-components/page.tsx
 import { Button } from '@/components/ui/button'
@@ -152,11 +159,11 @@ Based on the PRD's "blend approach" (professional + subtle colors):
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
-  --primary: 262.1 83.3% 57.8%;        /* Indigo */
+  --primary: 262.1 83.3% 57.8%; /* Indigo */
   --primary-foreground: 210 40% 98%;
-  --secondary: 215 16.3% 46.9%;        /* Slate */
+  --secondary: 215 16.3% 46.9%; /* Slate */
   --secondary-foreground: 210 40% 98%;
-  --accent: 160 60% 45%;               /* Emerald accent */
+  --accent: 160 60% 45%; /* Emerald accent */
   --accent-foreground: 0 0% 100%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
@@ -191,22 +198,27 @@ Based on the PRD's "blend approach" (professional + subtle colors):
 ## Common Issues and Solutions
 
 ### Issue: TypeScript errors on component imports
+
 **Solution:** Ensure `@/` path alias is configured in `tsconfig.json`
 
 ### Issue: Tailwind classes not applying
+
 **Solution:** Check that `tailwind.config.ts` includes component paths
 
 ### Issue: Dark mode not working
+
 **Solution:** Add `next-themes` package and ThemeProvider
 
 ## Next Steps After This Task
 
 After shadcn/ui is set up:
+
 1. TASK-013: Build root layout with navigation
 2. TASK-014: Create shared components (MetricsCard, StatusBadge)
 3. TASK-015: Build LoanTable with sort/filter
 
 ## References
+
 - shadcn/ui docs: https://ui.shadcn.com/docs
 - Radix UI: https://www.radix-ui.com/
 - Tailwind CSS: https://tailwindcss.com/docs

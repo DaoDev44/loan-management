@@ -31,13 +31,9 @@ export function ErrorDisplay({
         {/* Show error message in development */}
         {process.env.NODE_ENV === 'development' && (
           <div className="rounded-md bg-gray-100 p-3">
-            <p className="text-xs font-mono text-gray-600 break-words">
-              {error.message}
-            </p>
+            <p className="text-xs font-mono text-gray-600 break-words">{error.message}</p>
             {error.digest && (
-              <p className="text-xs font-mono text-gray-600 mt-2">
-                Digest: {error.digest}
-              </p>
+              <p className="text-xs font-mono text-gray-600 mt-2">Digest: {error.digest}</p>
             )}
           </div>
         )}
@@ -48,7 +44,7 @@ export function ErrorDisplay({
             Try Again
           </Button>
         )}
-        <Button onClick={() => window.location.href = '/'} variant="outline">
+        <Button onClick={() => (window.location.href = '/')} variant="outline">
           Go to Dashboard
         </Button>
       </CardFooter>

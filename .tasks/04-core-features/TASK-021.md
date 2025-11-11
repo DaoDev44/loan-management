@@ -7,6 +7,7 @@
 **Branch:** `task/021-loan-detail`
 
 ## Dependencies
+
 - TASK-009 (Loan CRUD Server Actions completed)
 - TASK-010 (Payment Server Actions completed)
 - TASK-015 (LoanTable completed)
@@ -14,9 +15,11 @@
 - TASK-017 (Dark theme completed)
 
 ## Description
+
 Build a comprehensive loan detail page that displays all loan information, payment history, and provides actions for editing and managing the loan. This page serves as the central hub for loan management and is accessed when clicking on a loan from the table.
 
 ## Acceptance Criteria
+
 - [x] Individual loan page at `/loans/[id]`
 - [x] Loan information display (borrower, terms, amounts)
 - [x] Payment history table with pagination
@@ -30,11 +33,13 @@ Build a comprehensive loan detail page that displays all loan information, payme
 ## Page Structure
 
 ### Route
+
 - **URL:** `/loans/[id]`
 - **File:** `app/loans/[id]/page.tsx`
 - **Type:** Server Component (for initial data loading)
 
 ### Layout
+
 ```
 ┌─────────────────────────────────────────┐
 │ Header: "Loan Details" + Breadcrumbs    │
@@ -103,12 +108,8 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
             Back to Loans
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Loan Details
-        </h1>
-        <p className="text-muted-foreground">
-          Loan for {loan.borrowerName}
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">Loan Details</h1>
+        <p className="text-muted-foreground">Loan for {loan.borrowerName}</p>
       </div>
       <StatusBadge status={loan.status} size="lg" />
     </div>
@@ -256,7 +257,7 @@ export function LoanActions({ loan }: LoanActionsProps) {
 
   const handleAddPayment = () => {
     // Open add payment dialog (future implementation)
-    toast.info("Add Payment feature coming soon!")
+    toast.info('Add Payment feature coming soon!')
   }
 
   const handleDelete = async () => {
@@ -293,11 +294,7 @@ export function LoanActions({ loan }: LoanActionsProps) {
             Add Payment
           </Button>
 
-          <Button
-            onClick={handleDelete}
-            variant="destructive"
-            className="gap-2"
-          >
+          <Button onClick={handleDelete} variant="destructive" className="gap-2">
             <Trash2 className="h-4 w-4" />
             Delete Loan
           </Button>
@@ -355,15 +352,9 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
               <TableBody>
                 {paginatedPayments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell>
-                      {formatDate(payment.date)}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(payment.amount)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {payment.notes || '—'}
-                    </TableCell>
+                    <TableCell>{formatDate(payment.date)}</TableCell>
+                    <TableCell className="font-medium">{formatCurrency(payment.amount)}</TableCell>
+                    <TableCell className="text-muted-foreground">{payment.notes || '—'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -372,15 +363,15 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
             {totalPages > 1 && (
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Showing {((currentPage - 1) * itemsPerPage) + 1} to{' '}
-                  {Math.min(currentPage * itemsPerPage, payments.length)} of{' '}
-                  {payments.length} payments
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                  {Math.min(currentPage * itemsPerPage, payments.length)} of {payments.length}{' '}
+                  payments
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -388,7 +379,7 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -407,13 +398,16 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
 ## Error Handling
 
 ### Not Found
+
 If loan ID doesn't exist, use Next.js `notFound()` to show 404 page.
 
 ### Loading States
+
 - Use existing `loading.tsx` file in `app/loans/[id]/`
 - Suspense boundaries for payment history if needed
 
 ### Error Boundaries
+
 - Use existing `error.tsx` file in `app/loans/[id]/`
 
 ## Responsive Design
@@ -433,6 +427,7 @@ If loan ID doesn't exist, use Next.js `notFound()` to show 404 page.
 ## Testing Requirements
 
 ### Manual Testing
+
 - [ ] Navigate to loan detail from loans table
 - [ ] Verify all loan information displays correctly
 - [ ] Test all action buttons (Edit, Add Payment, Delete)
@@ -442,6 +437,7 @@ If loan ID doesn't exist, use Next.js `notFound()` to show 404 page.
 - [ ] Test error states (invalid ID, network errors)
 
 ### Data Scenarios
+
 1. **Active loan with payments** - Full data display
 2. **Active loan with no payments** - Empty payment history
 3. **Completed loan** - Read-only view
@@ -475,22 +471,26 @@ components/loans/
 ## Implementation Notes
 
 ### Data Flow
+
 1. Server Component fetches loan data via `getLoan(id)`
 2. Render loan information in overview card
 3. Client components handle actions (edit, delete)
 4. Payment history uses client-side pagination
 
 ### Performance
+
 - Server-side data fetching for initial load
 - Client-side pagination for payments (no additional API calls)
 - Minimal JavaScript for interactive elements
 
 ### Type Safety
+
 - Reuse existing `SerializedLoan` and `SerializedPayment` types
 - Proper TypeScript for all component props
 - Validate loan ID parameter
 
 ## References
+
 - Next.js Dynamic Routes: https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes
 - Server Components: https://nextjs.org/docs/app/building-your-application/rendering/server-components
 - Not Found: https://nextjs.org/docs/app/api-reference/functions/not-found

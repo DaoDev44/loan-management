@@ -33,20 +33,20 @@ try {
 
   // 3. Run migrations
   console.log('3. Running migrations on test database...')
-  
+
   // Temporarily rename .env to avoid conflicts
   const fs = require('fs')
   const envExists = fs.existsSync('.env')
   if (envExists) {
     fs.renameSync('.env', '.env.temp')
   }
-  
+
   try {
     // Use .env.test file for migrations
     const migrateCommand = `npx dotenv -e .env.test -- npx prisma migrate deploy`
-    execSync(migrateCommand, { 
+    execSync(migrateCommand, {
       stdio: 'inherit',
-      shell: true
+      shell: true,
     })
   } finally {
     // Restore .env file
@@ -57,7 +57,6 @@ try {
 
   console.log('\n✅ Test database setup complete!')
   console.log('🏃 Run tests with: npm test')
-
 } catch (error) {
   console.error('\n❌ Test database setup failed:', error.message)
   process.exit(1)

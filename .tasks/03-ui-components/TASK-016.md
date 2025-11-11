@@ -7,14 +7,17 @@
 **Branch:** `task/016-loading-error-boundaries`
 
 ## Dependencies
+
 - TASK-012 (shadcn/ui setup completed)
 - TASK-013 (Root layout completed)
 - TASK-014 (LoadingState component completed)
 
 ## Description
+
 Implement Next.js 14 App Router loading and error boundary patterns for graceful loading states and error handling throughout the application. This provides better UX during data fetching and recovery from errors.
 
 ## Acceptance Criteria
+
 - [x] Global error boundary (app/error.tsx)
 - [x] Global not-found page (app/not-found.tsx)
 - [x] Loading state for loans page (app/loans/loading.tsx)
@@ -27,21 +30,28 @@ Implement Next.js 14 App Router loading and error boundary patterns for graceful
 ## Next.js 14 Loading & Error Patterns
 
 ### Loading States (loading.tsx)
+
 Next.js automatically shows `loading.tsx` while a route segment is loading:
+
 ```tsx
 // app/loans/loading.tsx
 export default function Loading() {
-  return <LoadingState />  // Use our shared component
+  return <LoadingState /> // Use our shared component
 }
 ```
 
 ### Error Boundaries (error.tsx)
+
 Must be **Client Components** with error and reset props:
+
 ```tsx
 // app/loans/error.tsx
 'use client'
 
-export default function Error({ error, reset }: {
+export default function Error({
+  error,
+  reset,
+}: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
@@ -50,7 +60,9 @@ export default function Error({ error, reset }: {
 ```
 
 ### Not Found (not-found.tsx)
+
 Shown when `notFound()` is called or route doesn't exist:
+
 ```tsx
 // app/not-found.tsx
 export default function NotFound() {
@@ -83,6 +95,7 @@ components/
 Reusable error display with retry functionality.
 
 **Props:**
+
 ```typescript
 interface ErrorDisplayProps {
   error: Error & { digest?: string }
@@ -93,6 +106,7 @@ interface ErrorDisplayProps {
 ```
 
 **Features:**
+
 - Display error message
 - Error digest (for debugging)
 - "Try Again" button (if reset provided)
@@ -105,6 +119,7 @@ interface ErrorDisplayProps {
 User-friendly 404 page.
 
 **Props:**
+
 ```typescript
 interface NotFoundDisplayProps {
   title?: string
@@ -115,6 +130,7 @@ interface NotFoundDisplayProps {
 ```
 
 **Features:**
+
 - Clear "Not Found" message
 - Icon (FileQuestion from lucide-react)
 - Navigation back to home/loans
@@ -123,6 +139,7 @@ interface NotFoundDisplayProps {
 ## Implementation Details
 
 ### Global Error Boundary (app/error.tsx)
+
 ```tsx
 'use client'
 
@@ -149,6 +166,7 @@ export default function Error({
 ```
 
 ### Global Not Found (app/not-found.tsx)
+
 ```tsx
 import { NotFoundDisplay } from '@/components/errors/not-found-display'
 
@@ -167,6 +185,7 @@ export default function NotFound() {
 ```
 
 ### Loans Loading (app/loans/loading.tsx)
+
 ```tsx
 import { LoadingState } from '@/components/shared/loading-state'
 
@@ -180,6 +199,7 @@ export default function Loading() {
 ```
 
 ### Loans Error (app/loans/error.tsx)
+
 ```tsx
 'use client'
 
@@ -206,6 +226,7 @@ export default function Error({
 ```
 
 ### Loan Detail Loading (app/loans/[id]/loading.tsx)
+
 ```tsx
 import { LoadingState } from '@/components/shared/loading-state'
 
@@ -219,6 +240,7 @@ export default function Loading() {
 ```
 
 ### Loan Detail Error (app/loans/[id]/error.tsx)
+
 ```tsx
 'use client'
 
@@ -247,6 +269,7 @@ export default function Error({
 ## Design Considerations
 
 ### Error Display
+
 - Use Card component for consistent styling
 - Show user-friendly messages (not raw stack traces)
 - Include error digest for debugging (but subtle)
@@ -254,12 +277,14 @@ export default function Error({
 - Clear call-to-action buttons
 
 ### Loading States
+
 - Use our existing LoadingState component
 - Center vertically and horizontally
 - Minimum height to prevent layout shift
 - Appropriate loading message for context
 
 ### Not Found
+
 - Clear, friendly messaging
 - Helpful navigation options
 - Consistent with overall app design
@@ -268,6 +293,7 @@ export default function Error({
 ## Error Logging (Future Enhancement)
 
 In production, you'd want to log errors:
+
 ```tsx
 // app/error.tsx
 'use client'
@@ -287,6 +313,7 @@ export default function Error({ error, reset }) {
 ## Testing
 
 ### Manual Testing
+
 - [ ] Navigate to non-existent route (should show 404)
 - [ ] Trigger error in loans page (temporarily break Server Action)
 - [ ] Verify loading states show during navigation
@@ -295,6 +322,7 @@ export default function Error({ error, reset }) {
 - [ ] Test on mobile (responsive)
 
 ### Error Scenarios to Test
+
 1. Network error (disconnect internet)
 2. Database error (stop Docker container)
 3. Invalid loan ID (navigate to `/loans/invalid-id`)
@@ -318,6 +346,7 @@ export default function Error({ error, reset }) {
 - **Suspense streaming** - Stream parts of page while loading
 
 ## References
+
 - Next.js Error Handling: https://nextjs.org/docs/app/building-your-application/routing/error-handling
 - Next.js Loading UI: https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming
 - Not Found: https://nextjs.org/docs/app/api-reference/file-conventions/not-found

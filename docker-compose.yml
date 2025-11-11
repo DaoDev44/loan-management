@@ -13,11 +13,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loanly_dev_password}
       POSTGRES_DB: ${POSTGRES_DB:-loanly_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-loanly}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-loanly}']
       interval: 10s
       timeout: 5s
       retries: 5

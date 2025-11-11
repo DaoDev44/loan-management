@@ -7,12 +7,15 @@
 **Branch:** `task/001-nextjs-setup`
 
 ## Dependencies
+
 None - this is the first task
 
 ## Description
+
 Set up a new Next.js 14 project with App Router, TypeScript, and migrate essential configuration from the existing Vite project. This establishes the foundation for the entire application.
 
 ## Acceptance Criteria
+
 - [ ] Next.js 14 project initialized with App Router
 - [ ] TypeScript configured with strict mode
 - [ ] Tailwind CSS configured and working
@@ -26,9 +29,11 @@ Set up a new Next.js 14 project with App Router, TypeScript, and migrate essenti
 ## Implementation Approach
 
 ### Option 1: Fresh Install (RECOMMENDED)
+
 Create a completely new Next.js project and migrate code selectively.
 
 **Steps:**
+
 1. Create new Next.js app in a temporary directory:
    ```bash
    npx create-next-app@latest loanly-love-nextjs --typescript --tailwind --app --no-src-dir
@@ -47,22 +52,27 @@ Create a completely new Next.js project and migrate code selectively.
 5. Test that dev server runs
 
 **Pros:**
+
 - Clean slate, no legacy cruft
 - Guaranteed Next.js best practices
 - Latest versions of everything
 
 **Cons:**
+
 - Need to manually migrate useful configs
 - More initial setup work
 
 ### Option 2: In-Place Migration
+
 Modify the existing Vite project to use Next.js.
 
 **Pros:**
+
 - Preserve existing work
 - Faster initial setup
 
 **Cons:**
+
 - Risk of config conflicts
 - May carry over Vite-specific patterns that don't translate
 - More complex cleanup
@@ -72,21 +82,25 @@ Modify the existing Vite project to use Next.js.
 ## Tradeoffs & Alternatives
 
 ### Next.js App Router vs Pages Router
+
 - **Chosen:** App Router
 - **Why:** Latest paradigm, Server Components by default, better performance, aligns with PRD
 - **Tradeoff:** Slightly newer/less Stack Overflow coverage, but much better long-term
 
 ### TypeScript Strict Mode
+
 - **Chosen:** Strict mode enabled
 - **Why:** Catch more bugs at compile time, better code quality, easier maintenance
 - **Tradeoff:** More initial type work, but prevents runtime errors
 
 ### Path Aliases
+
 - **Chosen:** `@/*` maps to root directory
 - **Why:** Cleaner imports, easier refactoring
 - **Example:** `import { Button } from '@/components/ui/button'`
 
 ## Project Structure
+
 ```
 loanly-love-nextjs/
 ├── .env.local
@@ -112,6 +126,7 @@ loanly-love-nextjs/
 ```
 
 ## Testing Requirements
+
 - [ ] `npm run dev` starts development server
 - [ ] Page loads at `http://localhost:3000`
 - [ ] TypeScript compilation works without errors
@@ -119,6 +134,7 @@ loanly-love-nextjs/
 - [ ] Hot reload works for file changes
 
 ## Deployment Considerations
+
 - Next.js 14 is fully compatible with Vercel (zero-config deployment)
 - Environment variables will need to be set in Vercel dashboard
 - Build command: `next build`
@@ -127,6 +143,7 @@ loanly-love-nextjs/
 ## Configuration Files
 
 ### tsconfig.json (key settings)
+
 ```json
 {
   "compilerOptions": {
@@ -139,17 +156,19 @@ loanly-love-nextjs/
 ```
 
 ### next.config.js
+
 ```js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable if using Docker
-  output: 'standalone' // Optional: for Docker deployments
+  output: 'standalone', // Optional: for Docker deployments
 }
 
 module.exports = nextConfig
 ```
 
 ### .env.example
+
 ```
 # Database (will be configured in TASK-002)
 DATABASE_URL="postgresql://user:password@localhost:5432/loanly"
@@ -161,11 +180,13 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ## Migration Notes
 
 ### Files to Copy from Vite Project
+
 - `tailwind.config.ts` (adapt for Next.js)
 - `components.json` (shadcn/ui config)
 - Color scheme and design tokens
 
 ### Files to Ignore
+
 - `vite.config.ts` (not needed)
 - `src/main.tsx` (replaced by Next.js app router)
 - Vite-specific configurations
@@ -186,6 +207,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
    - Custom webpack config?
 
 ## References
+
 - [Next.js 14 Documentation](https://nextjs.org/docs)
 - [Next.js App Router Migration Guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration)
 - [shadcn/ui Next.js Setup](https://ui.shadcn.com/docs/installation/next)

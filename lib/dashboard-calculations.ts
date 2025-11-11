@@ -37,10 +37,10 @@ export interface DashboardMetrics {
  */
 export function calculateDashboardMetrics(loans: SerializedLoan[]): DashboardMetrics {
   // Basic loan categorization
-  const activeLoans = loans.filter(l => l.status === 'ACTIVE')
-  const completedLoans = loans.filter(l => l.status === 'COMPLETED')
-  const overdueLoans = loans.filter(l => l.status === 'OVERDUE')
-  const defaultedLoans = loans.filter(l => l.status === 'DEFAULTED')
+  const activeLoans = loans.filter((l) => l.status === 'ACTIVE')
+  const completedLoans = loans.filter((l) => l.status === 'COMPLETED')
+  const overdueLoans = loans.filter((l) => l.status === 'OVERDUE')
+  const defaultedLoans = loans.filter((l) => l.status === 'DEFAULTED')
 
   // Financial calculations
   const totalPrincipal = loans.reduce((sum, l) => sum + l.principal, 0)
@@ -57,13 +57,17 @@ export function calculateDashboardMetrics(loans: SerializedLoan[]): DashboardMet
   const currentYear = new Date().getFullYear()
   const monthlyPayments = loans.reduce((sum, loan) => {
     if (loan.payments) {
-      return sum + loan.payments
-        .filter(payment => {
-          const paymentDate = new Date(payment.date)
-          return paymentDate.getMonth() === currentMonth &&
-                 paymentDate.getFullYear() === currentYear
-        })
-        .reduce((paymentSum, payment) => paymentSum + payment.amount, 0)
+      return (
+        sum +
+        loan.payments
+          .filter((payment) => {
+            const paymentDate = new Date(payment.date)
+            return (
+              paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear
+            )
+          })
+          .reduce((paymentSum, payment) => paymentSum + payment.amount, 0)
+      )
     }
     return sum
   }, 0)
@@ -73,7 +77,7 @@ export function calculateDashboardMetrics(loans: SerializedLoan[]): DashboardMet
   const thirtyDaysFromNow = new Date(today)
   thirtyDaysFromNow.setDate(today.getDate() + 30)
 
-  const upcomingLoans = activeLoans.filter(l => {
+  const upcomingLoans = activeLoans.filter((l) => {
     const endDate = new Date(l.endDate)
     return endDate > today && endDate <= thirtyDaysFromNow
   })
@@ -121,13 +125,13 @@ export function calculatePaymentTrends(loans: SerializedLoan[]): PaymentData[] {
   }
 
   // Aggregate payments by month
-  loans.forEach(loan => {
+  loans.forEach((loan) => {
     if (loan.payments && loan.payments.length > 0) {
-      loan.payments.forEach(payment => {
+      loan.payments.forEach((payment) => {
         const paymentDate = new Date(payment.date)
         const monthKey = paymentDate.toLocaleString('default', { month: 'short', year: 'numeric' })
 
-        const monthData = monthsData.find(m => m.month === monthKey)
+        const monthData = monthsData.find((m) => m.month === monthKey)
         if (monthData) {
           monthData.amount += payment.amount
           monthData.count += 1
@@ -150,10 +154,13 @@ export interface StatusData {
 }
 
 export function calculateStatusBreakdown(loans: SerializedLoan[]): StatusData[] {
-  const statusCounts = loans.reduce((acc, loan) => {
-    acc[loan.status] = (acc[loan.status] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const statusCounts = loans.reduce(
+    (acc, loan) => {
+      acc[loan.status] = (acc[loan.status] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
   const totalLoans = loans.length
 
@@ -168,7 +175,8 @@ export function calculateStatusBreakdown(loans: SerializedLoan[]): StatusData[] 
       name: 'Completed',
       value: statusCounts.COMPLETED || 0,
       count: statusCounts.COMPLETED || 0,
-      percentage: totalLoans > 0 ? Math.round(((statusCounts.COMPLETED || 0) / totalLoans) * 100) : 0,
+      percentage:
+        totalLoans > 0 ? Math.round(((statusCounts.COMPLETED || 0) / totalLoans) * 100) : 0,
     },
     {
       name: 'Overdue',
@@ -180,9 +188,10 @@ export function calculateStatusBreakdown(loans: SerializedLoan[]): StatusData[] 
       name: 'Defaulted',
       value: statusCounts.DEFAULTED || 0,
       count: statusCounts.DEFAULTED || 0,
-      percentage: totalLoans > 0 ? Math.round(((statusCounts.DEFAULTED || 0) / totalLoans) * 100) : 0,
+      percentage:
+        totalLoans > 0 ? Math.round(((statusCounts.DEFAULTED || 0) / totalLoans) * 100) : 0,
     },
-  ].filter(item => item.value > 0)
+  ].filter((item) => item.value > 0)
 }
 
 /**
@@ -203,12 +212,12 @@ export function generateRecentActivity(loans: SerializedLoan[]): ActivityItem[] 
   const oneWeekAgo = new Date()
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
-  loans.forEach(loan => {
+  loans.forEach((loan) => {
     // Check for recent payments
     if (loan.payments) {
       loan.payments
-        .filter(payment => new Date(payment.date) >= oneWeekAgo)
-        .forEach(payment => {
+        .filter((payment) => new Date(payment.date) >= oneWeekAgo)
+        .forEach((payment) => {
           activities.push({
             id: payment.id,
             type: 'payment',
@@ -247,7 +256,5 @@ export function generateRecentActivity(loans: SerializedLoan[]): ActivityItem[] 
   })
 
   // Sort by date (most recent first) and limit to 10
-  return activities
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
-    .slice(0, 10)
+  return activities.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 10)
 }

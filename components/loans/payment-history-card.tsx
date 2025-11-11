@@ -79,9 +79,7 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
                 <TableBody>
                   {paginatedPayments.map((payment) => (
                     <TableRow key={payment.id}>
-                      <TableCell className="font-medium">
-                        {formatDate(payment.date)}
-                      </TableCell>
+                      <TableCell className="font-medium">{formatDate(payment.date)}</TableCell>
                       <TableCell className="font-bold text-green-600">
                         {formatCurrency(payment.amount)}
                       </TableCell>
@@ -97,15 +95,15 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
             {totalPages > 1 && (
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Showing {((currentPage - 1) * itemsPerPage) + 1} to{' '}
-                  {Math.min(currentPage * itemsPerPage, payments.length)} of{' '}
-                  {payments.length} payments
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                  {Math.min(currentPage * itemsPerPage, payments.length)} of {payments.length}{' '}
+                  payments
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -116,7 +114,7 @@ export function PaymentHistoryCard({ payments }: PaymentHistoryCardProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     Next

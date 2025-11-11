@@ -107,7 +107,7 @@ describe('Dashboard Calculations', () => {
     it('should calculate portfolio health correctly', () => {
       const loans = [
         createMockLoan({ principal: 10000, balance: 5000 }), // 50% paid
-        createMockLoan({ principal: 20000, balance: 0 }),    // 100% paid
+        createMockLoan({ principal: 20000, balance: 0 }), // 100% paid
       ]
 
       const metrics = calculateDashboardMetrics(loans)
@@ -184,17 +184,17 @@ describe('Dashboard Calculations', () => {
         createMockLoan({
           status: 'ACTIVE',
           endDate: in15Days,
-          borrowerName: 'John Upcoming'
+          borrowerName: 'John Upcoming',
         }),
         createMockLoan({
           status: 'ACTIVE',
           endDate: in45Days,
-          borrowerName: 'Jane Later'
+          borrowerName: 'Jane Later',
         }),
         createMockLoan({
           status: 'COMPLETED',
           endDate: in15Days,
-          borrowerName: 'Bob Completed'
+          borrowerName: 'Bob Completed',
         }),
       ]
 
@@ -259,8 +259,11 @@ describe('Dashboard Calculations', () => {
       const trends = calculatePaymentTrends([loan])
 
       // Find current month data
-      const currentMonthKey = currentMonthDate.toLocaleString('default', { month: 'short', year: 'numeric' })
-      const currentMonthData = trends.find(t => t.month === currentMonthKey)
+      const currentMonthKey = currentMonthDate.toLocaleString('default', {
+        month: 'short',
+        year: 'numeric',
+      })
+      const currentMonthData = trends.find((t) => t.month === currentMonthKey)
 
       expect(currentMonthData).toBeDefined()
       expect(currentMonthData!.amount).toBe(2500)
@@ -272,7 +275,7 @@ describe('Dashboard Calculations', () => {
       const trends = calculatePaymentTrends([loan])
 
       expect(trends).toHaveLength(6)
-      trends.forEach(trend => {
+      trends.forEach((trend) => {
         expect(trend.amount).toBe(0)
         expect(trend.count).toBe(0)
       })
@@ -297,7 +300,7 @@ describe('Dashboard Calculations', () => {
 
       expect(breakdown).toHaveLength(3) // Only statuses that exist
 
-      const activeStatus = breakdown.find(s => s.name === 'Active')
+      const activeStatus = breakdown.find((s) => s.name === 'Active')
       expect(activeStatus).toEqual({
         name: 'Active',
         value: 2,
@@ -305,7 +308,7 @@ describe('Dashboard Calculations', () => {
         percentage: 50, // 2 out of 4
       })
 
-      const completedStatus = breakdown.find(s => s.name === 'Completed')
+      const completedStatus = breakdown.find((s) => s.name === 'Completed')
       expect(completedStatus).toEqual({
         name: 'Completed',
         value: 1,
@@ -313,7 +316,7 @@ describe('Dashboard Calculations', () => {
         percentage: 25, // 1 out of 4
       })
 
-      const overdueStatus = breakdown.find(s => s.name === 'Overdue')
+      const overdueStatus = breakdown.find((s) => s.name === 'Overdue')
       expect(overdueStatus).toEqual({
         name: 'Overdue',
         value: 1,
@@ -323,10 +326,7 @@ describe('Dashboard Calculations', () => {
     })
 
     it('should filter out zero counts', () => {
-      const loans = [
-        createMockLoan({ status: 'ACTIVE' }),
-        createMockLoan({ status: 'ACTIVE' }),
-      ]
+      const loans = [createMockLoan({ status: 'ACTIVE' }), createMockLoan({ status: 'ACTIVE' })]
 
       const breakdown = calculateStatusBreakdown(loans)
 

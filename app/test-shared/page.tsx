@@ -17,9 +17,7 @@ export default function TestSharedComponentsPage() {
     <div className="container mx-auto p-8 space-y-8 max-w-7xl">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Shared Components Test Page
-        </h1>
+        <h1 className="text-4xl font-bold tracking-tight">Shared Components Test Page</h1>
         <p className="text-muted-foreground">
           Testing all custom shared components (MetricsCard, StatusBadge, EmptyState, LoadingState)
         </p>
@@ -72,18 +70,8 @@ export default function TestSharedComponentsPage() {
           <div>
             <h3 className="text-sm font-medium mb-4">Loading State</h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <MetricsCard
-                title="Loading"
-                value="0"
-                icon={DollarSign}
-                isLoading={true}
-              />
-              <MetricsCard
-                title="Loading"
-                value="0"
-                icon={Users}
-                isLoading={true}
-              />
+              <MetricsCard title="Loading" value="0" icon={DollarSign} isLoading={true} />
+              <MetricsCard title="Loading" value="0" icon={Users} isLoading={true} />
             </div>
           </div>
         </CardContent>

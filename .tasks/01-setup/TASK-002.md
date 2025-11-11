@@ -7,12 +7,15 @@
 **Branch:** `task/002-docker-postgres`
 
 ## Dependencies
+
 - TASK-001 (Next.js project must be initialized)
 
 ## Description
+
 Set up Docker Compose with PostgreSQL for local development, ensuring easy onboarding for new developers and consistent development environments. This setup is for **local development only** - production will use managed PostgreSQL services.
 
 ## Acceptance Criteria
+
 - [ ] Docker Compose configuration created
 - [ ] PostgreSQL 16 container configured
 - [ ] Database credentials managed via environment variables
@@ -29,17 +32,18 @@ Set up Docker Compose with PostgreSQL for local development, ensuring easy onboa
 ### Docker Compose Setup
 
 **Core Services:**
+
 1. **PostgreSQL Database**
    - Version: PostgreSQL 16 (latest stable)
    - Port: 5432 (mapped to host)
    - Volume: `postgres_data` for persistence
    - Health check: `pg_isready`
 
-**Optional Services (discuss):**
-2. **pgAdmin** (PostgreSQL GUI)
-   - Useful for debugging
-   - Port: 5050
-   - Trade-off: More containers, but better DX
+**Optional Services (discuss):** 2. **pgAdmin** (PostgreSQL GUI)
+
+- Useful for debugging
+- Port: 5050
+- Trade-off: More containers, but better DX
 
 3. **Redis** (future caching)
    - Not needed for MVP
@@ -50,24 +54,28 @@ Set up Docker Compose with PostgreSQL for local development, ensuring easy onboa
 ## Tradeoffs & Alternatives
 
 ### PostgreSQL Version
+
 - **Chosen:** PostgreSQL 16
 - **Why:** Latest stable, best performance, modern features
 - **Alternative:** PostgreSQL 15 (more mature, equally good choice)
 - **Tradeoff:** Minimal - both versions work great for this use case
 
 ### Volume Strategy
+
 - **Chosen:** Named volume (`postgres_data`)
 - **Why:** Persists data across container restarts, managed by Docker
 - **Alternative:** Bind mount to local directory
 - **Tradeoff:** Named volumes are cleaner but less visible in file system
 
 ### Environment Variable Management
+
 - **Chosen:** `.env.local` file (git-ignored) + `.env.example` (committed)
 - **Why:** Standard Next.js pattern, secure, easy for new devs
 - **Alternative:** Separate `docker.env` file
 - **Tradeoff:** Using `.env.local` means one file for both Next.js and Docker
 
 ### Database Initialization
+
 - **Chosen:** Let Prisma handle schema creation (via migrations)
 - **Why:** Single source of truth, version controlled, repeatable
 - **Alternative:** SQL init scripts in Docker
@@ -76,6 +84,7 @@ Set up Docker Compose with PostgreSQL for local development, ensuring easy onboa
 ## Docker Compose Configuration
 
 ### docker-compose.yml
+
 ```yaml
 version: '3.8'
 
@@ -89,11 +98,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loanly_dev_password}
       POSTGRES_DB: ${POSTGRES_DB:-loanly_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-loanly}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-loanly}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -125,6 +134,7 @@ networks:
 ```
 
 ### .env.local (git-ignored)
+
 ```env
 # Database Configuration
 POSTGRES_USER=loanly
@@ -145,6 +155,7 @@ DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POS
 ```
 
 ### .env.example (committed to git)
+
 ```env
 # Database Configuration
 POSTGRES_USER=loanly
@@ -162,6 +173,7 @@ DATABASE_URL="postgresql://loanly:your_secure_password_here@localhost:5432/loanl
 ```
 
 ### .dockerignore
+
 ```
 node_modules
 .next
@@ -180,6 +192,7 @@ build
 ```
 
 ## Project Structure Updates
+
 ```
 loanly-love-nextjs/
 ├── docker-compose.yml           # NEW
@@ -197,6 +210,7 @@ loanly-love-nextjs/
 ## Helper Scripts
 
 ### package.json scripts
+
 ```json
 {
   "scripts": {
@@ -209,6 +223,7 @@ loanly-love-nextjs/
 ```
 
 ### scripts/db-up.sh (convenience script)
+
 ```bash
 #!/bin/bash
 echo "🚀 Starting PostgreSQL database..."
@@ -221,6 +236,7 @@ echo "   Connection: postgresql://localhost:5432/loanly_db"
 ```
 
 ## Testing Requirements
+
 - [ ] `docker-compose up -d` starts PostgreSQL successfully
 - [ ] Database is accessible at `localhost:5432`
 - [ ] Can connect using `psql`:
@@ -235,14 +251,17 @@ echo "   Connection: postgresql://localhost:5432/loanly_db"
 ## Deployment Considerations
 
 ### Local Development (Docker)
+
 - Database runs in container
 - Data persists locally
 - Easy to reset/rebuild
 
 ### Production (Vercel Deployment)
+
 Docker is **NOT used**. Instead, use managed PostgreSQL:
 
 **Recommended Options:**
+
 1. **Vercel Postgres** (easiest)
    - Integrated with Vercel
    - Automatic connection string injection
@@ -264,6 +283,7 @@ Docker is **NOT used**. Instead, use managed PostgreSQL:
    - Good developer experience
 
 **Environment Variables in Production:**
+
 ```env
 # Set these in Vercel dashboard:
 DATABASE_URL="postgresql://user:pass@provider.com:5432/db?sslmode=require"
@@ -272,10 +292,12 @@ DATABASE_URL="postgresql://user:pass@provider.com:5432/db?sslmode=require"
 ## Documentation
 
 ### docs/DOCKER_SETUP.md
+
 ```markdown
 # Docker Development Setup
 
 ## Prerequisites
+
 - Docker Desktop installed
 - Docker Compose installed (included with Docker Desktop)
 
@@ -291,7 +313,9 @@ DATABASE_URL="postgresql://user:pass@provider.com:5432/db?sslmode=require"
 3. Start database:
    \`\`\`bash
    npm run db:up
+
    # or
+
    docker-compose up -d
    \`\`\`
 
@@ -308,16 +332,19 @@ DATABASE_URL="postgresql://user:pass@provider.com:5432/db?sslmode=require"
 ## Common Operations
 
 ### Stop database
+
 \`\`\`bash
 npm run db:down
 \`\`\`
 
 ### Reset database (WARNING: deletes all data)
+
 \`\`\`bash
 npm run db:reset
 \`\`\`
 
 ### Connect with psql
+
 \`\`\`bash
 psql -h localhost -U loanly -d loanly_db
 \`\`\`
@@ -325,12 +352,15 @@ psql -h localhost -U loanly -d loanly_db
 ## Troubleshooting
 
 ### Port 5432 already in use
+
 Another PostgreSQL instance is running. Stop it or change port in `.env.local`.
 
 ### Permission denied
+
 Docker daemon not running. Start Docker Desktop.
 
 ### Database not ready
+
 Wait a few seconds after `docker-compose up` for initialization.
 ```
 
@@ -357,6 +387,7 @@ Wait a few seconds after `docker-compose up` for initialization.
    - **Tradeoff:** Very minimal, Alpine is battle-tested
 
 ## References
+
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
 - [PostgreSQL Docker Image](https://hub.docker.com/_/postgres)
 - [Prisma + Docker Guide](https://www.prisma.io/docs/guides/development-environment/environment-variables)

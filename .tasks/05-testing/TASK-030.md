@@ -7,12 +7,15 @@
 **Branch:** `task/030-test-infrastructure`
 
 ## Dependencies
+
 - TASK-009 (Loan CRUD Server Actions - gives us something to test)
 
 ## Description
+
 Set up comprehensive testing infrastructure including Vitest for unit/integration tests, Testing Library for React components, and Playwright for E2E tests. This establishes the foundation for test-driven development and regression prevention.
 
 ## Acceptance Criteria
+
 - [x] Vitest installed and configured for unit/integration tests
 - [x] Testing Library (@testing-library/react) set up for component tests
 - [x] Playwright installed and configured for E2E tests
@@ -26,6 +29,7 @@ Set up comprehensive testing infrastructure including Vitest for unit/integratio
 - [x] CI-ready configuration (configs in place, workflow file not needed yet)
 
 ## Additional Tests Added
+
 - [x] Balance reduction on payment creation
 - [x] Balance adjustment on payment update
 - [x] Balance restoration on payment deletion
@@ -37,6 +41,7 @@ Set up comprehensive testing infrastructure including Vitest for unit/integratio
 ### Why This Stack?
 
 **Vitest**
+
 - ✅ Fast (Vite-powered)
 - ✅ Jest-compatible API
 - ✅ Great TypeScript support
@@ -44,12 +49,14 @@ Set up comprehensive testing infrastructure including Vitest for unit/integratio
 - ✅ Watch mode out of the box
 
 **Testing Library**
+
 - ✅ Industry standard for React testing
 - ✅ Encourages accessibility-first testing
 - ✅ Tests user behavior, not implementation
 - ✅ Works seamlessly with Vitest
 
 **Playwright**
+
 - ✅ Cross-browser testing (Chromium, Firefox, WebKit)
 - ✅ Auto-wait and retry
 - ✅ Great developer experience
@@ -57,6 +64,7 @@ Set up comprehensive testing infrastructure including Vitest for unit/integratio
 - ✅ Built-in test runner
 
 **Alternatives Considered:**
+
 - Jest: Slower than Vitest, more configuration
 - Cypress: Great but Playwright has better DX and parallel execution
 - Puppeteer: Lower-level, more manual than Playwright
@@ -166,7 +174,8 @@ afterEach(() => {
 import { PrismaClient } from '@prisma/client'
 import { execSync } from 'child_process'
 
-const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL ||
+const TEST_DATABASE_URL =
+  process.env.TEST_DATABASE_URL ||
   'postgresql://loanly:loanly_dev_password_change_in_production@localhost:5432/loanly_test_db?schema=public'
 
 export const testPrisma = new PrismaClient({
@@ -479,22 +488,26 @@ export default defineConfig({
 ## Testing Strategy
 
 ### Unit Tests
+
 - Validation schemas
 - Utility functions
 - Business logic helpers
 - Interest calculation functions (TASK-011)
 
 ### Integration Tests
+
 - Server Actions with real database
 - API endpoints (if any)
 - Database operations
 
 ### Component Tests
+
 - Form components
 - Table components
 - UI interactions
 
 ### E2E Tests
+
 - Critical user flows:
   - Create loan → View loan → Add payment → View updated balance
   - Search and filter loans
@@ -503,11 +516,13 @@ export default defineConfig({
 ## Next Steps
 
 After completion:
+
 - TASK-009A: Write comprehensive tests for Loan Server Actions
 - TASK-010: Implement Payment Server Actions (with tests)
 - TASK-011: Interest calculation utilities (TDD approach)
 
 ## References
+
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [Playwright Documentation](https://playwright.dev/)
