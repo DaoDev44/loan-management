@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -41,6 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint-and-type-check
 
+    env:
+      POSTGRES_URL: postgresql://dummy:dummy@localhost:5432/dummy
+      PRISMA_DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,7 +52,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -81,7 +85,8 @@ jobs:
           - 5432:5432
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loan_management_test
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/loan_management_test
+      PRISMA_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/loan_management_test
       NODE_ENV: test
 
     steps:
@@ -91,7 +96,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
