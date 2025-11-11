@@ -11,11 +11,12 @@ import { resolve } from 'path'
 const envPath = resolve(process.cwd(), '.env.local')
 config({ path: envPath })
 
-// Get the actual development password from environment or use fallback
+// Get the actual development credentials from environment
 const DEV_PASSWORD = process.env.POSTGRES_PASSWORD || 'loanly_dev_password_change_in_production'
 
 /**
  * Test database configuration
+ * Uses local Docker credentials with separate test database
  */
 export const TEST_CONFIG = {
   DATABASE_URL:
