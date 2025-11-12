@@ -1,311 +1,202 @@
-/**
- * TypeScript types and interfaces for loan interest calculations
- */
-
-import Decimal from 'decimal.js'
-import type { InterestCalculationType, PaymentFrequency, LoanStatus } from '@prisma/client'
-
-// =============================================================================
-// Core Loan Types
-// =============================================================================
+import { Decimal } from 'decimal.js'
 
 /**
- * Simplified loan data structure for calculations
- * Contains only the fields needed for financial calculations
+ * Represents different types of interest calculations
  */
-export interface LoanCalculationInput {
-  /** Loan unique identifier */
-  id: string
-  /** Original loan amount */
+export type InterestCalculationType = 'SIMPLE' | 'AMORTIZED' | 'INTEREST_ONLY'
+
+/**
+ * Represents payment frequency options
+ */
+export type PaymentFrequency = 'MONTHLY' | 'BI_WEEKLY'
+
+/**
+ * Core loan parameters for calculations
+ */
+export interface LoanParameters {
+  /** Principal amount in currency units */
   principal: Decimal
-  /** Annual interest rate as percentage (e.g., 5.5 for 5.5%) */
-  interestRate: number
-  /** Loan start date */
-  startDate: Date
-  /** Loan end date */
-  endDate: Date
+  /** Annual interest rate as a percentage (e.g., 5.5 for 5.5%) */
+  interestRate: Decimal
   /** Loan term in months */
   termMonths: number
-  /** Type of interest calculation to use */
-  interestCalculationType: InterestCalculationType
-  /** How often payments are due */
+  /** Payment frequency */
   paymentFrequency: PaymentFrequency
-  /** Current loan status */
-  status: LoanStatus
-  /** Current outstanding balance */
-  balance: Decimal
-}
-
-/**
- * Payment record for calculations
- */
-export interface PaymentCalculationInput {
-  /** Payment unique identifier */
-  id: string
-  /** Payment amount */
-  amount: Decimal
-  /** Date payment was made */
-  date: Date
-  /** Associated loan ID */
-  loanId: string
-}
-
-// =============================================================================
-// Calculation Result Types
-// =============================================================================
-
-/**
- * Result of interest calculation
- */
-export interface InterestCalculationResult {
-  /** Total interest amount */
-  totalInterest: Decimal
-  /** Interest calculation method used */
+  /** Type of interest calculation */
   calculationType: InterestCalculationType
-  /** Calculation date for reference */
-  calculatedAt: Date
-  /** Additional metadata */
-  metadata?: Record<string, any>
 }
 
 /**
- * Result of simple interest calculation
+ * Payment calculation result
  */
-export interface SimpleInterestResult extends InterestCalculationResult {
-  /** Principal amount used */
-  principal: Decimal
-  /** Annual interest rate used */
-  rate: number
-  /** Time period in years */
-  timeInYears: number
-  /** Simple interest amount (P × r × t) */
-  simpleInterest: Decimal
-  /** Total amount (principal + interest) */
+export interface PaymentCalculation {
+  /** Regular payment amount */
+  paymentAmount: Decimal
+  /** Total number of payments */
+  totalPayments: number
+  /** Payment frequency */
+  paymentFrequency: PaymentFrequency
+  /** Total interest over life of loan */
+  totalInterest: Decimal
+  /** Total amount to be paid */
   totalAmount: Decimal
 }
 
 /**
- * Individual payment in an amortization schedule
+ * Individual payment entry in an amortization schedule
  */
-export interface AmortizationPayment {
-  /** Payment sequence number */
+export interface PaymentEntry {
+  /** Payment number (1-indexed) */
   paymentNumber: number
-  /** Date payment is due */
-  dueDate: Date
-  /** Total payment amount */
+  /** Payment amount */
   paymentAmount: Decimal
-  /** Portion of payment applied to principal */
-  principalPortion: Decimal
-  /** Portion of payment applied to interest */
-  interestPortion: Decimal
-  /** Remaining loan balance after this payment */
+  /** Principal portion of payment */
+  principalAmount: Decimal
+  /** Interest portion of payment */
+  interestAmount: Decimal
+  /** Remaining balance after payment */
   remainingBalance: Decimal
-  /** Cumulative interest paid through this payment */
+  /** Cumulative interest paid to date */
   cumulativeInterest: Decimal
-  /** Cumulative principal paid through this payment */
-  cumulativePrincipal: Decimal
 }
 
 /**
- * Complete amortization schedule result
+ * Amortization schedule for the loan
  */
 export interface AmortizationSchedule {
-  /** Loan information */
-  loanId: string
-  /** Fixed payment amount for the loan */
-  monthlyPayment: Decimal
-  /** Total number of payments */
-  totalPayments: number
-  /** Payment frequency */
-  frequency: PaymentFrequency
-  /** Array of all payments in the schedule */
-  payments: AmortizationPayment[]
+  /** Array of payment entries */
+  payments: PaymentEntry[]
   /** Summary totals */
   summary: {
-    /** Total interest to be paid over loan life */
+    totalPayments: number
     totalInterest: Decimal
-    /** Total of all payments */
-    totalPayments: Decimal
-    /** Loan term in months */
-    termMonths: number
+    totalAmount: Decimal
+    averagePayment: Decimal
   }
-  /** When this schedule was calculated */
-  calculatedAt: Date
-}
-
-/**
- * Interest-only payment calculation result
- */
-export interface InterestOnlyResult {
-  /** Periodic interest-only payment amount */
-  interestPayment: Decimal
-  /** Principal amount (balloon payment) */
-  principalPayment: Decimal
-  /** Payment frequency */
-  frequency: PaymentFrequency
-  /** Total interest over loan term */
-  totalInterest: Decimal
-  /** Number of interest-only payments */
-  numberOfPayments: number
-  /** Final balloon payment date */
-  balloonPaymentDate: Date
 }
 
 /**
  * Current loan balance calculation result
  */
-export interface BalanceCalculationResult {
-  /** Current outstanding balance */
+export interface BalanceCalculation {
+  /** Current outstanding principal */
   currentBalance: Decimal
   /** Total principal paid to date */
-  principalPaid: Decimal
+  totalPrincipalPaid: Decimal
   /** Total interest paid to date */
-  interestPaid: Decimal
-  /** Total payments made to date */
-  totalPaymentsMade: Decimal
+  totalInterestPaid: Decimal
   /** Number of payments made */
-  paymentsCount: number
-  /** Remaining principal */
-  remainingPrincipal: Decimal
-  /** Next payment due date (if applicable) */
-  nextPaymentDue?: Date
-  /** Whether loan is paid off */
-  isPaidOff: boolean
-  /** Calculation timestamp */
-  calculatedAt: Date
+  paymentsMade: number
+  /** Number of payments remaining */
+  paymentsRemaining: number
+  /** Percentage of loan paid off */
+  percentagePaid: Decimal
 }
 
 /**
- * Payment schedule generation options
+ * Payment made on a loan
  */
-export interface PaymentScheduleOptions {
-  /** Include past payments in schedule */
-  includePastPayments?: boolean
-  /** Only show remaining payments */
-  remainingOnly?: boolean
-  /** Maximum number of payments to include */
-  maxPayments?: number
-  /** Start date for schedule (defaults to loan start date) */
-  startDate?: Date
+export interface PaymentRecord {
+  /** Amount of payment */
+  amount: Decimal
+  /** Date payment was made */
+  date: Date
+  /** Optional payment type/category */
+  type?: string
 }
 
 /**
- * Payment impact analysis (for what-if scenarios)
+ * Validation error for loan calculations
  */
-export interface PaymentImpactAnalysis {
-  /** Original loan balance before payment */
-  originalBalance: Decimal
-  /** New balance after payment */
-  newBalance: Decimal
-  /** Amount applied to principal */
-  principalReduction: Decimal
-  /** Amount applied to interest */
-  interestPayment: Decimal
-  /** Interest saved vs minimum payment */
-  interestSaved?: Decimal
-  /** Months saved off loan term */
-  termReduction?: number
-  /** New loan payoff date */
-  newPayoffDate?: Date
+export interface ValidationError {
+  field: string
+  message: string
+  code: string
 }
 
 /**
- * Portfolio-level calculation results
+ * Result wrapper for operations that can fail
  */
-export interface PortfolioMetrics {
-  /** Total principal across all loans */
-  totalPrincipal: Decimal
-  /** Total current balances */
-  totalBalance: Decimal
-  /** Total interest earned to date */
-  totalInterestEarned: Decimal
-  /** Projected future interest income */
-  projectedInterestIncome: Decimal
-  /** Average interest rate across portfolio */
-  averageInterestRate: number
-  /** Number of active loans */
-  activeLoansCount: number
-  /** Number of completed loans */
-  completedLoansCount: number
-  /** Portfolio performance metrics */
-  performance: {
-    /** On-time payment rate */
-    onTimePaymentRate: number
-    /** Default rate */
-    defaultRate: number
-    /** Average loan term */
-    averageLoanTerm: number
+export type CalculationResult<T> =
+  | { success: true; data: T }
+  | { success: false; errors: ValidationError[] }
+
+/**
+ * Abstract base class for interest calculation strategies
+ */
+export abstract class InterestCalculationStrategy {
+  abstract readonly type: InterestCalculationType
+
+  /**
+   * Calculate payment amount for given loan parameters
+   */
+  abstract calculatePayment(params: LoanParameters): CalculationResult<PaymentCalculation>
+
+  /**
+   * Generate amortization schedule (if applicable)
+   */
+  abstract generateSchedule(params: LoanParameters): CalculationResult<AmortizationSchedule>
+
+  /**
+   * Calculate current balance given payment history
+   */
+  abstract calculateBalance(
+    params: LoanParameters,
+    payments: PaymentRecord[]
+  ): CalculationResult<BalanceCalculation>
+
+  /**
+   * Validate loan parameters for this calculation type
+   */
+  protected abstract validateParameters(params: LoanParameters): ValidationError[]
+
+  /**
+   * Convert payment frequency to periods per year
+   */
+  protected getPeriodsPerYear(frequency: PaymentFrequency): number {
+    switch (frequency) {
+      case 'MONTHLY':
+        return 12
+      case 'BI_WEEKLY':
+        return 26
+      default:
+        throw new Error(`Unsupported payment frequency: ${frequency}`)
+    }
+  }
+
+  /**
+   * Convert annual interest rate to periodic rate
+   */
+  protected getPeriodicRate(annualRate: Decimal, frequency: PaymentFrequency): Decimal {
+    const periodsPerYear = this.getPeriodsPerYear(frequency)
+    return annualRate.dividedBy(100).dividedBy(periodsPerYear)
+  }
+
+  /**
+   * Calculate total number of payments
+   */
+  protected getTotalPayments(termMonths: number, frequency: PaymentFrequency): number {
+    const periodsPerYear = this.getPeriodsPerYear(frequency)
+    return Math.ceil((termMonths / 12) * periodsPerYear)
   }
 }
 
-// =============================================================================
-// Validation and Error Types
-// =============================================================================
-
 /**
- * Calculation validation error
+ * Factory for creating calculation strategies
  */
-export interface CalculationError {
-  /** Error code for programmatic handling */
-  code: string
-  /** Human-readable error message */
-  message: string
-  /** Field that caused the error (if applicable) */
-  field?: string
-  /** Invalid value that caused the error */
-  value?: any
-}
+export interface CalculationStrategyFactory {
+  /**
+   * Register a new calculation strategy
+   */
+  register(strategy: InterestCalculationStrategy): void
 
-/**
- * Calculation validation result
- */
-export interface ValidationResult {
-  /** Whether validation passed */
-  isValid: boolean
-  /** Array of errors (empty if valid) */
-  errors: CalculationError[]
-}
+  /**
+   * Create strategy instance for given calculation type
+   */
+  create(type: InterestCalculationType): InterestCalculationStrategy
 
-// =============================================================================
-// Utility Types
-// =============================================================================
-
-/**
- * Supported rounding modes for monetary calculations
- */
-export type RoundingMode = 'ROUND_UP' | 'ROUND_DOWN' | 'ROUND_NEAREST'
-
-/**
- * Date frequency for calculations
- */
-export type CalculationFrequency = 'DAILY' | 'MONTHLY' | 'QUARTERLY' | 'ANNUALLY'
-
-/**
- * Time period specification
- */
-export interface TimePeriod {
-  /** Start date */
-  startDate: Date
-  /** End date */
-  endDate: Date
-  /** Period in years (calculated) */
-  years: number
-  /** Period in months (calculated) */
-  months: number
-  /** Period in days (calculated) */
-  days: number
-}
-
-/**
- * Configuration options for calculations
- */
-export interface CalculationConfig {
-  /** Decimal precision for monetary values (default: 2) */
-  precision?: number
-  /** Rounding mode (default: ROUND_NEAREST) */
-  roundingMode?: RoundingMode
-  /** Whether to include partial periods in calculations */
-  includePartialPeriods?: boolean
-  /** Business days only for payment dates */
-  businessDaysOnly?: boolean
+  /**
+   * Get all available calculation types
+   */
+  getAvailableTypes(): InterestCalculationType[]
 }

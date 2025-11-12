@@ -1,281 +1,251 @@
-/**
- * Loan Interest Calculations Library
- *
- * Comprehensive library for calculating loan interest, payment schedules,
- * and balance tracking across different interest calculation types:
- * - Simple Interest
- * - Amortized Loans
- * - Interest-Only Loans
- *
- * @example Basic Usage
- * ```typescript
- * import { calculateMonthlyPayment, generatePaymentSchedule } from '@/lib/calculations'
- *
- * // Calculate amortized loan payment
- * const monthlyPayment = calculateMonthlyPayment(100000, 5.5, 360) // $567.79
- *
- * // Generate full payment schedule
- * const schedule = generatePaymentSchedule(loanData)
- * ```
- */
+import { Decimal } from 'decimal.js'
 
 // =============================================================================
 // Type Exports
 // =============================================================================
 
 export type {
-  // Core loan and payment types
-  LoanCalculationInput,
-  PaymentCalculationInput,
-
-  // Calculation result types
-  InterestCalculationResult,
-  SimpleInterestResult,
+  InterestCalculationType,
+  PaymentFrequency,
+  LoanParameters,
+  PaymentCalculation,
+  PaymentEntry,
   AmortizationSchedule,
-  AmortizationPayment,
-  InterestOnlyResult,
-  BalanceCalculationResult,
-  PaymentImpactAnalysis,
-  PortfolioMetrics,
-
-  // Configuration and utility types
-  CalculationConfig,
-  PaymentScheduleOptions,
-  ValidationResult,
-  CalculationError,
-  TimePeriod,
-  RoundingMode,
-  CalculationFrequency,
+  BalanceCalculation,
+  PaymentRecord,
+  ValidationError,
+  CalculationResult,
+  InterestCalculationStrategy,
+  CalculationStrategyFactory,
 } from './types'
 
 // =============================================================================
-// Utility Function Exports
+// Strategy and Factory Exports
 // =============================================================================
 
-export {
-  // Validation functions
-  validateLoanInput,
-  validatePaymentInput,
-  validateCalculationParams,
-
-  // Date calculation utilities
-  getPaymentFrequencyPerYear,
-  calculateTimePeriod,
-  calculateNextPaymentDate,
-  generatePaymentDates,
-  getPeriodicRate,
-  calculateTotalPayments,
-
-  // Decimal/monetary utilities
-  roundMoney,
-  formatCurrency,
-  toDecimal,
-  addDecimals,
-  subtractDecimals,
-  multiplyDecimals,
-  divideDecimals,
-  sumDecimals,
-  minDecimal,
-  maxDecimal,
-  averageDecimals,
-
-  // Configuration
-  DEFAULT_CONFIG,
-  MAX_INTEREST_RATE,
-  MIN_LOAN_TERM,
-  MAX_LOAN_TERM,
-} from './utils'
+export { calculationStrategyFactory } from './factory'
+export { validateLoanParameters, validatePaymentRecords, ensureDecimal } from './validation'
 
 // =============================================================================
-// Simple Interest Calculations
+// Strategy Registration and Initialization
 // =============================================================================
 
-export {
-  // Core simple interest functions
-  calculateSimpleInterest,
-  calculateSimpleInterestByDate,
-  calculateSimpleInterestBalance,
-  calculateSimpleInterestBalanceWithPayments,
+import { calculationStrategyFactory } from './factory'
+import { SimpleInterestStrategy } from './simple-interest'
+import { AmortizedStrategy } from './amortized'
+import { InterestOnlyStrategy } from './interest-only'
+import { ensureDecimal } from './validation'
+import type {
+  InterestCalculationType,
+  PaymentFrequency,
+  LoanParameters,
+  PaymentRecord,
+  ValidationError,
+  CalculationResult,
+} from './types'
 
-  // Simple interest utility functions
-  calculatePrincipalFromInterest,
-  calculateRateFromInterest,
-  calculateTimeFromInterest,
-  calculateSimpleInterestTotal,
-  calculateSimpleInterestEAR,
-} from './simple-interest'
-
-// =============================================================================
-// Amortized Loan Calculations
-// =============================================================================
-
-export {
-  // Core amortized loan functions
-  calculateMonthlyPayment,
-  generateAmortizationSchedule,
-  calculateRemainingBalance,
-  calculateAmortizedBalanceWithPayments,
-
-  // Amortized utility functions
-  calculateTotalInterest,
-  calculateAmortizedAPR,
-  calculateLoanAmountFromPayment,
-} from './amortized'
+// Register all strategies with the factory
+calculationStrategyFactory.register(new SimpleInterestStrategy())
+calculationStrategyFactory.register(new AmortizedStrategy())
+calculationStrategyFactory.register(new InterestOnlyStrategy())
 
 // =============================================================================
-// Interest-Only Loan Calculations
-// =============================================================================
-
-export {
-  // Core interest-only functions
-  calculateInterestOnlyPayment,
-  calculateInterestOnlyLoan,
-  generateInterestOnlySchedule,
-  calculateInterestOnlyBalanceWithPayments,
-
-  // Interest-only utility functions
-  calculateInterestOnlyTotalCost,
-  calculateInterestSavingsVsAmortized,
-  calculateInterestOnlyEAR,
-  calculateBalloonPayment,
-  calculateCashFlowAdvantage,
-} from './interest-only'
-
-// =============================================================================
-// Unified Payment Schedule & Balance Calculations
-// =============================================================================
-
-export {
-  // Unified calculation functions (works with any loan type)
-  generatePaymentSchedule,
-  calculateCurrentBalance,
-  analyzePaymentImpact,
-
-  // Payment utilities
-  calculateNextPaymentDue,
-  calculateRemainingPayments,
-  calculateRemainingInterest,
-  generatePaymentSummary,
-} from './payment-schedule'
-
-// =============================================================================
-// Convenience Functions (Most Common Use Cases)
+// Convenience Functions (Primary API)
 // =============================================================================
 
 /**
- * Quick loan payment calculator
- * Automatically detects loan type and calculates appropriate payment
+ * Calculate loan payment using the appropriate strategy
  */
-import { calculateMonthlyPayment as calculateAmortizedPayment } from './amortized'
-import { calculateInterestOnlyPayment } from './interest-only'
-import { calculateSimpleInterestTotal } from './simple-interest'
-import type { InterestCalculationType, PaymentFrequency } from '@prisma/client'
-import type { CalculationConfig } from './types'
-import { DEFAULT_CONFIG } from './utils'
-
 export function calculateLoanPayment(
-  principal: number,
-  annualRate: number,
+  principal: number | Decimal,
+  annualRate: number | Decimal,
   termMonths: number,
   calculationType: InterestCalculationType = 'AMORTIZED',
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
+  paymentFrequency: PaymentFrequency = 'MONTHLY'
 ) {
-  switch (calculationType) {
-    case 'AMORTIZED':
-      return calculateAmortizedPayment(principal, annualRate, termMonths, frequency, config)
+  const strategy = calculationStrategyFactory.create(calculationType)
 
-    case 'INTEREST_ONLY':
-      return calculateInterestOnlyPayment(principal, annualRate, frequency, config)
-
-    case 'SIMPLE':
-      // Simple interest typically has one payment at the end
-      return calculateSimpleInterestTotal(principal, annualRate, termMonths / 12, config)
-
-    default:
-      throw new Error(`Unsupported calculation type: ${calculationType}`)
+  const params: LoanParameters = {
+    principal: ensureDecimal(principal),
+    interestRate: ensureDecimal(annualRate),
+    termMonths,
+    paymentFrequency,
+    calculationType,
   }
+
+  return strategy.calculatePayment(params)
 }
 
 /**
- * Quick total interest calculator
- * Calculate total interest for any loan type
+ * Generate loan amortization schedule using the appropriate strategy
  */
-import { calculateTotalInterest as calculateAmortizedTotalInterest } from './amortized'
-import { calculateInterestOnlyTotalCost } from './interest-only'
-import { calculateSimpleInterest } from './simple-interest'
-
-export function calculateLoanTotalInterest(
-  principal: number,
-  annualRate: number,
+export function generateLoanSchedule(
+  principal: number | Decimal,
+  annualRate: number | Decimal,
   termMonths: number,
   calculationType: InterestCalculationType = 'AMORTIZED',
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
+  paymentFrequency: PaymentFrequency = 'MONTHLY'
 ) {
-  switch (calculationType) {
-    case 'AMORTIZED':
-      return calculateAmortizedTotalInterest(principal, annualRate, termMonths, frequency, config)
+  const strategy = calculationStrategyFactory.create(calculationType)
 
-    case 'INTEREST_ONLY': {
-      const result = calculateInterestOnlyTotalCost(principal, annualRate, termMonths, frequency, config)
-      return result.sub(principal) // Total cost minus principal = interest
-    }
-
-    case 'SIMPLE': {
-      const result = calculateSimpleInterest(principal, annualRate, termMonths / 12, config)
-      return result.simpleInterest
-    }
-
-    default:
-      throw new Error(`Unsupported calculation type: ${calculationType}`)
+  const params: LoanParameters = {
+    principal: ensureDecimal(principal),
+    interestRate: ensureDecimal(annualRate),
+    termMonths,
+    paymentFrequency,
+    calculationType,
   }
+
+  return strategy.generateSchedule(params)
+}
+
+/**
+ * Calculate current loan balance with payment history using the appropriate strategy
+ */
+export function calculateLoanBalance(
+  principal: number | Decimal,
+  annualRate: number | Decimal,
+  termMonths: number,
+  calculationType: InterestCalculationType = 'AMORTIZED',
+  paymentFrequency: PaymentFrequency = 'MONTHLY',
+  paymentHistory: PaymentRecord[] = []
+) {
+  const strategy = calculationStrategyFactory.create(calculationType)
+
+  const params: LoanParameters = {
+    principal: ensureDecimal(principal),
+    interestRate: ensureDecimal(annualRate),
+    termMonths,
+    paymentFrequency,
+    calculationType,
+  }
+
+  return strategy.calculateBalance(params, paymentHistory)
+}
+
+/**
+ * Calculate loan payment with Prisma enum types (for form integration)
+ */
+export function calculateLoanPaymentForForm(
+  principal: number,
+  interestRate: number,
+  termMonths: number,
+  calculationType: string,
+  paymentFrequency: string
+) {
+  // Validate and convert enum types
+  if (!['SIMPLE', 'AMORTIZED', 'INTEREST_ONLY'].includes(calculationType)) {
+    return {
+      success: false,
+      errors: [
+        { field: 'calculationType', message: 'Invalid calculation type', code: 'INVALID_TYPE' },
+      ],
+    }
+  }
+
+  if (!['MONTHLY', 'BI_WEEKLY'].includes(paymentFrequency)) {
+    return {
+      success: false,
+      errors: [
+        {
+          field: 'paymentFrequency',
+          message: 'Invalid payment frequency',
+          code: 'INVALID_FREQUENCY',
+        },
+      ],
+    }
+  }
+
+  return calculateLoanPayment(
+    principal,
+    interestRate,
+    termMonths,
+    calculationType as InterestCalculationType,
+    paymentFrequency as PaymentFrequency
+  )
 }
 
 // =============================================================================
-// Common Constants and Enums
+// Utility Functions
 // =============================================================================
 
 /**
- * Supported interest calculation types
+ * Get all supported calculation types
  */
-export const INTEREST_CALCULATION_TYPES = ['SIMPLE', 'AMORTIZED', 'INTEREST_ONLY'] as const
+export function getSupportedCalculationTypes(): InterestCalculationType[] {
+  return calculationStrategyFactory.getAvailableTypes()
+}
 
 /**
- * Supported payment frequencies
+ * Check if a calculation type is supported
  */
-export const PAYMENT_FREQUENCIES = ['MONTHLY', 'BI_WEEKLY'] as const
+export function isCalculationTypeSupported(type: string): boolean {
+  return calculationStrategyFactory.isSupported(type as InterestCalculationType)
+}
 
 /**
- * Library version
+ * Get library information
  */
-export const CALCULATIONS_VERSION = '1.0.0'
-
-// =============================================================================
-// Library Information
-// =============================================================================
-
-/**
- * Get library information and configuration
- */
-export function getLibraryInfo() {
+export function getCalculationLibraryInfo() {
   return {
-    name: 'Loan Calculations Library',
-    version: CALCULATIONS_VERSION,
-    description: 'Comprehensive loan interest calculations for all loan types',
-    supportedCalculationTypes: INTEREST_CALCULATION_TYPES,
-    supportedPaymentFrequencies: PAYMENT_FREQUENCIES,
-    defaultConfig: DEFAULT_CONFIG,
+    name: 'Loan Calculation Library',
+    version: '2.0.0',
+    architecture: 'Hybrid Strategy + Factory Pattern',
+    supportedTypes: calculationStrategyFactory.getAvailableTypes(),
+    strategyCount: calculationStrategyFactory.getStrategyCount(),
     features: [
-      'Simple Interest Calculations',
-      'Amortized Loan Calculations',
-      'Interest-Only Loan Calculations',
-      'Payment Schedule Generation',
-      'Balance Tracking with Payments',
-      'Payment Impact Analysis',
-      'Multi-currency Support via Decimal.js',
-      'Comprehensive Input Validation',
-      'TypeScript Support',
+      'Strategy Pattern for extensible calculations',
+      'Factory Pattern for strategy registration',
+      'Comprehensive input validation',
+      'Decimal.js for financial precision',
+      'TypeScript support with strict typing',
+      'Multiple payment frequencies',
+      'Payment history tracking',
+      'Amortization schedule generation',
     ],
   }
+}
+
+// =============================================================================
+// Helper function for validation (re-exported above)
+// =============================================================================
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+export const SUPPORTED_CALCULATION_TYPES: InterestCalculationType[] = [
+  'SIMPLE',
+  'AMORTIZED',
+  'INTEREST_ONLY',
+]
+export const SUPPORTED_PAYMENT_FREQUENCIES: PaymentFrequency[] = ['MONTHLY', 'BI_WEEKLY']
+
+// =============================================================================
+// Error Helpers
+// =============================================================================
+
+/**
+ * Create a standardized calculation error
+ */
+export function createCalculationError(
+  field: string,
+  message: string,
+  code: string = 'CALCULATION_ERROR'
+): ValidationError {
+  return { field, message, code }
+}
+
+/**
+ * Create a failed calculation result
+ */
+export function createFailedResult<T>(errors: ValidationError[]): CalculationResult<T> {
+  return { success: false, errors }
+}
+
+/**
+ * Create a successful calculation result
+ */
+export function createSuccessResult<T>(data: T): CalculationResult<T> {
+  return { success: true, data }
 }

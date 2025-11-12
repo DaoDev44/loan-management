@@ -1,333 +1,224 @@
-/**
- * Simple Interest Calculations
- * Formula: Interest = Principal × Rate × Time (I = P × r × t)
- */
-
-import Decimal from 'decimal.js'
-import type {
-  LoanCalculationInput,
-  PaymentCalculationInput,
-  SimpleInterestResult,
-  BalanceCalculationResult,
-  TimePeriod,
-  CalculationConfig,
-} from './types'
+import { Decimal } from 'decimal.js'
 import {
-  validateLoanInput,
-  validateCalculationParams,
-  calculateTimePeriod,
-  toDecimal,
-  addDecimals,
-  subtractDecimals,
-  multiplyDecimals,
-  divideDecimals,
-  sumDecimals,
-  roundMoney,
-  createCalculationMetadata,
-  DEFAULT_CONFIG,
-} from './utils'
-
-// =============================================================================
-// Core Simple Interest Calculations
-// =============================================================================
+  InterestCalculationStrategy,
+  type LoanParameters,
+  type PaymentCalculation,
+  type AmortizationSchedule,
+  type BalanceCalculation,
+  type PaymentRecord,
+  type ValidationError,
+  type CalculationResult,
+} from './types'
+import { validateLoanParameters, validatePaymentRecords } from './validation'
 
 /**
- * Calculate simple interest using the formula I = P × r × t
- * @param principal - The principal amount (original loan amount)
- * @param annualRate - Annual interest rate as percentage (e.g., 5.5 for 5.5%)
- * @param timeInYears - Time period in years
- * @param config - Optional calculation configuration
- * @returns Simple interest calculation result
+ * Simple Interest Calculation Strategy
+ * Uses the formula: Interest = Principal × Rate × Time (I = P × r × t)
  */
-export function calculateSimpleInterest(
-  principal: number | Decimal,
-  annualRate: number,
-  timeInYears: number,
-  config: CalculationConfig = DEFAULT_CONFIG
-): SimpleInterestResult {
-  // Convert and validate inputs
-  const principalDecimal = toDecimal(principal)
-  const validation = validateCalculationParams(principalDecimal, annualRate, timeInYears * 12)
+export class SimpleInterestStrategy extends InterestCalculationStrategy {
+  readonly type = 'SIMPLE' as const
 
-  if (!validation.isValid) {
-    throw new Error(`Validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
+  /**
+   * Calculate payment amount for simple interest loan
+   * For simple interest, the payment includes all interest upfront
+   */
+  calculatePayment(params: LoanParameters): CalculationResult<PaymentCalculation> {
+    const validationErrors = this.validateParameters(params)
+    if (validationErrors.length > 0) {
+      return { success: false, errors: validationErrors }
+    }
+
+    try {
+      const { principal, interestRate, termMonths } = params
+
+      // Calculate total interest using I = P × r × t
+      const timeInYears = new Decimal(termMonths).dividedBy(12)
+      const annualRateDecimal = interestRate.dividedBy(100)
+      const totalInterest = principal.times(annualRateDecimal).times(timeInYears)
+
+      const totalAmount = principal.plus(totalInterest)
+
+      // For simple interest, typically one payment at the end
+      // But we can also calculate equal payments that include interest
+      const totalPayments = this.getTotalPayments(termMonths, params.paymentFrequency)
+      const paymentAmount = totalAmount.dividedBy(totalPayments)
+
+      const result: PaymentCalculation = {
+        paymentAmount: paymentAmount.toDecimalPlaces(2),
+        totalPayments,
+        paymentFrequency: params.paymentFrequency,
+        totalInterest: totalInterest.toDecimalPlaces(2),
+        totalAmount: totalAmount.toDecimalPlaces(2),
+      }
+
+      return { success: true, data: result }
+    } catch (error) {
+      return {
+        success: false,
+        errors: [
+          {
+            field: 'calculation',
+            message: `Simple interest calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            code: 'CALCULATION_ERROR',
+          },
+        ],
+      }
+    }
   }
 
-  // Calculate simple interest: I = P × r × t
-  const rateDecimal = toDecimal(annualRate / 100) // Convert percentage to decimal
-  const timeDecimal = toDecimal(timeInYears)
+  /**
+   * Generate amortization schedule for simple interest loan
+   * Simple interest typically doesn't have a traditional amortization schedule
+   * but we can create one showing equal payments
+   */
+  generateSchedule(params: LoanParameters): CalculationResult<AmortizationSchedule> {
+    const paymentResult = this.calculatePayment(params)
+    if (!paymentResult.success) {
+      return paymentResult
+    }
 
-  const simpleInterest = multiplyDecimals(
-    multiplyDecimals(principalDecimal, rateDecimal),
-    timeDecimal
-  )
+    try {
+      const payment = paymentResult.data
+      const totalPayments = payment.totalPayments
+      const paymentAmount = payment.paymentAmount
 
-  const totalAmount = addDecimals(principalDecimal, simpleInterest)
+      // Calculate interest per payment (total interest divided by number of payments)
+      const interestPerPayment = payment.totalInterest.dividedBy(totalPayments)
+      const principalPerPayment = params.principal.dividedBy(totalPayments)
 
-  return {
-    totalInterest: roundMoney(simpleInterest, config.roundingMode),
-    calculationType: 'SIMPLE',
-    calculatedAt: new Date(),
-    principal: principalDecimal,
-    rate: annualRate,
-    timeInYears,
-    simpleInterest: roundMoney(simpleInterest, config.roundingMode),
-    totalAmount: roundMoney(totalAmount, config.roundingMode),
-    metadata: createCalculationMetadata('simple-interest', {
-      principal: principalDecimal.toString(),
-      annualRate,
-      timeInYears,
-    }),
-  }
-}
+      const payments = []
+      let remainingBalance = params.principal
+      let cumulativeInterest = new Decimal(0)
 
-/**
- * Calculate simple interest for a specific date range
- * @param principal - The principal amount
- * @param annualRate - Annual interest rate as percentage
- * @param startDate - Start date for interest calculation
- * @param endDate - End date for interest calculation
- * @param config - Optional calculation configuration
- * @returns Simple interest calculation result
- */
-export function calculateSimpleInterestByDate(
-  principal: number | Decimal,
-  annualRate: number,
-  startDate: Date,
-  endDate: Date,
-  config: CalculationConfig = DEFAULT_CONFIG
-): SimpleInterestResult {
-  const timePeriod = calculateTimePeriod(startDate, endDate)
-  return calculateSimpleInterest(principal, annualRate, timePeriod.years, config)
-}
+      for (let i = 1; i <= totalPayments; i++) {
+        const principalAmount =
+          i === totalPayments
+            ? remainingBalance // Last payment gets any remaining balance due to rounding
+            : principalPerPayment
 
-/**
- * Calculate simple interest balance at a specific point in time
- * @param loan - Loan data for calculation
- * @param asOfDate - Date to calculate balance (defaults to current date)
- * @param config - Optional calculation configuration
- * @returns Current balance with accrued simple interest
- */
-export function calculateSimpleInterestBalance(
-  loan: LoanCalculationInput,
-  asOfDate: Date = new Date(),
-  config: CalculationConfig = DEFAULT_CONFIG
-): BalanceCalculationResult {
-  // Validate loan input
-  const validation = validateLoanInput(loan)
-  if (!validation.isValid) {
-    throw new Error(`Loan validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
-  }
+        const interestAmount = interestPerPayment
+        remainingBalance = remainingBalance.minus(principalAmount)
+        cumulativeInterest = cumulativeInterest.plus(interestAmount)
 
-  // Ensure we're calculating simple interest
-  if (loan.interestCalculationType !== 'SIMPLE') {
-    throw new Error('This function is only for simple interest loans')
+        payments.push({
+          paymentNumber: i,
+          paymentAmount: paymentAmount.toDecimalPlaces(2),
+          principalAmount: principalAmount.toDecimalPlaces(2),
+          interestAmount: interestAmount.toDecimalPlaces(2),
+          remainingBalance: remainingBalance.toDecimalPlaces(2),
+          cumulativeInterest: cumulativeInterest.toDecimalPlaces(2),
+        })
+      }
+
+      const result: AmortizationSchedule = {
+        payments,
+        summary: {
+          totalPayments,
+          totalInterest: payment.totalInterest,
+          totalAmount: payment.totalAmount,
+          averagePayment: paymentAmount,
+        },
+      }
+
+      return { success: true, data: result }
+    } catch (error) {
+      return {
+        success: false,
+        errors: [
+          {
+            field: 'schedule',
+            message: `Schedule generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            code: 'SCHEDULE_GENERATION_ERROR',
+          },
+        ],
+      }
+    }
   }
 
-  // Calculate time from loan start to calculation date
-  const timePeriod = calculateTimePeriod(loan.startDate, asOfDate)
+  /**
+   * Calculate current balance for simple interest loan with payment history
+   */
+  calculateBalance(
+    params: LoanParameters,
+    payments: PaymentRecord[]
+  ): CalculationResult<BalanceCalculation> {
+    const paramValidationErrors = this.validateParameters(params)
+    const paymentValidationErrors = validatePaymentRecords(payments)
 
-  // Calculate accrued interest
-  const interestResult = calculateSimpleInterest(
-    loan.principal,
-    loan.interestRate,
-    timePeriod.years,
-    config
-  )
+    if (paramValidationErrors.length > 0 || paymentValidationErrors.length > 0) {
+      return {
+        success: false,
+        errors: [...paramValidationErrors, ...paymentValidationErrors],
+      }
+    }
 
-  // Current balance is original principal + accrued interest
-  const currentBalance = addDecimals(loan.principal, interestResult.simpleInterest)
+    try {
+      // Get the original payment calculation to understand expected payments
+      const paymentResult = this.calculatePayment(params)
+      if (!paymentResult.success) {
+        return paymentResult
+      }
 
-  return {
-    currentBalance: roundMoney(currentBalance, config.roundingMode),
-    principalPaid: new Decimal(0), // No payments considered in this calculation
-    interestPaid: new Decimal(0),
-    totalPaymentsMade: new Decimal(0),
-    paymentsCount: 0,
-    remainingPrincipal: loan.principal,
-    nextPaymentDue: loan.endDate, // Simple interest typically has single payment at end
-    isPaidOff: false,
-    calculatedAt: new Date(),
-  }
-}
+      const expectedPayment = paymentResult.data
 
-/**
- * Calculate current balance with payments for simple interest loan
- * @param loan - Loan data for calculation
- * @param payments - Array of payments made
- * @param asOfDate - Date to calculate balance (defaults to current date)
- * @param config - Optional calculation configuration
- * @returns Current balance accounting for payments
- */
-export function calculateSimpleInterestBalanceWithPayments(
-  loan: LoanCalculationInput,
-  payments: PaymentCalculationInput[],
-  asOfDate: Date = new Date(),
-  config: CalculationConfig = DEFAULT_CONFIG
-): BalanceCalculationResult {
-  // Validate loan input
-  const validation = validateLoanInput(loan)
-  if (!validation.isValid) {
-    throw new Error(`Loan validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
-  }
+      // Calculate totals from payment history
+      const totalPaymentsMade = payments.reduce(
+        (sum, payment) => sum.plus(payment.amount),
+        new Decimal(0)
+      )
 
-  // Ensure we're calculating simple interest
-  if (loan.interestCalculationType !== 'SIMPLE') {
-    throw new Error('This function is only for simple interest loans')
-  }
+      // For simple interest, interest is calculated upfront
+      const totalExpectedPayments = expectedPayment.totalAmount
 
-  // Filter payments up to the calculation date
-  const relevantPayments = payments.filter((payment) => payment.date <= asOfDate)
+      // Simple interest: principal reduction is proportional to payments made
+      const paymentProgress = totalPaymentsMade.dividedBy(totalExpectedPayments)
+      const principalPaid = params.principal.times(paymentProgress)
+      const interestPaid = totalPaymentsMade.minus(principalPaid)
 
-  // Calculate accrued interest as of the calculation date
-  const timePeriod = calculateTimePeriod(loan.startDate, asOfDate)
-  const interestResult = calculateSimpleInterest(
-    loan.principal,
-    loan.interestRate,
-    timePeriod.years,
-    config
-  )
+      const currentBalance = params.principal.minus(principalPaid)
 
-  // Calculate total payments made
-  const totalPaymentsMade = sumDecimals(relevantPayments.map((p) => p.amount))
+      const result: BalanceCalculation = {
+        currentBalance: Decimal.max(0, currentBalance).toDecimalPlaces(2),
+        totalPrincipalPaid: principalPaid.toDecimalPlaces(2),
+        totalInterestPaid: Decimal.max(0, interestPaid).toDecimalPlaces(2),
+        paymentsMade: payments.length,
+        paymentsRemaining: Math.max(0, expectedPayment.totalPayments - payments.length),
+        percentagePaid: paymentProgress.times(100).toDecimalPlaces(2),
+      }
 
-  // For simple interest, payments typically reduce the total amount owed
-  const totalAmountOwed = addDecimals(loan.principal, interestResult.simpleInterest)
-  const currentBalance = subtractDecimals(totalAmountOwed, totalPaymentsMade)
-
-  // Ensure balance doesn't go negative
-  const finalBalance = currentBalance.lt(0) ? new Decimal(0) : currentBalance
-
-  // For simple interest, we treat all payments as reducing the total debt
-  // rather than allocating between principal and interest
-  const principalPaid = totalPaymentsMade.gt(interestResult.simpleInterest)
-    ? subtractDecimals(totalPaymentsMade, interestResult.simpleInterest)
-    : new Decimal(0)
-
-  const interestPaid = totalPaymentsMade.lt(interestResult.simpleInterest)
-    ? totalPaymentsMade
-    : interestResult.simpleInterest
-
-  const remainingPrincipal = subtractDecimals(loan.principal, principalPaid)
-
-  return {
-    currentBalance: roundMoney(finalBalance, config.roundingMode),
-    principalPaid: roundMoney(principalPaid, config.roundingMode),
-    interestPaid: roundMoney(interestPaid, config.roundingMode),
-    totalPaymentsMade: roundMoney(totalPaymentsMade, config.roundingMode),
-    paymentsCount: relevantPayments.length,
-    remainingPrincipal: roundMoney(remainingPrincipal, config.roundingMode),
-    nextPaymentDue: finalBalance.gt(0) ? loan.endDate : undefined,
-    isPaidOff: finalBalance.eq(0),
-    calculatedAt: new Date(),
-  }
-}
-
-// =============================================================================
-// Simple Interest Utility Functions
-// =============================================================================
-
-/**
- * Calculate the principal amount given simple interest, rate, and time
- * Rearranged formula: P = I / (r × t)
- * @param interest - The interest amount
- * @param annualRate - Annual interest rate as percentage
- * @param timeInYears - Time period in years
- * @param config - Optional calculation configuration
- * @returns Principal amount
- */
-export function calculatePrincipalFromInterest(
-  interest: number | Decimal,
-  annualRate: number,
-  timeInYears: number,
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  const interestDecimal = toDecimal(interest)
-  const rateDecimal = toDecimal(annualRate / 100)
-  const timeDecimal = toDecimal(timeInYears)
-
-  if (rateDecimal.eq(0) || timeDecimal.eq(0)) {
-    throw new Error('Rate and time must be greater than zero')
+      return { success: true, data: result }
+    } catch (error) {
+      return {
+        success: false,
+        errors: [
+          {
+            field: 'balance',
+            message: `Balance calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            code: 'BALANCE_CALCULATION_ERROR',
+          },
+        ],
+      }
+    }
   }
 
-  const principal = divideDecimals(interestDecimal, multiplyDecimals(rateDecimal, timeDecimal))
-  return roundMoney(principal, config.roundingMode)
-}
+  /**
+   * Validate parameters specific to simple interest calculations
+   */
+  protected validateParameters(params: LoanParameters): ValidationError[] {
+    const baseErrors = validateLoanParameters(params)
 
-/**
- * Calculate the interest rate given principal, interest, and time
- * Rearranged formula: r = I / (P × t)
- * @param principal - The principal amount
- * @param interest - The interest amount
- * @param timeInYears - Time period in years
- * @returns Annual interest rate as percentage
- */
-export function calculateRateFromInterest(
-  principal: number | Decimal,
-  interest: number | Decimal,
-  timeInYears: number
-): number {
-  const principalDecimal = toDecimal(principal)
-  const interestDecimal = toDecimal(interest)
-  const timeDecimal = toDecimal(timeInYears)
+    // Simple interest specific validations
+    const errors = [...baseErrors]
 
-  if (principalDecimal.eq(0) || timeDecimal.eq(0)) {
-    throw new Error('Principal and time must be greater than zero')
+    // Simple interest works best with reasonable terms
+    if (params.termMonths && params.termMonths > 120) {
+      errors.push({
+        field: 'termMonths',
+        message: 'Simple interest is typically used for shorter-term loans (10 years or less)',
+        code: 'SIMPLE_INTEREST_TERM_WARNING',
+      })
+    }
+
+    return errors
   }
-
-  const rate = divideDecimals(interestDecimal, multiplyDecimals(principalDecimal, timeDecimal))
-  return rate.mul(100).toNumber() // Convert to percentage
-}
-
-/**
- * Calculate the time period given principal, interest, and rate
- * Rearranged formula: t = I / (P × r)
- * @param principal - The principal amount
- * @param interest - The interest amount
- * @param annualRate - Annual interest rate as percentage
- * @returns Time period in years
- */
-export function calculateTimeFromInterest(
-  principal: number | Decimal,
-  interest: number | Decimal,
-  annualRate: number
-): number {
-  const principalDecimal = toDecimal(principal)
-  const interestDecimal = toDecimal(interest)
-  const rateDecimal = toDecimal(annualRate / 100)
-
-  if (principalDecimal.eq(0) || rateDecimal.eq(0)) {
-    throw new Error('Principal and rate must be greater than zero')
-  }
-
-  const time = divideDecimals(interestDecimal, multiplyDecimals(principalDecimal, rateDecimal))
-  return time.toNumber()
-}
-
-/**
- * Calculate total amount for simple interest loan
- * @param principal - The principal amount
- * @param annualRate - Annual interest rate as percentage
- * @param timeInYears - Time period in years
- * @param config - Optional calculation configuration
- * @returns Total amount (principal + interest)
- */
-export function calculateSimpleInterestTotal(
-  principal: number | Decimal,
-  annualRate: number,
-  timeInYears: number,
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  const result = calculateSimpleInterest(principal, annualRate, timeInYears, config)
-  return result.totalAmount
-}
-
-/**
- * Calculate effective annual rate for simple interest
- * For simple interest, this is just the nominal rate
- * @param annualRate - Annual interest rate as percentage
- * @returns Effective annual rate
- */
-export function calculateSimpleInterestEAR(annualRate: number): number {
-  return annualRate // Simple interest EAR = nominal rate
 }

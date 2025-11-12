@@ -1,467 +1,249 @@
-/**
- * Interest-Only Loan Calculations
- * Periodic interest payments with principal balloon payment at maturity
- */
-
-import Decimal from 'decimal.js'
-import type { PaymentFrequency } from '@prisma/client'
-import type {
-  LoanCalculationInput,
-  PaymentCalculationInput,
-  InterestOnlyResult,
-  BalanceCalculationResult,
-  AmortizationPayment,
-  CalculationConfig,
-} from './types'
+import { Decimal } from 'decimal.js'
 import {
-  validateLoanInput,
-  validateCalculationParams,
-  getPaymentFrequencyPerYear,
-  getPeriodicRate,
-  calculateTotalPayments,
-  calculateNextPaymentDate,
-  toDecimal,
-  addDecimals,
-  subtractDecimals,
-  multiplyDecimals,
-  divideDecimals,
-  sumDecimals,
-  roundMoney,
-  createCalculationMetadata,
-  DEFAULT_CONFIG,
-} from './utils'
-
-// =============================================================================
-// Core Interest-Only Calculations
-// =============================================================================
+  InterestCalculationStrategy,
+  type LoanParameters,
+  type PaymentCalculation,
+  type AmortizationSchedule,
+  type BalanceCalculation,
+  type PaymentRecord,
+  type ValidationError,
+  type CalculationResult,
+} from './types'
+import { validateLoanParameters, validatePaymentRecords } from './validation'
 
 /**
- * Calculate periodic interest-only payment
- * Formula: Interest Payment = Principal × (Annual Rate / Periods Per Year)
- * @param principal - The principal amount (loan amount)
- * @param annualRate - Annual interest rate as percentage (e.g., 5.5 for 5.5%)
- * @param frequency - Payment frequency (MONTHLY or BI_WEEKLY)
- * @param config - Optional calculation configuration
- * @returns Interest-only payment amount
+ * Interest-Only Loan Calculation Strategy
+ * Only interest is paid periodically, principal is paid as balloon payment at the end
  */
-export function calculateInterestOnlyPayment(
-  principal: number | Decimal,
-  annualRate: number,
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  // Convert and validate inputs
-  const principalDecimal = toDecimal(principal)
-  const validation = validateCalculationParams(principalDecimal, annualRate, 1) // Minimum 1 month for validation
+export class InterestOnlyStrategy extends InterestCalculationStrategy {
+  readonly type = 'INTEREST_ONLY' as const
 
-  if (!validation.isValid) {
-    throw new Error(`Validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
-  }
-
-  // Calculate periodic interest rate
-  const periodicRate = getPeriodicRate(annualRate, frequency)
-  const interestPayment = multiplyDecimals(principalDecimal, periodicRate)
-
-  return roundMoney(interestPayment, config.roundingMode)
-}
-
-/**
- * Generate complete interest-only loan calculation
- * @param principal - The principal amount
- * @param annualRate - Annual interest rate as percentage
- * @param termMonths - Loan term in months
- * @param frequency - Payment frequency
- * @param config - Optional calculation configuration
- * @returns Complete interest-only loan calculation
- */
-export function calculateInterestOnlyLoan(
-  principal: number | Decimal,
-  annualRate: number,
-  termMonths: number,
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
-): InterestOnlyResult {
-  const principalDecimal = toDecimal(principal)
-  const validation = validateCalculationParams(principalDecimal, annualRate, termMonths)
-
-  if (!validation.isValid) {
-    throw new Error(`Validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
-  }
-
-  // Calculate interest-only payment
-  const interestPayment = calculateInterestOnlyPayment(
-    principalDecimal,
-    annualRate,
-    frequency,
-    config
-  )
-
-  // Calculate total number of interest payments
-  const numberOfPayments = calculateTotalPayments(termMonths, frequency)
-
-  // Calculate total interest over loan term
-  const totalInterest = multiplyDecimals(interestPayment, numberOfPayments)
-
-  // Balloon payment is the full principal amount
-  const principalPayment = principalDecimal
-
-  // Calculate balloon payment date (end of term)
-  const startDate = new Date() // Would typically be passed in
-  const balloonPaymentDate = calculateNextPaymentDate(startDate, frequency, numberOfPayments)
-
-  return {
-    interestPayment: roundMoney(interestPayment, config.roundingMode),
-    principalPayment: roundMoney(principalPayment, config.roundingMode),
-    frequency,
-    totalInterest: roundMoney(totalInterest, config.roundingMode),
-    numberOfPayments,
-    balloonPaymentDate,
-  }
-}
-
-/**
- * Generate interest-only payment schedule
- * @param loan - Loan data for calculation
- * @param config - Optional calculation configuration
- * @returns Array of scheduled payments
- */
-export function generateInterestOnlySchedule(
-  loan: LoanCalculationInput,
-  config: CalculationConfig = DEFAULT_CONFIG
-): AmortizationPayment[] {
-  // Validate loan input
-  const validation = validateLoanInput(loan)
-  if (!validation.isValid) {
-    throw new Error(`Loan validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
-  }
-
-  // Ensure we're calculating interest-only loan
-  if (loan.interestCalculationType !== 'INTEREST_ONLY') {
-    throw new Error('This function is only for interest-only loans')
-  }
-
-  // Calculate interest payment amount
-  const interestPayment = calculateInterestOnlyPayment(
-    loan.principal,
-    loan.interestRate,
-    loan.paymentFrequency,
-    config
-  )
-
-  const totalPayments = calculateTotalPayments(loan.termMonths, loan.paymentFrequency)
-  const payments: AmortizationPayment[] = []
-
-  let cumulativeInterest = new Decimal(0)
-
-  // Generate interest-only payments (all but the last)
-  for (let paymentNumber = 1; paymentNumber < totalPayments; paymentNumber++) {
-    const dueDate = calculateNextPaymentDate(loan.startDate, loan.paymentFrequency, paymentNumber)
-
-    cumulativeInterest = addDecimals(cumulativeInterest, interestPayment)
-
-    payments.push({
-      paymentNumber,
-      dueDate,
-      paymentAmount: roundMoney(interestPayment, config.roundingMode),
-      principalPortion: new Decimal(0), // No principal in interest-only payments
-      interestPortion: roundMoney(interestPayment, config.roundingMode),
-      remainingBalance: roundMoney(loan.principal, config.roundingMode), // Principal remains unchanged
-      cumulativeInterest: roundMoney(cumulativeInterest, config.roundingMode),
-      cumulativePrincipal: new Decimal(0), // No principal paid until final payment
-    })
-  }
-
-  // Final payment includes interest + full principal (balloon payment)
-  const finalPaymentNumber = totalPayments
-  const finalDueDate = calculateNextPaymentDate(
-    loan.startDate,
-    loan.paymentFrequency,
-    finalPaymentNumber
-  )
-  const finalInterestPayment = interestPayment
-  const finalPrincipalPayment = loan.principal
-  const finalTotalPayment = addDecimals(finalInterestPayment, finalPrincipalPayment)
-
-  cumulativeInterest = addDecimals(cumulativeInterest, finalInterestPayment)
-
-  payments.push({
-    paymentNumber: finalPaymentNumber,
-    dueDate: finalDueDate,
-    paymentAmount: roundMoney(finalTotalPayment, config.roundingMode),
-    principalPortion: roundMoney(finalPrincipalPayment, config.roundingMode),
-    interestPortion: roundMoney(finalInterestPayment, config.roundingMode),
-    remainingBalance: new Decimal(0), // Loan fully paid after balloon payment
-    cumulativeInterest: roundMoney(cumulativeInterest, config.roundingMode),
-    cumulativePrincipal: roundMoney(loan.principal, config.roundingMode),
-  })
-
-  return payments
-}
-
-/**
- * Calculate current balance with payments for interest-only loan
- * @param loan - Loan data for calculation
- * @param payments - Array of payments made
- * @param asOfDate - Date to calculate balance (defaults to current date)
- * @param config - Optional calculation configuration
- * @returns Current balance accounting for payments
- */
-export function calculateInterestOnlyBalanceWithPayments(
-  loan: LoanCalculationInput,
-  payments: PaymentCalculationInput[],
-  asOfDate: Date = new Date(),
-  config: CalculationConfig = DEFAULT_CONFIG
-): BalanceCalculationResult {
-  // Validate loan input
-  const validation = validateLoanInput(loan)
-  if (!validation.isValid) {
-    throw new Error(`Loan validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
-  }
-
-  // Ensure we're calculating interest-only loan
-  if (loan.interestCalculationType !== 'INTEREST_ONLY') {
-    throw new Error('This function is only for interest-only loans')
-  }
-
-  // Filter payments up to the calculation date
-  const relevantPayments = payments.filter((payment) => payment.date <= asOfDate)
-
-  // Sort payments by date
-  const sortedPayments = [...relevantPayments].sort((a, b) => a.date.getTime() - b.date.getTime())
-
-  // Calculate expected interest payment
-  const expectedInterestPayment = calculateInterestOnlyPayment(
-    loan.principal,
-    loan.interestRate,
-    loan.paymentFrequency,
-    config
-  )
-
-  // Generate payment schedule to determine expected payments
-  const schedule = generateInterestOnlySchedule(loan, config)
-  const expectedPayments = schedule.filter((payment) => payment.dueDate <= asOfDate)
-
-  // Calculate totals
-  const totalPaymentsMade = sumDecimals(sortedPayments.map((p) => p.amount))
-  const expectedInterestTotal = sumDecimals(
-    expectedPayments.map((p) => p.interestPortion)
-  )
-  const expectedPrincipalTotal = sumDecimals(
-    expectedPayments.map((p) => p.principalPortion)
-  )
-
-  // For interest-only loans:
-  // - Principal remains unchanged until final balloon payment
-  // - Payments are allocated to interest first, then any excess reduces principal
-  let interestPaid = new Decimal(0)
-  let principalPaid = new Decimal(0)
-  let currentBalance = loan.principal
-
-  // Process payments
-  let remainingPayments = totalPaymentsMade
-
-  // Allocate payments to interest first
-  if (remainingPayments.gte(expectedInterestTotal)) {
-    interestPaid = expectedInterestTotal
-    remainingPayments = subtractDecimals(remainingPayments, expectedInterestTotal)
-
-    // Any remaining payments reduce principal
-    if (remainingPayments.gt(0)) {
-      principalPaid = remainingPayments.gt(loan.principal) ? loan.principal : remainingPayments
-      currentBalance = subtractDecimals(loan.principal, principalPaid)
+  /**
+   * Calculate payment amount for interest-only loan
+   */
+  calculatePayment(params: LoanParameters): CalculationResult<PaymentCalculation> {
+    const validationErrors = this.validateParameters(params)
+    if (validationErrors.length > 0) {
+      return { success: false, errors: validationErrors }
     }
-  } else {
-    // Insufficient payments to cover all expected interest
-    interestPaid = remainingPayments
-    principalPaid = new Decimal(0)
-    // Principal balance remains unchanged
-  }
 
-  // Determine if loan is paid off
-  const isPaidOff = currentBalance.eq(0)
+    try {
+      const { principal, interestRate, termMonths, paymentFrequency } = params
 
-  // Determine next payment due date
-  let nextPaymentDue: Date | undefined
-  if (!isPaidOff) {
-    const paymentsCount = sortedPayments.length
-    const totalScheduledPayments = calculateTotalPayments(loan.termMonths, loan.paymentFrequency)
+      const totalPayments = this.getTotalPayments(termMonths, paymentFrequency)
+      const periodicRate = this.getPeriodicRate(interestRate, paymentFrequency)
 
-    if (paymentsCount < totalScheduledPayments) {
-      nextPaymentDue = calculateNextPaymentDate(
-        loan.startDate,
-        loan.paymentFrequency,
-        paymentsCount + 1
-      )
+      // Interest-only payment = Principal × Periodic Rate
+      const interestOnlyPayment = principal.times(periodicRate)
+
+      // Total interest = Interest payment × Number of payments
+      const totalInterest = interestOnlyPayment.times(totalPayments)
+
+      // Total amount = Principal + Total Interest (principal paid at end)
+      const totalAmount = principal.plus(totalInterest)
+
+      const result: PaymentCalculation = {
+        paymentAmount: interestOnlyPayment.toDecimalPlaces(2),
+        totalPayments,
+        paymentFrequency,
+        totalInterest: totalInterest.toDecimalPlaces(2),
+        totalAmount: totalAmount.toDecimalPlaces(2),
+      }
+
+      return { success: true, data: result }
+    } catch (error) {
+      return {
+        success: false,
+        errors: [
+          {
+            field: 'calculation',
+            message: `Interest-only calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            code: 'CALCULATION_ERROR',
+          },
+        ],
+      }
     }
   }
 
-  return {
-    currentBalance: roundMoney(currentBalance, config.roundingMode),
-    principalPaid: roundMoney(principalPaid, config.roundingMode),
-    interestPaid: roundMoney(interestPaid, config.roundingMode),
-    totalPaymentsMade: roundMoney(totalPaymentsMade, config.roundingMode),
-    paymentsCount: sortedPayments.length,
-    remainingPrincipal: roundMoney(currentBalance, config.roundingMode),
-    nextPaymentDue,
-    isPaidOff,
-    calculatedAt: new Date(),
-  }
-}
+  /**
+   * Generate amortization schedule for interest-only loan
+   */
+  generateSchedule(params: LoanParameters): CalculationResult<AmortizationSchedule> {
+    const paymentResult = this.calculatePayment(params)
+    if (!paymentResult.success) {
+      return paymentResult
+    }
 
-// =============================================================================
-// Interest-Only Utility Functions
-// =============================================================================
+    try {
+      const payment = paymentResult.data
+      const interestOnlyPayment = payment.paymentAmount
 
-/**
- * Calculate total cost of interest-only loan
- * @param principal - The principal amount
- * @param annualRate - Annual interest rate as percentage
- * @param termMonths - Loan term in months
- * @param frequency - Payment frequency
- * @param config - Optional calculation configuration
- * @returns Total cost (principal + total interest)
- */
-export function calculateInterestOnlyTotalCost(
-  principal: number | Decimal,
-  annualRate: number,
-  termMonths: number,
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  const result = calculateInterestOnlyLoan(principal, annualRate, termMonths, frequency, config)
-  return roundMoney(addDecimals(result.principalPayment, result.totalInterest), config.roundingMode)
-}
+      const payments = []
+      let cumulativeInterest = new Decimal(0)
 
-/**
- * Calculate interest savings by switching to amortized payments
- * @param principal - The principal amount
- * @param annualRate - Annual interest rate as percentage
- * @param termMonths - Loan term in months
- * @param frequency - Payment frequency
- * @param config - Optional calculation configuration
- * @returns Interest savings amount
- */
-export function calculateInterestSavingsVsAmortized(
-  principal: number | Decimal,
-  annualRate: number,
-  termMonths: number,
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  // Calculate interest-only total interest
-  const interestOnlyResult = calculateInterestOnlyLoan(
-    principal,
-    annualRate,
-    termMonths,
-    frequency,
-    config
-  )
+      // Generate interest-only payments (principal stays the same)
+      for (let i = 1; i <= payment.totalPayments; i++) {
+        const isLastPayment = i === payment.totalPayments
 
-  // Calculate amortized total interest
-  // Note: Would need to import from amortized.ts in practice
-  const principalDecimal = toDecimal(principal)
-  const periodicRate = getPeriodicRate(annualRate, frequency)
-  const totalPayments = calculateTotalPayments(termMonths, frequency)
+        const interestAmount = interestOnlyPayment
+        const principalAmount = isLastPayment ? params.principal : new Decimal(0)
+        const totalPaymentAmount = isLastPayment
+          ? interestAmount.plus(principalAmount) // Balloon payment
+          : interestAmount
 
-  // Simplified amortized interest calculation for comparison
-  let amortizedInterest = new Decimal(0)
-  let remainingBalance = principalDecimal
+        const remainingBalance = isLastPayment ? new Decimal(0) : params.principal
 
-  for (let i = 0; i < totalPayments; i++) {
-    const interestPayment = multiplyDecimals(remainingBalance, periodicRate)
-    amortizedInterest = addDecimals(amortizedInterest, interestPayment)
+        cumulativeInterest = cumulativeInterest.plus(interestAmount)
 
-    // Simplified principal calculation (not exact but close for comparison)
-    const principalPayment = divideDecimals(principalDecimal, totalPayments)
-    remainingBalance = subtractDecimals(remainingBalance, principalPayment)
+        payments.push({
+          paymentNumber: i,
+          paymentAmount: totalPaymentAmount.toDecimalPlaces(2),
+          principalAmount: principalAmount.toDecimalPlaces(2),
+          interestAmount: interestAmount.toDecimalPlaces(2),
+          remainingBalance: remainingBalance.toDecimalPlaces(2),
+          cumulativeInterest: cumulativeInterest.toDecimalPlaces(2),
+        })
+      }
 
-    if (remainingBalance.lte(0)) break
+      const result: AmortizationSchedule = {
+        payments,
+        summary: {
+          totalPayments: payment.totalPayments,
+          totalInterest: payment.totalInterest,
+          totalAmount: payment.totalAmount,
+          averagePayment: payment.totalAmount.dividedBy(payment.totalPayments), // Average includes balloon
+        },
+      }
+
+      return { success: true, data: result }
+    } catch (error) {
+      return {
+        success: false,
+        errors: [
+          {
+            field: 'schedule',
+            message: `Schedule generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            code: 'SCHEDULE_GENERATION_ERROR',
+          },
+        ],
+      }
+    }
   }
 
-  // Interest savings = Interest-Only Interest - Amortized Interest
-  const savings = subtractDecimals(interestOnlyResult.totalInterest, amortizedInterest)
-  return savings.gt(0) ? new Decimal(0) : savings.abs() // Amortized typically has less interest
-}
+  /**
+   * Calculate current balance for interest-only loan with payment history
+   */
+  calculateBalance(
+    params: LoanParameters,
+    payments: PaymentRecord[]
+  ): CalculationResult<BalanceCalculation> {
+    const paramValidationErrors = this.validateParameters(params)
+    const paymentValidationErrors = validatePaymentRecords(payments)
 
-/**
- * Calculate interest-only effective annual rate
- * @param annualRate - Annual interest rate as percentage
- * @param frequency - Payment frequency
- * @returns Effective annual rate
- */
-export function calculateInterestOnlyEAR(
-  annualRate: number,
-  frequency: PaymentFrequency = 'MONTHLY'
-): number {
-  const periodicRate = getPeriodicRate(annualRate, frequency)
-  const periodsPerYear = getPaymentFrequencyPerYear(frequency)
+    if (paramValidationErrors.length > 0 || paymentValidationErrors.length > 0) {
+      return {
+        success: false,
+        errors: [...paramValidationErrors, ...paymentValidationErrors],
+      }
+    }
 
-  // For interest-only loans, EAR = (1 + periodic rate)^periods per year - 1
-  const ear = Math.pow(1 + periodicRate, periodsPerYear) - 1
-  return ear * 100 // Convert to percentage
-}
+    try {
+      // Sort payments by date
+      const sortedPayments = [...payments].sort((a, b) => a.date.getTime() - b.date.getTime())
 
-/**
- * Calculate balloon payment amount (always equals principal for interest-only)
- * @param principal - The principal amount
- * @param config - Optional calculation configuration
- * @returns Balloon payment amount
- */
-export function calculateBalloonPayment(
-  principal: number | Decimal,
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  const principalDecimal = toDecimal(principal)
-  return roundMoney(principalDecimal, config.roundingMode)
-}
+      const periodicRate = this.getPeriodicRate(params.interestRate, params.paymentFrequency)
+      const expectedInterestPayment = params.principal.times(periodicRate)
 
-/**
- * Calculate cash flow advantage of interest-only vs amortized
- * (Lower monthly payments but higher total cost)
- * @param principal - The principal amount
- * @param annualRate - Annual interest rate as percentage
- * @param termMonths - Loan term in months
- * @param frequency - Payment frequency
- * @param config - Optional calculation configuration
- * @returns Monthly cash flow difference
- */
-export function calculateCashFlowAdvantage(
-  principal: number | Decimal,
-  annualRate: number,
-  termMonths: number,
-  frequency: PaymentFrequency = 'MONTHLY',
-  config: CalculationConfig = DEFAULT_CONFIG
-): Decimal {
-  // Interest-only payment
-  const interestOnlyPayment = calculateInterestOnlyPayment(
-    principal,
-    annualRate,
-    frequency,
-    config
-  )
+      let totalInterestPaid = new Decimal(0)
+      let totalPrincipalPaid = new Decimal(0)
 
-  // Simplified amortized payment calculation
-  // Note: In practice, would import from amortized.ts
-  const principalDecimal = toDecimal(principal)
-  const periodicRate = getPeriodicRate(annualRate, frequency)
-  const totalPayments = calculateTotalPayments(termMonths, frequency)
+      // For interest-only loans, principal stays the same until the end
+      // Extra payments go toward principal reduction
+      for (const payment of sortedPayments) {
+        if (payment.amount.gte(expectedInterestPayment)) {
+          // Payment covers interest, any excess goes to principal
+          const interestPayment = expectedInterestPayment
+          const principalPayment = payment.amount.minus(expectedInterestPayment)
 
-  // Rough amortized payment calculation
-  if (annualRate === 0) {
-    const amortizedPayment = divideDecimals(principalDecimal, totalPayments)
-    return subtractDecimals(amortizedPayment, interestOnlyPayment)
+          totalInterestPaid = totalInterestPaid.plus(interestPayment)
+          totalPrincipalPaid = totalPrincipalPaid.plus(principalPayment)
+        } else {
+          // Payment doesn't cover full interest (partial payment)
+          totalInterestPaid = totalInterestPaid.plus(payment.amount)
+        }
+      }
+
+      const currentBalance = Decimal.max(0, params.principal.minus(totalPrincipalPaid))
+
+      // Calculate expected payment info
+      const paymentResult = this.calculatePayment(params)
+      if (!paymentResult.success) {
+        return paymentResult
+      }
+
+      const expectedPayment = paymentResult.data
+      const principalProgress = totalPrincipalPaid.dividedBy(params.principal)
+
+      const result: BalanceCalculation = {
+        currentBalance: currentBalance.toDecimalPlaces(2),
+        totalPrincipalPaid: totalPrincipalPaid.toDecimalPlaces(2),
+        totalInterestPaid: totalInterestPaid.toDecimalPlaces(2),
+        paymentsMade: payments.length,
+        paymentsRemaining: Math.max(0, expectedPayment.totalPayments - payments.length),
+        percentagePaid: principalProgress.times(100).toDecimalPlaces(2),
+      }
+
+      return { success: true, data: result }
+    } catch (error) {
+      return {
+        success: false,
+        errors: [
+          {
+            field: 'balance',
+            message: `Balance calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            code: 'BALANCE_CALCULATION_ERROR',
+          },
+        ],
+      }
+    }
   }
 
-  const r = periodicRate
-  const n = totalPayments
-  const amortizedPayment = multiplyDecimals(
-    principalDecimal,
-    (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
-  )
+  /**
+   * Validate parameters specific to interest-only calculations
+   */
+  protected validateParameters(params: LoanParameters): ValidationError[] {
+    const baseErrors = validateLoanParameters(params)
+    const errors = [...baseErrors]
 
-  // Cash flow advantage = Amortized Payment - Interest-Only Payment
-  return roundMoney(
-    subtractDecimals(toDecimal(amortizedPayment), interestOnlyPayment),
-    config.roundingMode
-  )
+    // Interest-only loans require interest rate > 0
+    if (params.interestRate && params.interestRate.lte(0)) {
+      errors.push({
+        field: 'interestRate',
+        message: 'Interest-only loans require an interest rate greater than 0',
+        code: 'INTEREST_ONLY_REQUIRES_RATE',
+      })
+    }
+
+    // Interest-only loans are typically shorter term
+    if (params.termMonths && params.termMonths > 360) {
+      // 30 years
+      errors.push({
+        field: 'termMonths',
+        message: 'Interest-only loans are typically limited to 30 years or less',
+        code: 'INTEREST_ONLY_TERM_WARNING',
+      })
+    }
+
+    // Warn about balloon payment risk
+    if (params.principal && params.principal.gt(1000000)) {
+      // $1M+
+      errors.push({
+        field: 'principal',
+        message: 'Large interest-only loans carry significant balloon payment risk',
+        code: 'INTEREST_ONLY_BALLOON_RISK',
+      })
+    }
+
+    return errors
+  }
 }
