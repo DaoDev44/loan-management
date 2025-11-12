@@ -2,8 +2,22 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useCurrencyInput } from '@/lib/hooks/use-currency-input'
 
+// Mock event interfaces for testing
+interface MockFocusEvent {
+  target: {
+    select: ReturnType<typeof vi.fn>
+    value?: string
+  }
+}
+
+interface MockChangeEvent {
+  target: {
+    value: string
+  }
+}
+
 describe('useCurrencyInput', () => {
-  let mockSetValue: any
+  let mockSetValue: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
     mockSetValue = vi.fn()
@@ -94,11 +108,11 @@ describe('useCurrencyInput', () => {
 
       expect(result.current.isFocused).toBe(false)
 
-      const mockEvent = {
+      const mockEvent: MockFocusEvent = {
         target: {
           select: vi.fn()
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleFocus(mockEvent)
@@ -116,11 +130,11 @@ describe('useCurrencyInput', () => {
         result.current.setDisplayValue('1,000.50')
       })
 
-      const mockEvent = {
+      const mockEvent: MockFocusEvent = {
         target: {
           select: vi.fn()
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleFocus(mockEvent)
@@ -138,11 +152,12 @@ describe('useCurrencyInput', () => {
         result.current.setIsFocused(true)
       })
 
-      const mockEvent = {
+      const mockEvent: MockFocusEvent = {
         target: {
+          select: vi.fn(),
           value: '1,234.56'
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleBlur(mockEvent, mockSetValue, 'amount')
@@ -156,11 +171,12 @@ describe('useCurrencyInput', () => {
     it('should clear display value when blur value is 0', () => {
       const { result } = renderHook(() => useCurrencyInput())
 
-      const mockEvent = {
+      const mockEvent: MockFocusEvent = {
         target: {
+          select: vi.fn(),
           value: '0'
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleBlur(mockEvent, mockSetValue, 'amount')
@@ -173,11 +189,12 @@ describe('useCurrencyInput', () => {
     it('should handle empty value on blur', () => {
       const { result } = renderHook(() => useCurrencyInput())
 
-      const mockEvent = {
+      const mockEvent: MockFocusEvent = {
         target: {
+          select: vi.fn(),
           value: ''
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleBlur(mockEvent, mockSetValue, 'amount')
@@ -196,11 +213,11 @@ describe('useCurrencyInput', () => {
         result.current.setIsFocused(true)
       })
 
-      const mockEvent = {
+      const mockEvent: MockChangeEvent = {
         target: {
           value: 'abc123.45def'
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleChange(mockEvent)
@@ -216,11 +233,11 @@ describe('useCurrencyInput', () => {
         result.current.setIsFocused(true)
       })
 
-      const mockEvent = {
+      const mockEvent: MockChangeEvent = {
         target: {
           value: '123.45'
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleChange(mockEvent)
@@ -235,11 +252,11 @@ describe('useCurrencyInput', () => {
       expect(result.current.isFocused).toBe(false)
 
       const originalValue = 'some value'
-      const mockEvent = {
+      const mockEvent: MockChangeEvent = {
         target: {
           value: originalValue
         }
-      } as any
+      }
 
       act(() => {
         result.current.handleChange(mockEvent)

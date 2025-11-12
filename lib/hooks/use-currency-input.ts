@@ -1,4 +1,4 @@
-import { useState, useEffect, FocusEvent, ChangeEvent, useCallback } from 'react'
+import { useState, FocusEvent, ChangeEvent, useCallback } from 'react'
 import { UseFormSetValue } from 'react-hook-form'
 
 interface UseCurrencyInputOptions {
@@ -11,7 +11,7 @@ interface UseCurrencyInputReturn {
   formatNumberDisplay: (value: number | string) => string
   parseFormattedNumber: (value: string | number | undefined | null) => number
   handleFocus: (e: FocusEvent<HTMLInputElement>) => void
-  handleBlur: (e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<any>, fieldName: string) => void
+  handleBlur: (e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<unknown>, fieldName: string) => void
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void
   setDisplayValue: (value: string) => void
   setIsFocused: (focused: boolean) => void
@@ -26,7 +26,7 @@ interface UseCurrencyInputReturn {
  * - Handles focus/blur state transitions
  * - Provides parsing utilities for form integration
  */
-export function useCurrencyInput(options: UseCurrencyInputOptions = {}): UseCurrencyInputReturn {
+export function useCurrencyInput(_options: UseCurrencyInputOptions = {}): UseCurrencyInputReturn {
   const [displayValue, setDisplayValue] = useState('')
   const [isFocused, setIsFocused] = useState(false)
 
@@ -63,7 +63,7 @@ export function useCurrencyInput(options: UseCurrencyInputOptions = {}): UseCurr
   }, [displayValue, parseFormattedNumber])
 
   // Handle input blur - format the number and update form value
-  const handleBlur = useCallback((e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<any>, fieldName: string) => {
+  const handleBlur = useCallback((e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<unknown>, fieldName: string) => {
     const rawValue = parseFormattedNumber(e.target.value)
     setValue(fieldName, rawValue)
     setIsFocused(false)

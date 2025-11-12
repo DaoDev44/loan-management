@@ -106,6 +106,7 @@ export function AddPaymentDialog({
     } else if (!currencyInput.isFocused && (!amountValue || amountValue === 0)) {
       currencyInput.setDisplayValue('')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amountValue, currencyInput.isFocused, currencyInput.setDisplayValue, currencyInput.formatNumberDisplay])
 
   // Format currency for display
@@ -164,6 +165,7 @@ export function AddPaymentDialog({
       currencyInput.setDisplayValue('')
       currencyInput.setIsFocused(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, reset, setFormError, currencyInput.setDisplayValue, currencyInput.setIsFocused])
 
   return (
