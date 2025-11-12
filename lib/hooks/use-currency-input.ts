@@ -1,5 +1,5 @@
 import { useState, FocusEvent, ChangeEvent, useCallback } from 'react'
-import { UseFormSetValue } from 'react-hook-form'
+import { UseFormSetValue, FieldValues } from 'react-hook-form'
 
 interface UseCurrencyInputOptions {
   initialValue?: number
@@ -11,7 +11,11 @@ interface UseCurrencyInputReturn {
   formatNumberDisplay: (value: number | string) => string
   parseFormattedNumber: (value: string | number | undefined | null) => number
   handleFocus: (e: FocusEvent<HTMLInputElement>) => void
-  handleBlur: (e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<unknown>, fieldName: string) => void
+  handleBlur: <T extends FieldValues>(
+    e: FocusEvent<HTMLInputElement>,
+    setValue: UseFormSetValue<T>,
+    fieldName: keyof T
+  ) => void
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void
   setDisplayValue: (value: string) => void
   setIsFocused: (focused: boolean) => void
@@ -37,7 +41,7 @@ export function useCurrencyInput(_options: UseCurrencyInputOptions = {}): UseCur
     if (isNaN(num)) return ''
     return num.toLocaleString('en-US', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     })
   }, [])
 
@@ -53,37 +57,50 @@ export function useCurrencyInput(_options: UseCurrencyInputOptions = {}): UseCur
   }, [])
 
   // Handle input focus - switch to raw editing mode
-  const handleFocus = useCallback((e: FocusEvent<HTMLInputElement>) => {
-    setIsFocused(true)
-    // Convert display value to raw number for editing
-    const rawValue = parseFormattedNumber(displayValue)
-    const editValue = rawValue > 0 ? String(rawValue) : ''
-    setDisplayValue(editValue)
-    e.target.select() // Select all text for easy editing
-  }, [displayValue, parseFormattedNumber])
+  const handleFocus = useCallback(
+    (e: FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true)
+      // Convert display value to raw number for editing
+      const rawValue = parseFormattedNumber(displayValue)
+      const editValue = rawValue > 0 ? String(rawValue) : ''
+      setDisplayValue(editValue)
+      e.target.select() // Select all text for easy editing
+    },
+    [displayValue, parseFormattedNumber]
+  )
 
   // Handle input blur - format the number and update form value
-  const handleBlur = useCallback((e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<unknown>, fieldName: string) => {
-    const rawValue = parseFormattedNumber(e.target.value)
-    setValue(fieldName, rawValue)
-    setIsFocused(false)
+  const handleBlur = useCallback(
+    <T extends FieldValues>(
+      e: FocusEvent<HTMLInputElement>,
+      setValue: UseFormSetValue<T>,
+      fieldName: keyof T
+    ) => {
+      const rawValue = parseFormattedNumber(e.target.value)
+      setValue(fieldName as any, rawValue as any)
+      setIsFocused(false)
 
-    if (rawValue && rawValue !== 0) {
-      setDisplayValue(formatNumberDisplay(rawValue))
-    } else {
-      setDisplayValue('')
-    }
-  }, [parseFormattedNumber, formatNumberDisplay])
+      if (rawValue && rawValue !== 0) {
+        setDisplayValue(formatNumberDisplay(rawValue))
+      } else {
+        setDisplayValue('')
+      }
+    },
+    [parseFormattedNumber, formatNumberDisplay]
+  )
 
   // Handle input change - only allow valid number input when focused
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    if (isFocused) {
-      // Allow typing raw numbers only when focused
-      const value = e.target.value.replace(/[^0-9.]/g, '')
-      e.target.value = value
-      setDisplayValue(value) // Update display value in real time while typing
-    }
-  }, [isFocused])
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (isFocused) {
+        // Allow typing raw numbers only when focused
+        const value = e.target.value.replace(/[^0-9.]/g, '')
+        e.target.value = value
+        setDisplayValue(value) // Update display value in real time while typing
+      }
+    },
+    [isFocused]
+  )
 
   return {
     displayValue,
