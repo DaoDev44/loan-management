@@ -73,7 +73,7 @@ describe('Form Validation Utilities', () => {
       expect(rules.required).toBe(validationMessages.required.amount)
       expect(rules.min).toEqual({
         value: 0.01,
-        message: 'Payment must be greater than $0'
+        message: 'Payment must be greater than $0',
       })
       expect('max' in rules ? rules.max : undefined).toBeUndefined()
       expect('validate' in rules ? rules.validate : undefined).toBeUndefined()
@@ -86,11 +86,11 @@ describe('Form Validation Utilities', () => {
       expect(rules.required).toBe(validationMessages.required.amount)
       expect(rules.min).toEqual({
         value: 0.01,
-        message: 'Payment must be greater than $0'
+        message: 'Payment must be greater than $0',
       })
       expect('max' in rules && rules.max).toEqual({
         value: currentBalance,
-        message: 'Payment cannot exceed current balance ($1,000.00)'
+        message: 'Payment cannot exceed current balance ($1,000.00)',
       })
       expect('validate' in rules && typeof rules.validate).toBe('function')
     })
@@ -98,13 +98,17 @@ describe('Form Validation Utilities', () => {
     it('should format balance correctly in max message', () => {
       const rules = createAmountValidation(1234.56)
 
-      expect('max' in rules && rules.max?.message).toBe('Payment cannot exceed current balance ($1,234.56)')
+      expect('max' in rules && rules.max?.message).toBe(
+        'Payment cannot exceed current balance ($1,234.56)'
+      )
     })
 
     it('should format balance with proper commas for large amounts', () => {
       const rules = createAmountValidation(1000000.99)
 
-      expect('max' in rules && rules.max?.message).toBe('Payment cannot exceed current balance ($1,000,000.99)')
+      expect('max' in rules && rules.max?.message).toBe(
+        'Payment cannot exceed current balance ($1,000,000.99)'
+      )
     })
 
     describe('validate function', () => {
@@ -199,7 +203,7 @@ describe('Form Validation Utilities', () => {
       it('should have correct maxLength rule', () => {
         expect(commonValidationRules.notes.maxLength).toEqual({
           value: 1000,
-          message: 'Notes cannot exceed 1000 characters'
+          message: 'Notes cannot exceed 1000 characters',
         })
       })
     })
@@ -211,11 +215,11 @@ describe('Form Validation Utilities', () => {
         expect(rules.required).toBe(validationMessages.required.borrowerName)
         expect(rules.minLength).toEqual({
           value: 2,
-          message: 'Name must be at least 2 characters'
+          message: 'Name must be at least 2 characters',
         })
         expect(rules.maxLength).toEqual({
           value: 100,
-          message: 'Name must be less than 100 characters'
+          message: 'Name must be less than 100 characters',
         })
       })
     })
@@ -227,7 +231,7 @@ describe('Form Validation Utilities', () => {
         expect(rules.required).toBe(validationMessages.required.borrowerEmail)
         expect(rules.pattern).toEqual({
           value: validationPatterns.email,
-          message: validationMessages.format.email
+          message: validationMessages.format.email,
         })
       })
     })
@@ -239,7 +243,7 @@ describe('Form Validation Utilities', () => {
         expect('required' in rules ? rules.required : undefined).toBeUndefined()
         expect(rules.pattern).toEqual({
           value: validationPatterns.phone,
-          message: validationMessages.format.phone
+          message: validationMessages.format.phone,
         })
       })
     })
@@ -251,11 +255,11 @@ describe('Form Validation Utilities', () => {
         expect(rules.required).toBe(validationMessages.required.interestRate)
         expect(rules.min).toEqual({
           value: 0.01,
-          message: 'Interest rate must be greater than 0%'
+          message: 'Interest rate must be greater than 0%',
         })
         expect(rules.max).toEqual({
           value: 100,
-          message: 'Interest rate must be less than 100%'
+          message: 'Interest rate must be less than 100%',
         })
       })
     })
@@ -267,11 +271,11 @@ describe('Form Validation Utilities', () => {
         expect(rules.required).toBe(validationMessages.required.termMonths)
         expect(rules.min).toEqual({
           value: 1,
-          message: 'Term must be at least 1 month'
+          message: 'Term must be at least 1 month',
         })
         expect(rules.max).toEqual({
           value: 360,
-          message: 'Term must be less than 360 months'
+          message: 'Term must be less than 360 months',
         })
       })
     })

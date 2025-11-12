@@ -8,15 +8,15 @@ export const validationMessages = {
     borrowerEmail: 'Email address is required',
     interestRate: 'Interest rate is required',
     termMonths: 'Loan term is required',
-    date: 'Date is required'
+    date: 'Date is required',
   },
 
   format: {
     email: 'Please enter a valid email address',
     phone: 'Please enter a valid phone number',
     amount: 'Amount must be greater than $0',
-    percentage: 'Interest rate must be between 0% and 100%'
-  }
+    percentage: 'Interest rate must be between 0% and 100%',
+  },
 }
 
 /**
@@ -24,7 +24,7 @@ export const validationMessages = {
  */
 export const validationPatterns = {
   email: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-  phone: /^\(\d{3}\) \d{3}-\d{4}$/
+  phone: /^\(\d{3}\) \d{3}-\d{4}$/,
 }
 
 /**
@@ -43,18 +43,18 @@ export const createAmountValidation = (currentBalance?: number) => {
         value: currentBalance,
         message: `Payment cannot exceed current balance ($${currentBalance.toLocaleString('en-US', {
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })})`
+          maximumFractionDigits: 2,
+        })})`,
       },
       validate: (value: number) => {
         if (value > currentBalance) {
           return `Payment cannot exceed current balance ($${currentBalance.toLocaleString('en-US', {
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
           })})`
         }
         return true
-      }
+      },
     }
   }
 
@@ -75,7 +75,7 @@ export const paymentDateValidation = {
       return 'Payment date cannot be more than 30 days in the future'
     }
     return true
-  }
+  },
 }
 
 /**
@@ -83,33 +83,33 @@ export const paymentDateValidation = {
  */
 export const commonValidationRules = {
   notes: {
-    maxLength: { value: 1000, message: 'Notes cannot exceed 1000 characters' }
+    maxLength: { value: 1000, message: 'Notes cannot exceed 1000 characters' },
   },
 
   borrowerName: {
     required: validationMessages.required.borrowerName,
     minLength: { value: 2, message: 'Name must be at least 2 characters' },
-    maxLength: { value: 100, message: 'Name must be less than 100 characters' }
+    maxLength: { value: 100, message: 'Name must be less than 100 characters' },
   },
 
   borrowerEmail: {
     required: validationMessages.required.borrowerEmail,
-    pattern: { value: validationPatterns.email, message: validationMessages.format.email }
+    pattern: { value: validationPatterns.email, message: validationMessages.format.email },
   },
 
   borrowerPhone: {
-    pattern: { value: validationPatterns.phone, message: validationMessages.format.phone }
+    pattern: { value: validationPatterns.phone, message: validationMessages.format.phone },
   },
 
   interestRate: {
     required: validationMessages.required.interestRate,
     min: { value: 0.01, message: 'Interest rate must be greater than 0%' },
-    max: { value: 100, message: 'Interest rate must be less than 100%' }
+    max: { value: 100, message: 'Interest rate must be less than 100%' },
   },
 
   termMonths: {
     required: validationMessages.required.termMonths,
     min: { value: 1, message: 'Term must be at least 1 month' },
-    max: { value: 360, message: 'Term must be less than 360 months' }
-  }
+    max: { value: 360, message: 'Term must be less than 360 months' },
+  },
 }

@@ -82,18 +82,16 @@ export function CreateLoanForm() {
       interestCalculationType: 'SIMPLE',
       paymentFrequency: 'MONTHLY',
       startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(new Date().setMonth(new Date().getMonth() + 12)).toISOString().split('T')[0],
+      endDate: new Date(new Date().setMonth(new Date().getMonth() + 12))
+        .toISOString()
+        .split('T')[0],
       notes: '',
       collateral: '',
     },
   })
 
   // Watch form values for dynamic calculations
-  const watchedValues = watch([
-    'interestRate',
-    'paymentFrequency',
-    'interestCalculationType',
-  ])
+  const watchedValues = watch(['interestRate', 'paymentFrequency', 'interestCalculationType'])
 
   // Watch start date and term months for auto end date calculation
   const startDate = watch('startDate')
@@ -144,7 +142,7 @@ export function CreateLoanForm() {
     if (isNaN(num)) return ''
     return num.toLocaleString('en-US', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     })
   }
 
@@ -164,35 +162,35 @@ export function CreateLoanForm() {
     borrowerName: {
       required: 'Full name is required',
       minLength: { value: 2, message: 'Name must be at least 2 characters' },
-      maxLength: { value: 100, message: 'Name must be less than 100 characters' }
+      maxLength: { value: 100, message: 'Name must be less than 100 characters' },
     },
     borrowerEmail: {
       required: 'Email address is required',
       pattern: {
         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-        message: 'Please enter a valid email address'
-      }
+        message: 'Please enter a valid email address',
+      },
     },
     borrowerPhone: {
       pattern: {
         value: /^\(\d{3}\) \d{3}-\d{4}$/,
-        message: 'Please enter a valid phone number'
-      }
+        message: 'Please enter a valid phone number',
+      },
     },
     principal: {
       required: 'Principal amount is required',
       min: { value: 1, message: 'Principal must be greater than $0' },
-      max: { value: 100000000, message: 'Principal must be less than $100,000,000' }
+      max: { value: 100000000, message: 'Principal must be less than $100,000,000' },
     },
     interestRate: {
       required: 'Interest rate is required',
       min: { value: 0.01, message: 'Interest rate must be greater than 0%' },
-      max: { value: 100, message: 'Interest rate must be less than 100%' }
+      max: { value: 100, message: 'Interest rate must be less than 100%' },
     },
     termMonths: {
       required: 'Loan term is required',
       min: { value: 1, message: 'Term must be at least 1 month' },
-      max: { value: 360, message: 'Term must be less than 360 months' }
+      max: { value: 360, message: 'Term must be less than 360 months' },
     },
     startDate: {
       required: 'Start date is required',
@@ -210,8 +208,8 @@ export function CreateLoanForm() {
           return 'Start date cannot be more than 5 years in the future'
         }
         return true
-      }
-    }
+      },
+    },
   }
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -366,7 +364,7 @@ export function CreateLoanForm() {
                       inputMode="decimal"
                       {...register('principal', {
                         setValueAs: parseFormattedNumber,
-                        ...validationRules.principal
+                        ...validationRules.principal,
                       })}
                       value={isPrincipalFocused ? undefined : principalDisplayValue || ''}
                       placeholder="0"
@@ -412,7 +410,7 @@ export function CreateLoanForm() {
                       max="100"
                       {...register('interestRate', {
                         valueAsNumber: true,
-                        ...validationRules.interestRate
+                        ...validationRules.interestRate,
                       })}
                       placeholder="5.50"
                       className="pr-8"
@@ -438,7 +436,7 @@ export function CreateLoanForm() {
                       max="360"
                       {...register('termMonths', {
                         valueAsNumber: true,
-                        ...validationRules.termMonths
+                        ...validationRules.termMonths,
                       })}
                       placeholder="12"
                       className="pr-16"

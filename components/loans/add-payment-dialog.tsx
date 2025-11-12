@@ -23,7 +23,11 @@ import { CreatePaymentSchema, type CreatePaymentInput } from '@/lib/validations/
 import { toast } from 'sonner'
 import { useCurrencyInput } from '@/lib/hooks/use-currency-input'
 import { useFormSubmission } from '@/lib/hooks/use-form-submission'
-import { createAmountValidation, paymentDateValidation, commonValidationRules } from '@/lib/utils/form-validation'
+import {
+  createAmountValidation,
+  paymentDateValidation,
+  commonValidationRules,
+} from '@/lib/utils/form-validation'
 
 // Form data type for React Hook Form (with string dates for HTML inputs)
 type FormData = Omit<CreatePaymentInput, 'date' | 'loanId'> & {
@@ -75,11 +79,22 @@ export function AddPaymentDialog({
   onSuccess,
 }: AddPaymentDialogProps) {
   // Use shared form submission hook
-  const { isSubmitting, formError, setIsSubmitting, setFormError, handleSubmissionError } = useFormSubmission()
+  const { isSubmitting, formError, setIsSubmitting, setFormError, handleSubmissionError } =
+    useFormSubmission()
 
   // Use shared currency input hook
   const currencyInput = useCurrencyInput()
-  const { isFocused, setDisplayValue, formatNumberDisplay, handleFocus, handleBlur, handleChange, displayValue, setIsFocused, parseFormattedNumber } = currencyInput
+  const {
+    isFocused,
+    setDisplayValue,
+    formatNumberDisplay,
+    handleFocus,
+    handleBlur,
+    handleChange,
+    displayValue,
+    setIsFocused,
+    parseFormattedNumber,
+  } = currencyInput
 
   const {
     register,
@@ -121,7 +136,7 @@ export function AddPaymentDialog({
   const validationRules = {
     amount: createAmountValidation(currentBalance),
     date: paymentDateValidation,
-    notes: commonValidationRules.notes
+    notes: commonValidationRules.notes,
   }
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -206,7 +221,7 @@ export function AddPaymentDialog({
                   inputMode="decimal"
                   {...register('amount', {
                     setValueAs: parseFormattedNumber,
-                    ...validationRules.amount
+                    ...validationRules.amount,
                   })}
                   value={displayValue || ''}
                   placeholder="0.00"
@@ -266,11 +281,7 @@ export function AddPaymentDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <LoadingState text="Recording..." size="sm" />
-              ) : (
-                'Record Payment'
-              )}
+              {isSubmitting ? <LoadingState text="Recording..." size="sm" /> : 'Record Payment'}
             </Button>
           </DialogFooter>
         </form>

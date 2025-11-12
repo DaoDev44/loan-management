@@ -21,6 +21,7 @@ Build a comprehensive add payment dialog component that allows users to record p
 ## Acceptance Criteria
 
 ### Core Implementation
+
 - [x] Reusable AddPaymentDialog component
 - [x] Form validation with real-time feedback
 - [x] Currency amount formatting (similar to Create Loan form)
@@ -35,6 +36,7 @@ Build a comprehensive add payment dialog component that allows users to record p
 - [x] Component follows existing form patterns
 
 ### Code Quality & Reusability
+
 - [x] Extract shared form logic into reusable hooks
 - [x] Create `useCurrencyInput()` hook for amount formatting
 - [x] Create `useFormSubmission()` hook for loading/error states
@@ -114,7 +116,7 @@ const validationRules = {
         return `Payment cannot exceed current balance (${formatCurrency(currentBalance)})`
       }
       return true
-    }
+    },
   },
   date: {
     required: 'Payment date is required',
@@ -127,11 +129,11 @@ const validationRules = {
         return 'Payment date cannot be more than 30 days in the future'
       }
       return true
-    }
+    },
   },
   notes: {
-    maxLength: { value: 1000, message: 'Notes cannot exceed 1000 characters' }
-  }
+    maxLength: { value: 1000, message: 'Notes cannot exceed 1000 characters' },
+  },
 }
 ```
 
@@ -219,7 +221,7 @@ const formatNumberDisplay = (value: number | string) => {
   if (isNaN(num)) return ''
   return num.toLocaleString('en-US', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   })
 }
 
@@ -296,7 +298,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
     inputMode="decimal"
     {...register('amount', {
       setValueAs: parseFormattedNumber,
-      ...validationRules.amount
+      ...validationRules.amount,
     })}
     value={isAmountFocused ? undefined : amountDisplayValue || ''}
     placeholder="0.00"
@@ -338,6 +340,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
 After implementing the Add Payment dialog, we'll extract shared logic for reusability and testability.
 
 ### Phase 1: Implement Add Payment Dialog
+
 - Build dialog with inline form logic (similar to Create Loan form)
 - Ensure full functionality and validation
 - Test dialog integration with loan detail page
@@ -345,6 +348,7 @@ After implementing the Add Payment dialog, we'll extract shared logic for reusab
 ### Phase 2: Extract Shared Hooks
 
 #### `useCurrencyInput()` Hook
+
 Location: `lib/hooks/use-currency-input.ts`
 
 ```tsx
@@ -354,7 +358,11 @@ interface UseCurrencyInputReturn {
   formatNumberDisplay: (value: number | string) => string
   parseFormattedNumber: (value: string | number | undefined | null) => number
   handleFocus: (e: FocusEvent<HTMLInputElement>) => void
-  handleBlur: (e: FocusEvent<HTMLInputElement>, setValue: UseFormSetValue<any>, fieldName: string) => void
+  handleBlur: (
+    e: FocusEvent<HTMLInputElement>,
+    setValue: UseFormSetValue<any>,
+    fieldName: string
+  ) => void
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
@@ -362,6 +370,7 @@ export function useCurrencyInput(): UseCurrencyInputReturn
 ```
 
 **Shared Logic:**
+
 - Display value state management
 - Focus/blur state tracking
 - Number formatting with commas
@@ -369,6 +378,7 @@ export function useCurrencyInput(): UseCurrencyInputReturn
 - Input event handlers
 
 #### `useFormSubmission()` Hook
+
 Location: `lib/hooks/use-form-submission.ts`
 
 ```tsx
@@ -384,40 +394,44 @@ export function useFormSubmission(): UseFormSubmissionReturn
 ```
 
 **Shared Logic:**
+
 - Submission loading state
 - Form-level error state
 - Standard error handling patterns
 - Toast notification integration
 
 #### Common Validation Utilities
+
 Location: `lib/utils/form-validation.ts`
 
 ```tsx
 export const commonValidationRules = {
   notes: {
-    maxLength: { value: 1000, message: 'Notes cannot exceed 1000 characters' }
+    maxLength: { value: 1000, message: 'Notes cannot exceed 1000 characters' },
   },
   amount: {
     required: 'Amount is required',
     min: { value: 0.01, message: 'Amount must be greater than $0' },
-  }
+  },
 }
 
 export const createAmountValidation = (maxAmount?: number) => ({
   ...commonValidationRules.amount,
   ...(maxAmount && {
-    max: { value: maxAmount, message: `Amount cannot exceed ${formatCurrency(maxAmount)}` }
-  })
+    max: { value: maxAmount, message: `Amount cannot exceed ${formatCurrency(maxAmount)}` },
+  }),
 })
 ```
 
 ### Phase 3: Refactor Existing Forms
+
 - Update `create-loan-form.tsx` to use new hooks
 - Update `add-payment-dialog.tsx` to use new hooks
 - Ensure both forms maintain existing functionality
 - Remove duplicated code
 
 ### Phase 4: Testing
+
 - Add unit tests for `useCurrencyInput` hook
 - Add unit tests for `useFormSubmission` hook
 - Add unit tests for validation utilities
