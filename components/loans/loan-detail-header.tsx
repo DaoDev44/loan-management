@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Edit, Plus, Trash2 } from 'lucide-react'
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { useToast } from '@/hooks/use-toast'
 import { deleteLoan } from '@/app/actions/loan.actions'
+import { AddPaymentDialog } from '@/components/loans/add-payment-dialog'
 import { type SerializedLoan } from '@/lib/utils/serialize'
 
 interface LoanDetailHeaderProps {
@@ -16,6 +18,7 @@ interface LoanDetailHeaderProps {
 export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
   const router = useRouter()
   const { toast } = useToast()
+  const [addPaymentOpen, setAddPaymentOpen] = useState(false)
 
   const handleEdit = () => {
     // For now, just show a toast since we haven't built the edit form yet
@@ -26,11 +29,7 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
   }
 
   const handleAddPayment = () => {
-    // For now, just show a toast since we haven't built the add payment dialog yet
-    toast({
-      title: 'Add Payment',
-      description: 'Add payment feature coming soon!',
-    })
+    setAddPaymentOpen(true)
   }
 
   const handleDelete = async () => {
@@ -65,47 +64,63 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <Button variant="ghost" asChild className="-ml-4">
-        <Link href="/loans">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Loans
-        </Link>
-      </Button>
+    <>
+      <div className="space-y-4">
+        <Button variant="ghost" asChild className="-ml-4">
+          <Link href="/loans">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Loans
+          </Link>
+        </Button>
 
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Loan Details</h1>
-          <p className="text-muted-foreground">Loan for {loan.borrowerName}</p>
-        </div>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Loan Details</h1>
+            <p className="text-muted-foreground">Loan for {loan.borrowerName}</p>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <StatusBadge status={loan.status} size="lg" />
+          <div className="flex items-center gap-3">
+            <StatusBadge status={loan.status} size="lg" />
 
-          <div className="flex gap-2">
-            <Button onClick={handleEdit} size="sm" className="gap-1">
-              <Edit className="h-3 w-3" />
-              Edit
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleEdit} size="sm" className="gap-1">
+                <Edit className="h-3 w-3" />
+                Edit
+              </Button>
 
-            <Button
-              onClick={handleAddPayment}
-              variant="outline"
-              size="sm"
-              className="gap-1"
-              disabled={loan.status !== 'ACTIVE'}
-            >
-              <Plus className="h-3 w-3" />
-              Add Payment
-            </Button>
+              <Button
+                onClick={handleAddPayment}
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                disabled={loan.status !== 'ACTIVE'}
+              >
+                <Plus className="h-3 w-3" />
+                Add Payment
+              </Button>
 
-            <Button onClick={handleDelete} variant="destructive" size="sm" className="gap-1">
-              <Trash2 className="h-3 w-3" />
-              Delete
-            </Button>
+              <Button onClick={handleDelete} variant="destructive" size="sm" className="gap-1">
+                <Trash2 className="h-3 w-3" />
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Add Payment Dialog */}
+      <AddPaymentDialog
+        loanId={loan.id}
+        borrowerName={loan.borrowerName}
+        currentBalance={loan.balance}
+        open={addPaymentOpen}
+        onOpenChange={setAddPaymentOpen}
+        onSuccess={() => {
+          // Refresh the page to show updated data
+          // In a real app, you might want to use more sophisticated state management
+          window.location.reload()
+        }}
+      />
+    </>
   )
 }

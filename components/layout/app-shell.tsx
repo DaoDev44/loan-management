@@ -13,9 +13,9 @@ export function AppShell({ children }: AppShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex min-h-screen">
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 flex-shrink-0 lg:block">
+      <aside className="hidden w-64 flex-shrink-0 lg:block fixed left-0 top-0 h-screen overflow-y-auto">
         <Sidebar />
       </aside>
 
@@ -23,9 +23,9 @@ export function AppShell({ children }: AppShellProps) {
       <MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col lg:ml-64">
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        <main className="flex-1 overflow-y-auto bg-background p-6">{children}</main>
+        <main className="flex-1 bg-background px-6 pt-6 pb-8">{children}</main>
       </div>
     </div>
   )
