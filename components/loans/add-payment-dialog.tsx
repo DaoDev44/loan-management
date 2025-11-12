@@ -79,6 +79,7 @@ export function AddPaymentDialog({
 
   // Use shared currency input hook
   const currencyInput = useCurrencyInput()
+  const { isFocused, setDisplayValue, formatNumberDisplay, handleFocus, handleBlur, handleChange, displayValue, setIsFocused, parseFormattedNumber } = currencyInput
 
   const {
     register,
@@ -101,13 +102,12 @@ export function AddPaymentDialog({
 
   // Update display value when amount changes (external to hook)
   useEffect(() => {
-    if (!currencyInput.isFocused && amountValue && amountValue !== 0) {
-      currencyInput.setDisplayValue(currencyInput.formatNumberDisplay(amountValue))
-    } else if (!currencyInput.isFocused && (!amountValue || amountValue === 0)) {
-      currencyInput.setDisplayValue('')
+    if (!isFocused && amountValue && amountValue !== 0) {
+      setDisplayValue(formatNumberDisplay(amountValue))
+    } else if (!isFocused && (!amountValue || amountValue === 0)) {
+      setDisplayValue('')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amountValue, currencyInput.isFocused, currencyInput.setDisplayValue, currencyInput.formatNumberDisplay])
+  }, [amountValue, isFocused, setDisplayValue, formatNumberDisplay])
 
   // Format currency for display
   const formatCurrency = (amount: number) => {
@@ -162,11 +162,10 @@ export function AddPaymentDialog({
     if (!open) {
       reset()
       setFormError(null)
-      currencyInput.setDisplayValue('')
-      currencyInput.setIsFocused(false)
+      setDisplayValue('')
+      setIsFocused(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, reset, setFormError, currencyInput.setDisplayValue, currencyInput.setIsFocused])
+  }, [open, reset, setFormError, setDisplayValue, setIsFocused])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -206,16 +205,16 @@ export function AddPaymentDialog({
                   type="text"
                   inputMode="decimal"
                   {...register('amount', {
-                    setValueAs: currencyInput.parseFormattedNumber,
+                    setValueAs: parseFormattedNumber,
                     ...validationRules.amount
                   })}
-                  value={currencyInput.displayValue || ''}
+                  value={displayValue || ''}
                   placeholder="0.00"
                   className="pl-9"
                   disabled={isSubmitting}
-                  onFocus={currencyInput.handleFocus}
-                  onBlur={(e) => currencyInput.handleBlur(e, setValue, 'amount')}
-                  onChange={currencyInput.handleChange}
+                  onFocus={handleFocus}
+                  onBlur={(e) => handleBlur(e, setValue, 'amount')}
+                  onChange={handleChange}
                 />
               </div>
             </FormField>
