@@ -29,6 +29,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:production": "tsx prisma/seed-production.ts",
     "postinstall": "prisma generate",
     "prepare": "husky",
     "format": "prettier --write .",
