@@ -66,7 +66,7 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 | TASK-024 | Implement Edit Loan functionality            | COMPLETED   | P0       | M      | `task/024-edit-loan`              |
 | TASK-025 | Build Add Payment dialog and logic           | COMPLETED   | P0       | M      | `task/025-add-payment`            |
 | TASK-026 | Add activity timeline to Loan Detail         | NOT_STARTED | P2       | M      | `task/026-activity-timeline`      |
-| TASK-034 | Add Payment Type Selection to Payment Dialog | NOT_STARTED | P1       | M      | `task/034-payment-type-selection` |
+| TASK-034 | Add Payment Type Selection to Payment Dialog | IN_PROGRESS | P1       | M      | `task/034-payment-type-selection` |
 
 **Phase Completion:** 7/9 (78%)
 
@@ -92,9 +92,9 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 
 **Total Tasks:** 34
 **Completed:** 29 (TASK-001, 002, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 028, 030, 031, 032)
-**In Progress:** 0
+**In Progress:** 1 (TASK-034)
 **Blocked:** 0
-**Not Started:** 5
+**Not Started:** 4
 
 **Overall Completion:** 85%
 

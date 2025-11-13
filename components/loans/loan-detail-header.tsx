@@ -116,6 +116,13 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
         loanId={loan.id}
         borrowerName={loan.borrowerName}
         currentBalance={loan.balance}
+        loanData={{
+          principal: loan.principal,
+          interestRate: loan.interestRate,
+          termMonths: loan.termMonths,
+          interestCalculationType: loan.interestCalculationType,
+          paymentFrequency: loan.paymentFrequency,
+        }}
         open={addPaymentOpen}
         onOpenChange={setAddPaymentOpen}
         onSuccess={() => {
