@@ -40,3 +40,4 @@ next-env.d.ts
 prisma/.env
 
 /lib/generated/prisma
+/lib/validations/generated
