@@ -371,7 +371,7 @@ export function CreateLoanForm() {
                         setValueAs: parseFormattedNumber,
                         ...validationRules.principal,
                       })}
-                      value={isPrincipalFocused ? '' : principalDisplayValue || ''}
+                      {...(isPrincipalFocused ? {} : { value: principalDisplayValue || '' })}
                       placeholder="0"
                       className="pl-9"
                       disabled={isSubmitting}
