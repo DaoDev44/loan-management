@@ -92,7 +92,13 @@ export function CreateLoanForm() {
   })
 
   // Watch form values for dynamic calculations
-  const watchedValues = watch(['interestRate', 'paymentFrequency', 'interestCalculationType'])
+  const watchedValues = watch([
+    'principal',
+    'interestRate',
+    'termMonths',
+    'paymentFrequency',
+    'interestCalculationType',
+  ])
 
   // Watch start date and term months for auto end date calculation
   const startDate = watch('startDate')
@@ -247,8 +253,7 @@ export function CreateLoanForm() {
 
   // Real-time calculation preview using Strategy+Factory pattern
   const calculatePreview = () => {
-    const [interestRate, frequency, calcType] = watchedValues
-    const principal = principalValue
+    const [principal, interestRate, termMonths, frequency, calcType] = watchedValues
 
     if (!principal || !interestRate || !termMonths) return null
 
