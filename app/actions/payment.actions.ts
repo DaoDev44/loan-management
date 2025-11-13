@@ -66,6 +66,7 @@ export async function createPayment(
       revalidatePath('/loans')
       revalidatePath(`/loans/${validatedInput.loanId}`)
       revalidatePath('/payments')
+      revalidatePath('/') // Dashboard - for Recent Activity and metrics updates
     } catch {
       // Silently ignore revalidation errors in test environment
     }

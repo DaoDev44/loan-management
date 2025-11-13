@@ -47,7 +47,7 @@ export async function createLoan(input: CreateLoanInput): Promise<ActionResponse
 
     // Revalidate pages that display loans (skip in test/non-request context)
     try {
-      revalidatePath('/dashboard')
+      revalidatePath('/') // Dashboard - for metrics and recent activity updates
       revalidatePath('/loans')
     } catch {
       // Ignore revalidation errors in test context
@@ -220,7 +220,7 @@ export async function updateLoan(input: UpdateLoanInput): Promise<ActionResponse
 
     // Revalidate pages (skip in test/non-request context)
     try {
-      revalidatePath('/dashboard')
+      revalidatePath('/') // Dashboard - for metrics and recent activity updates
       revalidatePath('/loans')
       revalidatePath(`/loans/${id}`)
     } catch {
@@ -283,7 +283,7 @@ export async function deleteLoan(id: string): Promise<ActionResponse<void>> {
 
     // Revalidate pages (skip in test/non-request context)
     try {
-      revalidatePath('/dashboard')
+      revalidatePath('/') // Dashboard - for metrics and recent activity updates
       revalidatePath('/loans')
     } catch {
       // Ignore revalidation errors in test context
