@@ -371,7 +371,9 @@ export function CreateLoanForm() {
                         setValueAs: parseFormattedNumber,
                         ...validationRules.principal,
                       })}
-                      value={isPrincipalFocused ? '' : principalDisplayValue || ''}
+                      value={
+                        isPrincipalFocused ? principalValue || '' : principalDisplayValue || ''
+                      }
                       placeholder="0"
                       className="pl-9"
                       disabled={isSubmitting}
@@ -388,13 +390,6 @@ export function CreateLoanForm() {
                           setPrincipalDisplayValue(formatNumberDisplay(rawValue))
                         } else {
                           setPrincipalDisplayValue('')
-                        }
-                      }}
-                      onChange={(e) => {
-                        if (isPrincipalFocused) {
-                          // Allow typing raw numbers only when focused
-                          const value = e.target.value.replace(/[^0-9.]/g, '')
-                          e.target.value = value
                         }
                       }}
                     />

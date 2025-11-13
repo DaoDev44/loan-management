@@ -1,7 +1,7 @@
 # Master Task List - Loan Management Platform
 
 **Project:** Loan Management Platform (LMP) Migration to Next.js 14
-**Last Updated:** 2025-11-12 (TASK-024 Edit Loan functionality completed, status synchronized)
+**Last Updated:** 2025-11-12 (TASK-034 Payment Type Selection added following established workflow)
 
 ## Overview
 
@@ -54,20 +54,21 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 
 ---
 
-## Phase 4: Core Features (8 tasks)
+## Phase 4: Core Features (9 tasks)
 
-| ID       | Task                                      | Status      | Priority | Effort | Branch                       |
-| -------- | ----------------------------------------- | ----------- | -------- | ------ | ---------------------------- |
-| TASK-019 | Build Dashboard page with metrics         | COMPLETED   | P0       | L      | `task/019-dashboard`         |
-| TASK-020 | Implement search and filter functionality | COMPLETED   | P0       | M      | (integrated with TASK-015)   |
-| TASK-021 | Build comprehensive Loan Detail page      | COMPLETED   | P0       | L      | `task/021-loan-detail`       |
-| TASK-022 | Create Payment History component          | COMPLETED   | P0       | M      | (integrated with TASK-021)   |
-| TASK-023 | Build Create Loan form with validation    | COMPLETED   | P0       | XL     | `task/023-create-loan-form`  |
-| TASK-024 | Implement Edit Loan functionality         | COMPLETED   | P0       | M      | `task/024-edit-loan`         |
-| TASK-025 | Build Add Payment dialog and logic        | COMPLETED   | P0       | M      | `task/025-add-payment`       |
-| TASK-026 | Add activity timeline to Loan Detail      | NOT_STARTED | P2       | M      | `task/026-activity-timeline` |
+| ID       | Task                                         | Status      | Priority | Effort | Branch                            |
+| -------- | -------------------------------------------- | ----------- | -------- | ------ | --------------------------------- |
+| TASK-019 | Build Dashboard page with metrics            | COMPLETED   | P0       | L      | `task/019-dashboard`              |
+| TASK-020 | Implement search and filter functionality    | COMPLETED   | P0       | M      | (integrated with TASK-015)        |
+| TASK-021 | Build comprehensive Loan Detail page         | COMPLETED   | P0       | L      | `task/021-loan-detail`            |
+| TASK-022 | Create Payment History component             | COMPLETED   | P0       | M      | (integrated with TASK-021)        |
+| TASK-023 | Build Create Loan form with validation       | COMPLETED   | P0       | XL     | `task/023-create-loan-form`       |
+| TASK-024 | Implement Edit Loan functionality            | COMPLETED   | P0       | M      | `task/024-edit-loan`              |
+| TASK-025 | Build Add Payment dialog and logic           | COMPLETED   | P0       | M      | `task/025-add-payment`            |
+| TASK-026 | Add activity timeline to Loan Detail         | NOT_STARTED | P2       | M      | `task/026-activity-timeline`      |
+| TASK-034 | Add Payment Type Selection to Payment Dialog | IN_PROGRESS | P1       | M      | `task/034-payment-type-selection` |
 
-**Phase Completion:** 7/8 (88%)
+**Phase Completion:** 7/9 (78%)
 
 ---
 
@@ -89,13 +90,13 @@ Migration from Vite + React to Next.js 14 (App Router) with PostgreSQL + Prisma,
 
 ## Overall Progress
 
-**Total Tasks:** 33
+**Total Tasks:** 34
 **Completed:** 29 (TASK-001, 002, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 028, 030, 031, 032)
-**In Progress:** 0
+**In Progress:** 1 (TASK-034)
 **Blocked:** 0
 **Not Started:** 4
 
-**Overall Completion:** 88%
+**Overall Completion:** 85%
 
 ---
 
