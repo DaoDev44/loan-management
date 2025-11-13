@@ -390,13 +390,6 @@ export function CreateLoanForm() {
                           setPrincipalDisplayValue('')
                         }
                       }}
-                      onChange={(e) => {
-                        if (isPrincipalFocused) {
-                          // Allow typing raw numbers only when focused
-                          const value = e.target.value.replace(/[^0-9.]/g, '')
-                          e.target.value = value
-                        }
-                      }}
                     />
                   </div>
                 </FormField>
