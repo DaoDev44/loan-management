@@ -52,7 +52,7 @@ function FormField({
   children: React.ReactNode
 }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <Label className="text-sm font-medium">
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
@@ -264,7 +264,7 @@ export function AddPaymentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Form Error */}
           {formError && (
             <Alert variant="destructive">
@@ -273,21 +273,17 @@ export function AddPaymentDialog({
           )}
 
           {/* Current Balance Info */}
-          <div className="rounded-lg bg-muted/50 p-3 space-y-1">
+          <div className="rounded-lg bg-muted/50 p-2.5 space-y-1">
             <div className="text-sm font-medium">Current Balance</div>
             <div className="text-lg font-bold">{formatCurrency(currentBalance)}</div>
           </div>
 
           {/* Payment Type Selection */}
-          <FormField
-            label="Payment Type"
-            required
-            description="Choose between calculated expected payment or custom amount"
-          >
+          <FormField label="Payment Type" required description="Choose payment option">
             <RadioGroup
               value={paymentType}
               onValueChange={(value: 'calculated' | 'custom') => setValue('paymentType', value)}
-              className="space-y-3"
+              className="space-y-2"
             >
               {/* Calculated Payment Option */}
               <div className="flex items-start space-x-3">
@@ -326,7 +322,7 @@ export function AddPaymentDialog({
             </RadioGroup>
           </FormField>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Payment Amount - Conditional Rendering */}
             {paymentType === 'calculated' ? (
               <FormField
@@ -334,7 +330,7 @@ export function AddPaymentDialog({
                 required
                 description="Calculated payment based on loan terms"
               >
-                <div className="rounded-lg bg-muted/50 p-3 flex items-center justify-between">
+                <div className="rounded-lg bg-muted/50 p-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                     <span className="text-lg font-semibold">
@@ -402,8 +398,8 @@ export function AddPaymentDialog({
                 <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <textarea
                   {...register('notes', validationRules.notes)}
-                  rows={3}
-                  className="flex min-h-[60px] w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  rows={2}
+                  className="flex min-h-[50px] w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   placeholder="Enter any notes about this payment..."
                   disabled={isSubmitting}
                 />
@@ -411,7 +407,7 @@ export function AddPaymentDialog({
             </FormField>
           </div>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-1.5">
             <Button
               type="button"
               variant="outline"
