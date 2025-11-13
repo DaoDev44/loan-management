@@ -1,5 +1,5 @@
 import { useState, FocusEvent, ChangeEvent, useCallback } from 'react'
-import { UseFormSetValue, FieldValues } from 'react-hook-form'
+import { UseFormSetValue, FieldValues, Path, PathValue } from 'react-hook-form'
 
 interface UseCurrencyInputOptions {
   initialValue?: number
@@ -14,7 +14,7 @@ interface UseCurrencyInputReturn {
   handleBlur: <T extends FieldValues>(
     e: FocusEvent<HTMLInputElement>,
     setValue: UseFormSetValue<T>,
-    fieldName: keyof T
+    fieldName: Path<T>
   ) => void
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void
   setDisplayValue: (value: string) => void
@@ -74,10 +74,10 @@ export function useCurrencyInput(_options: UseCurrencyInputOptions = {}): UseCur
     <T extends FieldValues>(
       e: FocusEvent<HTMLInputElement>,
       setValue: UseFormSetValue<T>,
-      fieldName: keyof T
+      fieldName: Path<T>
     ) => {
       const rawValue = parseFormattedNumber(e.target.value)
-      setValue(fieldName as any, rawValue as any)
+      setValue(fieldName, rawValue as PathValue<T, Path<T>>)
       setIsFocused(false)
 
       if (rawValue && rawValue !== 0) {

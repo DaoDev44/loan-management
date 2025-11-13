@@ -46,6 +46,7 @@
     "dist/**/*",
     "build/**/*",
     "coverage/**/*",
-    "prisma/generated/**/*"
+    "prisma/generated/**/*",
+    "lib/validations/generated/**/*"
   ]
 }
