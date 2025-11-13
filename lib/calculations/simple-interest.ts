@@ -210,14 +210,8 @@ export class SimpleInterestStrategy extends InterestCalculationStrategy {
     // Simple interest specific validations
     const errors = [...baseErrors]
 
-    // Simple interest works best with reasonable terms
-    if (params.termMonths && params.termMonths > 120) {
-      errors.push({
-        field: 'termMonths',
-        message: 'Simple interest is typically used for shorter-term loans (10 years or less)',
-        code: 'SIMPLE_INTEREST_TERM_WARNING',
-      })
-    }
+    // Note: Simple interest is typically used for shorter terms but we don't enforce this
+    // as a validation error since it's still mathematically valid for longer terms
 
     return errors
   }
