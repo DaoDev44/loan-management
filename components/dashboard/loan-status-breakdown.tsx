@@ -78,7 +78,7 @@ export function LoanStatusBreakdown({
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={300} minHeight={300}>
             <PieChart>
               <Pie
                 data={statusData}
@@ -97,10 +97,7 @@ export function LoanStatusBreakdown({
               <Legend
                 verticalAlign="bottom"
                 height={36}
-                formatter={(
-                  value: string,
-                  entry: any /* Recharts LegendPayload type is complex */
-                ) => {
+                formatter={(value: string, entry: { color?: string }) => {
                   const dataPoint = statusData.find((d) => d.name === value)
                   return (
                     <span style={{ color: dataPoint?.color || entry.color || '#6b7280' }}>

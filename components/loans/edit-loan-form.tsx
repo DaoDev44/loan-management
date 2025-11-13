@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { CalendarDays, DollarSign, User, Settings, FileText } from 'lucide-react'
 
@@ -20,16 +19,17 @@ import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { LoadingState } from '@/components/shared/loading-state'
 
-import { createLoan } from '@/app/actions/loan.actions'
-import { CreateLoanSchema, type CreateLoanInput } from '@/lib/validations/loan.schema'
-import { InterestCalculationType, PaymentFrequency } from '@prisma/client'
+import { updateLoan } from '@/app/actions/loan.actions'
+import { UpdateLoanSchema, type UpdateLoanInput } from '@/lib/validations/loan.schema'
+import { InterestCalculationType, PaymentFrequency, LoanStatus } from '@prisma/client'
 import { calculateLoanPayment } from '@/lib/calculations'
 import { toast } from 'sonner'
+import { type SerializedLoan } from '@/lib/utils/serialize'
 
 // Form data type for React Hook Form (with string dates for HTML inputs)
-type FormData = Omit<CreateLoanInput, 'startDate' | 'endDate'> & {
-  startDate: string
-  endDate: string
+type FormData = Omit<UpdateLoanInput, 'startDate' | 'endDate' | 'id'> & {
+  startDate?: string
+  endDate?: string
 }
 
 // Form field wrapper component for consistent styling
@@ -59,8 +59,13 @@ function FormField({
   )
 }
 
-export function CreateLoanForm() {
-  const router = useRouter()
+interface EditLoanFormProps {
+  loan: SerializedLoan
+  onSuccess?: () => void
+  onCancel?: () => void
+}
+
+export function EditLoanForm({ loan, onSuccess, onCancel }: EditLoanFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -70,24 +75,23 @@ export function CreateLoanForm() {
     setValue,
     watch,
     formState: { errors },
-    reset,
   } = useForm<FormData>({
     mode: 'onBlur',
     defaultValues: {
-      borrowerName: '',
-      borrowerEmail: '',
-      borrowerPhone: '',
-      principal: 0,
-      interestRate: 0,
-      termMonths: 12,
-      interestCalculationType: 'SIMPLE',
-      paymentFrequency: 'MONTHLY',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(new Date().setMonth(new Date().getMonth() + 12))
-        .toISOString()
-        .split('T')[0],
-      notes: '',
-      collateral: '',
+      borrowerName: loan.borrowerName,
+      borrowerEmail: loan.borrowerEmail,
+      borrowerPhone: loan.borrowerPhone || '',
+      principal: loan.principal,
+      interestRate: loan.interestRate,
+      termMonths: loan.termMonths,
+      interestCalculationType: loan.interestCalculationType,
+      paymentFrequency: loan.paymentFrequency,
+      status: loan.status,
+      startDate: loan.startDate ? new Date(loan.startDate).toISOString().split('T')[0] : '',
+      endDate: loan.endDate ? new Date(loan.endDate).toISOString().split('T')[0] : '',
+      notes: loan.notes || '',
+      collateral: loan.collateral || '',
+      balance: loan.balance,
     },
   })
 
@@ -124,6 +128,20 @@ export function CreateLoanForm() {
     }
   }, [principalValue, isPrincipalFocused])
 
+  // Track display state for balance field
+  const [balanceDisplayValue, setBalanceDisplayValue] = useState('')
+  const [isBalanceFocused, setIsBalanceFocused] = useState(false)
+  const balanceValue = watch('balance')
+
+  // Initialize and update display value when balance changes
+  useEffect(() => {
+    if (!isBalanceFocused && balanceValue && balanceValue !== 0) {
+      setBalanceDisplayValue(formatNumberDisplay(balanceValue))
+    } else if (!isBalanceFocused && (!balanceValue || balanceValue === 0)) {
+      setBalanceDisplayValue('')
+    }
+  }, [balanceValue, isBalanceFocused])
+
   // Format phone number as user types
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digits
@@ -158,15 +176,13 @@ export function CreateLoanForm() {
     return isNaN(num) ? 0 : num
   }
 
-  // Validation rules
+  // Validation rules for edit form (most fields optional)
   const validationRules = {
     borrowerName: {
-      required: 'Full name is required',
       minLength: { value: 2, message: 'Name must be at least 2 characters' },
       maxLength: { value: 100, message: 'Name must be less than 100 characters' },
     },
     borrowerEmail: {
-      required: 'Email address is required',
       pattern: {
         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
         message: 'Please enter a valid email address',
@@ -179,32 +195,28 @@ export function CreateLoanForm() {
       },
     },
     principal: {
-      required: 'Principal amount is required',
       min: { value: 1, message: 'Principal must be greater than $0' },
       max: { value: 100000000, message: 'Principal must be less than $100,000,000' },
     },
+    balance: {
+      min: { value: 0, message: 'Balance cannot be negative' },
+      max: { value: 100000000, message: 'Balance must be less than $100,000,000' },
+    },
     interestRate: {
-      required: 'Interest rate is required',
-      min: { value: 0.01, message: 'Interest rate must be greater than 0%' },
+      min: { value: 0, message: 'Interest rate cannot be negative' },
       max: { value: 100, message: 'Interest rate must be less than 100%' },
     },
     termMonths: {
-      required: 'Loan term is required',
       min: { value: 1, message: 'Term must be at least 1 month' },
       max: { value: 360, message: 'Term must be less than 360 months' },
     },
     startDate: {
-      required: 'Start date is required',
-      validate: (value: string) => {
+      validate: (value: string | undefined) => {
+        if (!value) return true // Optional in edit mode
         const selectedDate = new Date(value)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
         const futureLimit = new Date()
         futureLimit.setFullYear(futureLimit.getFullYear() + 5)
 
-        if (selectedDate < today) {
-          return 'Start date cannot be in the past'
-        }
         if (selectedDate > futureLimit) {
           return 'Start date cannot be more than 5 years in the future'
         }
@@ -218,26 +230,34 @@ export function CreateLoanForm() {
     setFormError(null)
 
     try {
-      // Convert form data to CreateLoanInput format
-      const loanData: CreateLoanInput = {
+      // Convert form data to UpdateLoanInput format
+      const updateData: UpdateLoanInput = {
+        id: loan.id,
         ...data,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
+        startDate: data.startDate ? new Date(data.startDate) : undefined,
+        endDate: data.endDate ? new Date(data.endDate) : undefined,
       }
+
+      // Remove undefined values to avoid sending unnecessary data
+      Object.keys(updateData).forEach((key) => {
+        if (updateData[key as keyof UpdateLoanInput] === undefined) {
+          delete updateData[key as keyof UpdateLoanInput]
+        }
+      })
 
       // Validate the converted data
-      const validatedData = CreateLoanSchema.parse(loanData)
-      const result = await createLoan(validatedData)
+      const validatedData = UpdateLoanSchema.parse(updateData)
+      const result = await updateLoan(validatedData)
 
       if (result.success) {
-        toast.success('Loan created successfully')
-        router.push(`/loans/${result.data.id}`)
+        toast.success('Loan updated successfully')
+        onSuccess?.()
       } else {
-        setFormError(result.error || 'Failed to create loan')
-        toast.error(result.error || 'Failed to create loan')
+        setFormError(result.error || 'Failed to update loan')
+        toast.error(result.error || 'Failed to update loan')
       }
     } catch (error) {
-      console.error('Error creating loan:', error)
+      console.error('Error updating loan:', error)
       setFormError('An unexpected error occurred')
       toast.error('An unexpected error occurred')
     } finally {
@@ -278,7 +298,7 @@ export function CreateLoanForm() {
   const preview = calculatePreview()
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Form Error */}
       {formError && (
         <Alert variant="destructive">
@@ -286,9 +306,9 @@ export function CreateLoanForm() {
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Form */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           {/* Borrower Information */}
           <Card>
             <CardHeader>
@@ -297,12 +317,12 @@ export function CreateLoanForm() {
                 Borrower Information
               </CardTitle>
               <CardDescription>
-                Enter the borrower's contact details and personal information.
+                Update the borrower's contact details and personal information.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField label="Full Name" required error={errors.borrowerName?.message}>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField label="Full Name" error={errors.borrowerName?.message}>
                   <Input
                     {...register('borrowerName', validationRules.borrowerName)}
                     placeholder="Enter borrower's full name"
@@ -310,7 +330,7 @@ export function CreateLoanForm() {
                   />
                 </FormField>
 
-                <FormField label="Email Address" required error={errors.borrowerEmail?.message}>
+                <FormField label="Email Address" error={errors.borrowerEmail?.message}>
                   <Input
                     type="email"
                     {...register('borrowerEmail', validationRules.borrowerEmail)}
@@ -322,7 +342,7 @@ export function CreateLoanForm() {
                 <FormField
                   label="Phone Number"
                   error={errors.borrowerPhone?.message}
-                  description="Optional - US format (XXX) XXX-XXXX"
+                  description="US format (XXX) XXX-XXXX"
                 >
                   <Input
                     type="tel"
@@ -347,13 +367,12 @@ export function CreateLoanForm() {
                 <DollarSign className="h-5 w-5" />
                 Loan Details
               </CardTitle>
-              <CardDescription>Configure the loan amount, interest rate, and term.</CardDescription>
+              <CardDescription>Update the loan amount, interest rate, and term.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   label="Principal Amount"
-                  required
                   error={errors.principal?.message}
                   description="The total loan amount"
                 >
@@ -397,8 +416,75 @@ export function CreateLoanForm() {
                 </FormField>
 
                 <FormField
+                  label="Current Balance"
+                  error={errors.balance?.message}
+                  description="Current outstanding balance"
+                >
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      {...register('balance', {
+                        setValueAs: parseFormattedNumber,
+                        ...validationRules.balance,
+                      })}
+                      value={isBalanceFocused ? undefined : balanceDisplayValue || ''}
+                      placeholder="0"
+                      className="pl-9"
+                      disabled={isSubmitting}
+                      onFocus={(e) => {
+                        setIsBalanceFocused(true)
+                        e.target.select()
+                      }}
+                      onBlur={(e) => {
+                        const rawValue = parseFormattedNumber(e.target.value)
+                        setValue('balance', rawValue)
+                        setIsBalanceFocused(false)
+
+                        if (rawValue && rawValue !== 0) {
+                          setBalanceDisplayValue(formatNumberDisplay(rawValue))
+                        } else {
+                          setBalanceDisplayValue('')
+                        }
+                      }}
+                      onChange={(e) => {
+                        if (isBalanceFocused) {
+                          // Allow typing raw numbers only when focused
+                          const value = e.target.value.replace(/[^0-9.]/g, '')
+                          e.target.value = value
+                        }
+                      }}
+                    />
+                  </div>
+                </FormField>
+
+                <FormField
+                  label="Loan Status"
+                  error={errors.status?.message}
+                  description="Current loan status"
+                >
+                  <Select
+                    value={watch('status') || loan.status}
+                    onValueChange={(value: LoanStatus) => setValue('status', value)}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ACTIVE">Active</SelectItem>
+                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="DEFAULTED">Defaulted</SelectItem>
+                      <SelectItem value="OVERDUE">Overdue</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormField>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
                   label="Annual Interest Rate"
-                  required
                   error={errors.interestRate?.message}
                   description="Interest rate as a percentage (e.g., 5.5)"
                 >
@@ -425,7 +511,6 @@ export function CreateLoanForm() {
 
                 <FormField
                   label="Loan Term"
-                  required
                   error={errors.termMonths?.message}
                   description="Duration of the loan in months"
                 >
@@ -460,19 +545,18 @@ export function CreateLoanForm() {
                 Loan Configuration
               </CardTitle>
               <CardDescription>
-                Choose how interest is calculated and payment frequency.
+                Update how interest is calculated and payment frequency.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   label="Interest Calculation"
-                  required
                   error={errors.interestCalculationType?.message}
                   description="How interest is calculated over the loan term"
                 >
                   <Select
-                    value={watch('interestCalculationType') || 'SIMPLE'}
+                    value={watch('interestCalculationType') || loan.interestCalculationType}
                     onValueChange={(value: InterestCalculationType) =>
                       setValue('interestCalculationType', value)
                     }
@@ -491,12 +575,11 @@ export function CreateLoanForm() {
 
                 <FormField
                   label="Payment Frequency"
-                  required
                   error={errors.paymentFrequency?.message}
                   description="How often payments are made"
                 >
                   <Select
-                    value={watch('paymentFrequency') || 'MONTHLY'}
+                    value={watch('paymentFrequency') || loan.paymentFrequency}
                     onValueChange={(value: PaymentFrequency) => setValue('paymentFrequency', value)}
                     disabled={isSubmitting}
                   >
@@ -513,10 +596,9 @@ export function CreateLoanForm() {
 
               <Separator />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   label="Start Date"
-                  required
                   error={errors.startDate?.message}
                   description="Loan start date"
                 >
@@ -549,9 +631,9 @@ export function CreateLoanForm() {
                 <FileText className="h-5 w-5" />
                 Additional Information
               </CardTitle>
-              <CardDescription>Optional notes and collateral information.</CardDescription>
+              <CardDescription>Update notes and collateral information.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <FormField
                 label="Notes"
                 error={errors.notes?.message}
@@ -582,17 +664,15 @@ export function CreateLoanForm() {
         </div>
 
         {/* Sidebar - Payment Preview */}
-        <div className="space-y-6">
-          {/* Payment Preview with Actions */}
-          <Card className="sticky top-20">
+        <div className="space-y-4">
+          {/* Payment Preview */}
+          <Card className="sticky top-4">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5" />
                 Payment Preview
               </CardTitle>
-              <CardDescription>
-                Estimated payment information based on current values
-              </CardDescription>
+              <CardDescription>Updated payment information based on current values</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {preview ? (
@@ -644,8 +724,7 @@ export function CreateLoanForm() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    *Calculated using precision financial algorithms. Final terms subject to loan
-                    agreement.
+                    *Updated calculations based on current form values.
                   </p>
                 </div>
               ) : (
@@ -658,9 +737,9 @@ export function CreateLoanForm() {
               <div className="space-y-3 pt-4 border-t">
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
-                    <LoadingState text="Creating loan..." size="sm" />
+                    <LoadingState text="Updating loan..." size="sm" />
                   ) : (
-                    'Create Loan'
+                    'Update Loan'
                   )}
                 </Button>
 
@@ -669,12 +748,11 @@ export function CreateLoanForm() {
                   variant="outline"
                   className="w-full"
                   onClick={() => {
-                    reset()
-                    setFormError(null)
+                    onCancel?.()
                   }}
                   disabled={isSubmitting}
                 >
-                  Reset Form
+                  Cancel
                 </Button>
               </div>
             </CardContent>

@@ -12,6 +12,7 @@ import {
   type UpdatePaymentInput,
   type PaymentFilter,
 } from '@/lib/validations/payment.schema'
+import { serializePayment, type SerializedPayment } from '@/lib/utils/serialize'
 
 // Action Result Types
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
@@ -19,16 +20,9 @@ type ActionResult<T> = { success: true; data: T } | { success: false; error: str
 /**
  * Create a new payment
  */
-export async function createPayment(input: CreatePaymentInput): Promise<
-  ActionResult<{
-    id: string
-    amount: Prisma.Decimal
-    date: Date
-    notes: string | null
-    loanId: string
-    createdAt: Date
-  }>
-> {
+export async function createPayment(
+  input: CreatePaymentInput
+): Promise<ActionResult<SerializedPayment>> {
   try {
     // Validate input
     const validatedInput = CreatePaymentSchema.parse(input)
@@ -78,14 +72,7 @@ export async function createPayment(input: CreatePaymentInput): Promise<
 
     return {
       success: true,
-      data: {
-        id: payment.id,
-        amount: payment.amount,
-        date: payment.date,
-        notes: payment.notes,
-        loanId: payment.loanId,
-        createdAt: payment.createdAt,
-      },
+      data: serializePayment(payment),
     }
   } catch (error) {
     console.error('Error creating payment:', error)

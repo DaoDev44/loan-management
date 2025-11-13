@@ -8,11 +8,13 @@ This directory contains all tasks for the Loan Management Platform migration and
 .tasks/
 ├── README.md                 # This file
 ├── MASTER_TASK_LIST.md       # Complete task overview with status
+├── WORKFLOW.md               # Detailed development workflow
 ├── 01-setup/                 # Project setup & infrastructure
 ├── 02-database/              # Database, Prisma, Server Actions
 ├── 03-ui-components/         # Shared UI components
-├── 04-features/              # Core feature implementation
-└── 05-polish/                # Testing, animations, accessibility
+├── 04-core-features/         # Core feature implementation
+├── 04-styling-theming/       # Styling and theme implementation
+└── 05-testing/               # Testing, animations, accessibility
 ```
 
 ## Task File Format

@@ -85,7 +85,7 @@ export function PerformanceChart({
       </CardHeader>
       <CardContent>
         <div className="h-[300px] mb-4">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={300} minHeight={300}>
             <LineChart
               data={paymentTrends}
               margin={{
