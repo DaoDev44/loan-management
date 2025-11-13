@@ -18,6 +18,7 @@ import { EmptyState } from '@/components/shared/empty-state'
 import { LoanTableFilters } from './loan-table-filters'
 import { LoanTablePagination } from './loan-table-pagination'
 import { type SerializedLoan } from '@/lib/utils/serialize'
+import { formatCurrency } from '@/lib/utils'
 
 type SortColumn = 'borrowerName' | 'principal' | 'balance' | 'interestRate' | 'status' | 'startDate'
 type SortOrder = 'asc' | 'desc' | null
@@ -121,14 +122,6 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
   // Calculate total pages
   const totalPages = Math.ceil(filteredAndSortedLoans.length / itemsPerPage)
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount)
-  }
-
   // Format percentage
   const formatPercentage = (rate: number) => {
     return `${rate.toFixed(2)}%`
@@ -183,7 +176,7 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
         />
       ) : (
         <>
-          <div className="rounded-md border bg-card">
+          <div className="rounded-md border bg-card overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -198,7 +191,7 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
                   </TableHead>
                   <TableHead className="hidden md:table-cell">Email</TableHead>
                   <TableHead
-                    className="cursor-pointer select-none hover:bg-muted/50"
+                    className="cursor-pointer select-none hover:bg-muted/50 hidden sm:table-cell"
                     onClick={() => handleSort('principal')}
                   >
                     <div className="flex items-center">
@@ -211,7 +204,8 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
                     onClick={() => handleSort('balance')}
                   >
                     <div className="flex items-center">
-                      Balance
+                      <span className="hidden sm:inline">Balance</span>
+                      <span className="sm:hidden">Bal.</span>
                       {getSortIcon('balance')}
                     </div>
                   </TableHead>
@@ -251,17 +245,26 @@ export function LoanTable({ loans, isLoading }: LoanTableProps) {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => handleRowClick(loan.id)}
                   >
-                    <TableCell className="font-medium">{loan.borrowerName}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="max-w-[120px] truncate">{loan.borrowerName}</div>
+                    </TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground">
                       {loan.borrowerEmail}
                     </TableCell>
-                    <TableCell>{formatCurrency(loan.principal)}</TableCell>
-                    <TableCell className="font-medium">{formatCurrency(loan.balance)}</TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {formatCurrency(loan.principal)}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <span className="hidden sm:inline">{formatCurrency(loan.balance)}</span>
+                      <span className="sm:hidden text-sm">
+                        {formatCurrency(loan.balance, { compact: true })}
+                      </span>
+                    </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {formatPercentage(loan.interestRate)}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={loan.status} size="sm" />
+                      <StatusBadge status={loan.status} size="sm" className="sm:min-w-0" />
                     </TableCell>
                     <TableCell className="hidden lg:table-cell text-muted-foreground">
                       {formatDate(loan.startDate)}

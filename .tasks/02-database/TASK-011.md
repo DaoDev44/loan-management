@@ -1,6 +1,6 @@
 # TASK-011: Create Interest Calculation Utilities
 
-**Status:** IN_PROGRESS
+**Status:** COMPLETED
 **Priority:** P1
 **Effort Estimate:** M
 **Branch:** `task/011-interest-calcs`
@@ -28,6 +28,7 @@ Create comprehensive interest calculation utilities to support the flexible inte
 ## Implementation Details
 
 ### File Structure
+
 ```
 lib/
 └── calculations/
@@ -43,23 +44,28 @@ lib/
 ### Key Functions to Implement
 
 #### Simple Interest
+
 - `calculateSimpleInterest(principal, rate, time)`
 - `calculateSimpleInterestBalance(principal, rate, startDate, payments)`
 
 #### Amortized Loans
+
 - `calculateMonthlyPayment(principal, rate, months)`
 - `generateAmortizationSchedule(principal, rate, months, frequency)`
 - `calculateRemainingBalance(principal, rate, months, paymentsMade)`
 
 #### Interest-Only
+
 - `calculateInterestOnlyPayment(principal, rate, frequency)`
 - `calculateInterestOnlySchedule(principal, rate, termMonths, frequency)`
 
 #### Payment Schedules
+
 - `generatePaymentSchedule(loan, calculationType)`
 - `calculateNextPaymentDate(startDate, frequency, paymentNumber)`
 
 #### Balance Calculations
+
 - `calculateCurrentBalance(loan, payments)`
 - `calculateTotalInterestPaid(payments)`
 - `calculateTotalInterestRemaining(loan, payments)`
@@ -67,16 +73,19 @@ lib/
 ## Technical Considerations
 
 ### Precision Handling
+
 - Use `Decimal` type for monetary calculations to avoid floating-point errors
 - Implement proper rounding for payment amounts
 - Handle cent precision in all calculations
 
 ### Date Calculations
+
 - Support different payment frequencies (Monthly, Bi-Weekly)
 - Account for leap years and varying month lengths
 - Use date-fns for reliable date arithmetic
 
 ### Validation
+
 - Validate positive principal amounts
 - Validate reasonable interest rates (0-100%)
 - Validate loan terms (positive months)
@@ -85,10 +94,12 @@ lib/
 ## Dependencies
 
 **Prerequisites:**
+
 - ✅ TASK-006: Prisma schema with interest calculation types
 - ✅ TASK-008: Zod validation schemas
 
 **Enables:**
+
 - TASK-023: Create Loan form (will use payment calculators)
 - TASK-025: Add Payment dialog (will use balance calculators)
 - Future: Payment reminders and scheduling
@@ -96,6 +107,7 @@ lib/
 ## Testing Requirements
 
 ### Unit Tests
+
 - [ ] Simple interest calculations with various inputs
 - [ ] Amortized payment calculations
 - [ ] Payment schedule generation
@@ -104,6 +116,7 @@ lib/
 - [ ] Date calculations for different frequencies
 
 ### Integration Tests
+
 - [ ] End-to-end calculation flows
 - [ ] Integration with existing loan and payment data
 - [ ] Performance tests for large loan portfolios
@@ -111,6 +124,7 @@ lib/
 ## Files to Create/Modify
 
 ### New Files
+
 - `lib/calculations/index.ts`
 - `lib/calculations/simple-interest.ts`
 - `lib/calculations/amortized.ts`
@@ -121,23 +135,27 @@ lib/
 - `tests/unit/calculations.test.ts`
 
 ### Modified Files
+
 - `lib/validations/index.ts` (export calculation types if needed)
 
 ## Formulas Reference
 
 ### Simple Interest
+
 ```
 Interest = Principal × Rate × Time
 Total Amount = Principal + Interest
 ```
 
 ### Amortized Monthly Payment
+
 ```
 M = P × [r(1+r)^n] / [(1+r)^n - 1]
 Where: M = Monthly Payment, P = Principal, r = Monthly Rate, n = Number of Payments
 ```
 
 ### Interest-Only Payment
+
 ```
 Monthly Interest = Principal × (Annual Rate / 12)
 ```

@@ -9,6 +9,8 @@ import { StatusBadge } from '@/components/shared/status-badge'
 import { useToast } from '@/hooks/use-toast'
 import { deleteLoan } from '@/app/actions/loan.actions'
 import { AddPaymentDialog } from '@/components/loans/add-payment-dialog'
+import { EditLoanDialog } from '@/components/loans/edit-loan-dialog'
+import { ConfirmationDialog } from '@/components/shared/confirmation-dialog'
 import { type SerializedLoan } from '@/lib/utils/serialize'
 
 interface LoanDetailHeaderProps {
@@ -19,47 +21,48 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [addPaymentOpen, setAddPaymentOpen] = useState(false)
+  const [editLoanOpen, setEditLoanOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleEdit = () => {
-    // For now, just show a toast since we haven't built the edit form yet
-    toast({
-      title: 'Edit Loan',
-      description: 'Edit loan feature coming soon!',
-    })
+    setEditLoanOpen(true)
   }
 
   const handleAddPayment = () => {
     setAddPaymentOpen(true)
   }
 
-  const handleDelete = async () => {
-    if (
-      confirm(
-        `Are you sure you want to delete the loan for ${loan.borrowerName}? This action cannot be undone.`
-      )
-    ) {
-      try {
-        const result = await deleteLoan(loan.id)
-        if (result.success) {
-          toast({
-            title: 'Loan deleted',
-            description: 'The loan has been successfully deleted.',
-          })
-          router.push('/loans')
-        } else {
-          toast({
-            title: 'Error',
-            description: 'Failed to delete the loan. Please try again.',
-            variant: 'destructive',
-          })
-        }
-      } catch {
+  const handleDelete = () => {
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true)
+    try {
+      const result = await deleteLoan(loan.id)
+      if (result.success) {
+        toast({
+          title: 'Loan deleted',
+          description: 'The loan has been successfully deleted.',
+        })
+        setDeleteConfirmOpen(false)
+        router.push('/loans')
+      } else {
         toast({
           title: 'Error',
-          description: 'An unexpected error occurred while deleting the loan.',
+          description: 'Failed to delete the loan. Please try again.',
           variant: 'destructive',
         })
+        setIsDeleting(false)
       }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred while deleting the loan.',
+        variant: 'destructive',
+      })
+      setIsDeleting(false)
     }
   }
 
@@ -120,6 +123,30 @@ export function LoanDetailHeader({ loan }: LoanDetailHeaderProps) {
           // In a real app, you might want to use more sophisticated state management
           window.location.reload()
         }}
+      />
+
+      {/* Edit Loan Dialog */}
+      <EditLoanDialog
+        loan={loan}
+        open={editLoanOpen}
+        onOpenChange={setEditLoanOpen}
+        onSuccess={() => {
+          // Refresh the page to show updated data
+          window.location.reload()
+        }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete Loan"
+        description={`Are you sure you want to delete the loan for ${loan.borrowerName}? This action cannot be undone and will permanently remove all loan data and payment history.`}
+        confirmText="Delete Loan"
+        cancelText="Cancel"
+        variant="destructive"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
       />
     </>
   )
